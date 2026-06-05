@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Dashboards</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a0c0f;
+    --panel: #111827;
+    --border: rgba(255,255,255,0.1);
+    --text: #f0f2f5;
+    --muted: #8892a4;
+    --green: #7DF9AA;
+    --gold: #f0b429;
+    --red: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px),
+      var(--bg);
+    background-size: 40px 40px;
+    color: var(--text);
+    font-family: Arial, "Noto Sans KR", sans-serif;
+  }
+  main {
+    width: min(960px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 64px 0;
+  }
+  .eyebrow {
+    color: var(--muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: clamp(32px, 6vw, 56px);
+    line-height: 1.05;
+  }
+  .desc {
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 760px;
+    margin-bottom: 32px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .card {
+    display: block;
+    min-height: 220px;
+    padding: 28px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform .18s, border-color .18s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.22);
+  }
+  .tag {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 18px;
+  }
+  .card h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+  }
+  .card p {
+    color: var(--muted);
+    line-height: 1.65;
+    margin: 0;
+  }
+  .long .tag { color: var(--green); border-color: rgba(125,249,170,.3); }
+  .covered .tag { color: var(--gold); border-color: rgba(240,180,41,.3); }
+  .note {
+    margin-top: 28px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    color: var(--muted);
+    line-height: 1.7;
+    background: rgba(255,255,255,0.03);
+  }
+  .warning {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border: 1px solid rgba(255,107,107,.35);
+    background: rgba(255,107,107,.08);
+    border-radius: 16px;
+    color: #ffd6d6;
+    line-height: 1.7;
+  }
+  code {
+    color: var(--text);
+    background: rgba(255,255,255,.08);
+    padding: 2px 5px;
+    border-radius: 5px;
+  }
+  strong { color: var(--text); }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    main { padding-top: 40px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Portfolio Dashboards</div>
+  <h1>투자 계좌 대시보드</h1>
+  <p class="desc">
+    장기투자 계좌와 커버드콜 배당 계좌를 분리해서 관리합니다.
+    입력 데이터는 같은 브라우저의 로컬 저장소에 자동 저장되며, 각 대시보드에서 JSON으로 내보내기/불러오기가 가능합니다.
+  </p>
+
+  <div class="warning">
+    <strong>중요:</strong> ZIP 안에서 바로 <code>index.html</code>을 열면 아래 링크가 작동하지 않을 수 있습니다.
+    반드시 ZIP을 <strong>압축 해제</strong>한 뒤, 같은 폴더 안에
+    <code>index.html</code>, <code>longterm-dashboard.html</code>, <code>covered-call-dashboard.html</code> 3개가 함께 있는 상태에서 실행하세요.
+  </div>
+
+  <div class="grid">
+    <a class="card long" href="longterm-dashboard.html">
+      <span class="tag">LONG TERM</span>
+      <h2>장기투자 대시보드</h2>
+      <p>포지션, 현금, 월간 체크리스트, 시나리오 메모를 관리합니다. JSON 백업/복원 버튼이 포함되어 있습니다.</p>
+    </a>
+
+    <a class="card covered" href="covered-call-dashboard.html">
+      <span class="tag">COVERED CALL</span>
+      <h2>커버드콜 배당 대시보드</h2>
+      <p>월별 배당 수령액, FCF 적립액, 퀀트 점프 기록을 관리합니다. 자동저장 및 JSON 백업/복원 기능이 포함되어 있습니다.</p>
+    </a>
+  </div>
+
+  <div class="note">
+    <strong>저장 방식:</strong> 같은 웹사이트 주소 + 같은 브라우저에서는 자동 저장됩니다.
+    브라우저를 바꾸거나 다른 기기에서 쓰려면 각 대시보드의 <strong>내보내기</strong>로 JSON 백업 파일을 만든 뒤,
+    다른 기기에서 <strong>불러오기</strong>로 복원하면 됩니다.
+  </div>
+</main>
+</body>
+</html>

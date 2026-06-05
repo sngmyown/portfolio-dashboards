@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커버드콜 배당 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c0f;
+    --bg-card: #0f1217;
+    --bg-surface: #141820;
+    --bg-hover: #1a2030;
+    --border: rgba(255,255,255,0.06);
+    --border-accent: rgba(255,255,255,0.12);
+    --gold: #f0b429;
+    --gold-dim: rgba(240,180,41,0.15);
+    --gold-glow: rgba(240,180,41,0.08);
+    --cyan: #00d4aa;
+    --cyan-dim: rgba(0,212,170,0.12);
+    --red: #ff4757;
+    --red-dim: rgba(255,71,87,0.12);
+    --text-1: #f0f2f5;
+    --text-2: #8892a4;
+    --text-3: #4a5568;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* GRID NOISE BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body > * { position: relative; z-index: 1; }
+
+  /* HEADER */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    background: rgba(10,12,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .logo span { color: var(--text-2); }
+
+  .header-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-2);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 6px var(--cyan);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* NAV TABS */
+  .nav {
+    display: flex;
+    gap: 0;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .nav-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { color: var(--text-2); }
+  .nav-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* PANELS */
+  .panel { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 1rem;
+  }
+
+  /* METRIC CARDS */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .metric-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    transition: background 0.2s;
+  }
+
+  .metric-card:hover { background: var(--bg-surface); }
+
+  .metric-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 0.75rem;
+  }
+
+  .metric-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-1);
+    line-height: 1;
+  }
+
+  .metric-value.gold { color: var(--gold); }
+  .metric-value.cyan { color: var(--cyan); }
+
+  .metric-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 0.4rem;
+  }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+
+  .chart-title {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-1);
+  }
+
+  .chart-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-2);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+  }
+
+  .empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.3;
+  }
+
+  /* FORM PANEL */
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-title {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-1);
+    margin-bottom: 0.25rem;
+  }
+
+  .form-subtitle {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    margin-bottom: 1.5rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    color: var(--text-1);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 0.6rem 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-glow);
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: #0a0c0f;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #f5c84a;
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  /* DATA TABLE */
+  .data-table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  thead tr {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-accent);
+  }
+
+  th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg-hover); color: var(--text-1); }
+
+  td.gold { color: var(--gold); }
+  td.cyan { color: var(--cyan); }
+
+  .btn-del {
+    background: none;
+    border: 1px solid var(--border-accent);
+    border-radius: 4px;
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-del:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+
+  /* FCF PANEL */
+  .fcf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 640px) { .fcf-grid { grid-template-columns: 1fr; } }
+
+  .result-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+  }
+
+  .result-card .r-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-card .r-val {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .result-card .r-val.gold { color: var(--gold); }
+  .result-card .r-val.cyan { color: var(--cyan); }
+  .result-card .r-val.red { color: var(--red); }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 100px;
+    border: 1px solid;
+  }
+
+  .pill.pending { border-color: var(--text-3); color: var(--text-3); }
+  .pill.done { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
+
+  .chart-placeholder {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border-accent);
+    border-radius: var(--radius-sm);
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-align: center;
+    line-height: 2;
+  }
+
+  /* DONUT CHART */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .donut-labels {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .donut-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .donut-label-row .name { color: var(--text-2); }
+  .donut-label-row .pct { color: var(--text-1); font-weight: 700; }
+
+  .donut-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .donut-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.25rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gold);
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* WATERFALL FOR QUANT */
+  .quant-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .quant-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .quant-bar-label { width: 60px; color: var(--text-3); text-align: right; flex-shrink: 0; }
+
+  .quant-bar-track {
+    flex: 1;
+    height: 20px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .quant-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 10px;
+    color: #0a0c0f;
+    font-weight: 700;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .quant-bar-val { width: 80px; color: var(--text-2); text-align: left; flex-shrink: 0; }
+
+  .label-hint {
+    font-size: 9px;
+    color: var(--text-3);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .quant-mode-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--gold-glow);
+    border: 1px solid rgba(240,180,41,0.2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-top: 0.75rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .quant-mode-hint .hint-icon { color: var(--gold); flex-shrink: 0; }
+  .quant-mode-hint strong { color: var(--gold); }
+
+  /* ETF PRESETS */
+  .etf-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .preset-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-3);
+    margin-right: 2px;
+    flex-shrink: 0;
+  }
+
+  .preset-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .preset-btn span {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-3);
+    letter-spacing: 0;
+  }
+
+  .preset-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  .preset-btn:hover span { color: var(--gold); opacity: 0.7; }
+
+  .preset-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  /* CHART HINT */
+  .chart-hint {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.05em;
+  }
+
+  /* DELETE MODAL (inline below chart) */
+  .delete-modal {
+    margin-top: 12px;
+  }
+
+  .delete-modal-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--red);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+
+  .delete-modal-month {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+    flex: 1;
+  }
+
+  .delete-modal-desc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-2);
+  }
+
+  .delete-modal-btns {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel:hover { border-color: var(--text-2); color: var(--text-1); }
+
+  .btn-confirm-del {
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    border-radius: var(--radius-sm);
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-confirm-del:hover { background: var(--red); color: #fff; }
+
+  /* BULK DELETE TOOLBAR */
+  .bulk-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    margin-bottom: 8px;
+  }
+
+  .bulk-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-2);
+    flex: 1;
+  }
+
+  .btn-bulk-del {
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    border-radius: var(--radius-sm);
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-bulk-del:hover { background: var(--red); color: #fff; }
+
+  /* CHECKBOX STYLING */
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--gold);
+    cursor: pointer;
+  }
+
+  tr.selected td { background: rgba(240,180,41,0.05); }
+
+  /* SYNC BUTTONS */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-sync {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-sync:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  .btn-import { user-select: none; }
+
+  /* FADE IN ANIMATION */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel.active > * {
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .panel.active > *:nth-child(2) { animation-delay: 0.05s; }
+  .panel.active > *:nth-child(3) { animation-delay: 0.1s; }
+  .panel.active > *:nth-child(4) { animation-delay: 0.15s; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">COVERED<span>/</span>CALL · DESK</div>
+  <div class="header-actions">
+    <button class="btn-sync" onclick="exportData()" title="데이터 백업">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      내보내기
+    </button>
+    <label class="btn-sync btn-import" title="데이터 복원">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      불러오기
+      <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display:none">
+    </label>
+    <div class="header-status">
+      <div class="status-dot"></div>
+      <span>LIVE</span>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('dashboard', this)">대시보드</button>
+  <button class="nav-btn" onclick="switchTab('input', this)">데이터 입력</button>
+  <button class="nav-btn" onclick="switchTab('fcf', this)">FCF 퀀트 점프</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="tab-dashboard" class="panel active">
+
+  <p class="section-label">포트폴리오 요약 — 이번 달 기준</p>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">이번 달 총 수령액</div>
+      <div class="metric-value gold" id="m-total">—</div>
+      <div class="metric-sub" id="m-total-sub">데이터 없음</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">QQQI 배당</div>
+      <div class="metric-value" id="m-qqqi">—</div>
+      <div class="metric-sub" id="m-qqqi-sub">보유 주수 —</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">491620 배당</div>
+      <div class="metric-value" id="m-491">—</div>
+      <div class="metric-sub" id="m-491-sub">보유 주수 —</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">FCF 누적액</div>
+      <div class="metric-value cyan" id="m-fcf">$0</div>
+      <div class="metric-sub">퀀트 대기 자금</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">월별 배당 수령액 추이</div>
+        <div class="chart-sub">매달 입력한 수령액 기준 — 지속 가능성 모니터링</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f0b429"></div>QQQI ($)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#00d4aa"></div>491620 (₩÷1000)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7b68ee"></div>FCF 적립액 ($)</div>
+      </div>
+    </div>
+    <div style="position:relative; width:100%; height:260px;" id="line-chart-wrap">
+      <canvas id="lineChart" role="img" aria-label="월별 QQQI, 491620, FCF 배당 추이 차트">월별 배당 데이터 차트</canvas>
+      <div class="empty-state" id="line-empty">
+        <div class="empty-icon">◈</div>
+        데이터 없음<br>데이터 입력 탭에서 추가해주세요
+      </div>
+    </div>
+    <div class="chart-hint" id="chart-hint" style="display:none">◎ 차트의 데이터 포인트를 클릭하면 해당 월 데이터를 삭제할 수 있어요</div>
+    <div class="delete-modal" id="delete-modal" style="display:none">
+      <div class="delete-modal-inner">
+        <div class="delete-modal-month" id="delete-modal-month"></div>
+        <div class="delete-modal-desc">이 월의 데이터를 삭제할까요?</div>
+        <div class="delete-modal-btns">
+          <button class="btn-cancel" onclick="closeDeleteModal()">취소</button>
+          <button class="btn-confirm-del" id="btn-confirm-del">삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">자산 배분 현황</div>
+        <div class="chart-sub">최근 월 기준 QQQI / 491620 / FCF 비중</div>
+      </div>
+    </div>
+    <div id="alloc-wrap">
+      <div class="empty-state">
+        <div class="empty-icon">◈</div>
+        자산 배분 데이터 없음
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- INPUT -->
+<div id="tab-input" class="panel">
+
+  <div class="form-card">
+    <div class="form-title">월별 데이터 추가</div>
+    <div class="form-subtitle">매달 한 번, 수령액을 입력하면 차트가 자동 업데이트됩니다</div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>월 (예: 2026-05)</label>
+        <input type="text" id="f-month" placeholder="2026-05">
+      </div>
+      <div class="form-group">
+        <label>QQQI 보유 주수</label>
+        <input type="number" id="f-qqqi-shares" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>QQQI 수령액 ($)</label>
+        <input type="number" id="f-qqqi-amt" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>491620 보유 주수</label>
+        <input type="number" id="f-491-shares" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>491620 수령액 (₩)</label>
+        <input type="number" id="f-491-amt" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>FCF 적립액 ($)</label>
+        <input type="number" id="f-fcf" placeholder="0.00">
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="addEntry()">+ 이번 달 데이터 추가</button>
+  </div>
+
+  <div class="section-label">입력된 데이터</div>
+  <div class="bulk-toolbar" id="bulk-toolbar" style="display:none">
+    <span class="bulk-count" id="bulk-count">0개 선택됨</span>
+    <button class="btn-bulk-del" onclick="deleteSelected()">선택 삭제</button>
+    <button class="btn-cancel" onclick="clearSelection()" style="padding:5px 12px">취소</button>
+  </div>
+  <div class="data-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px"><input type="checkbox" id="chk-all" onchange="toggleAll(this)"></th>
+          <th>월</th>
+          <th>QQQI 주수</th>
+          <th>QQQI ($)</th>
+          <th>491620 주수</th>
+          <th>491620 (₩)</th>
+          <th>FCF ($)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="data-tbody">
+        <tr><td colspan="8" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- FCF QUANT -->
+<div id="tab-fcf" class="panel">
+
+  <div class="form-card">
+    <div class="form-title">FCF 퀀트 점프 시뮬레이터</div>
+    <div class="form-subtitle">증시 급락 시 FCF로 레버리지 ETF 매수 후 예상 수익률 — 종목을 자유롭게 입력하세요</div>
+
+    <div class="form-group" style="margin-bottom:1rem">
+      <label>매수 대상 종목</label>
+      <input type="text" id="q-etf" placeholder="직접 입력 (예: TQQQ, SOXL, UPRO, FNGU ...)">
+      <div class="etf-presets">
+        <span class="preset-label">빠른 선택</span>
+        <button class="preset-btn" onclick="setETF('TQQQ')">TQQQ<span>나스닥 3×</span></button>
+        <button class="preset-btn" onclick="setETF('SOXL')">SOXL<span>반도체 3×</span></button>
+        <button class="preset-btn" onclick="setETF('UPRO')">UPRO<span>S&P500 3×</span></button>
+        <button class="preset-btn" onclick="setETF('FNGU')">FNGU<span>빅테크 3×</span></button>
+        <button class="preset-btn" onclick="setETF('LABU')">LABU<span>바이오 3×</span></button>
+        <button class="preset-btn" onclick="setETF('NAIL')">NAIL<span>건설 3×</span></button>
+      </div>
+    </div>
+
+    <div class="form-grid" style="margin-top:1rem">
+      <div class="form-group">
+        <label>매수 시점 주가 ($)</label>
+        <input type="number" id="q-buy" placeholder="0.00" oninput="autoCalcShares()">
+      </div>
+      <div class="form-group">
+        <label>목표 매도 주가 ($)</label>
+        <input type="number" id="q-sell" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>매수 수량 (주) <span class="label-hint">— 비우면 FCF 전액으로 자동 계산</span></label>
+        <input type="number" id="q-shares" placeholder="자동 계산" min="1">
+      </div>
+      <div class="form-group">
+        <label>실제 투입 금액 ($) <span class="label-hint">— 비우면 FCF 누적액 사용</span></label>
+        <input type="number" id="q-invested" placeholder="자동 계산" min="0">
+      </div>
+    </div>
+
+    <div class="quant-mode-hint" id="quant-mode-hint">
+      <span class="hint-icon">◎</span>
+      <span id="quant-hint-text">수량과 금액을 비워두면 FCF 누적액 <strong id="hint-fcf-total">$0</strong> 기준으로 자동 계산돼요</span>
+    </div>
+
+    <button class="btn-primary" onclick="calcQuant()" style="margin-top:1rem">수익률 계산하기 →</button>
+  </div>
+
+  <div class="fcf-grid" id="quant-results" style="display:none">
+    <div class="result-card">
+      <div class="r-label">실제 투입 금액</div>
+      <div class="r-val gold" id="q-r-fcf">—</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label">매수 수량</div>
+      <div class="r-val cyan" id="q-r-shares">—</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label">예상 수익</div>
+      <div class="r-val gold" id="q-r-profit">—</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label">수익률</div>
+      <div class="r-val cyan" id="q-r-pct">—</div>
+    </div>
+    <div class="result-card" style="grid-column: 1/-1">
+      <div class="r-label">매도 후 총액</div>
+      <div class="r-val gold" id="q-r-total">—</div>
+    </div>
+  </div>
+
+  <div class="chart-card" id="quant-bar-card" style="display:none">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">퀀트 점프 수익 시각화</div>
+        <div class="chart-sub">투입 원금 대비 수익 비교</div>
+      </div>
+    </div>
+    <div class="quant-bar-container" id="quant-bars"></div>
+  </div>
+
+  <div style="margin-top: 1.5rem;">
+    <p class="section-label">퀀트 점프 기록</p>
+    <div class="data-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ETF</th>
+            <th>매수가</th>
+            <th>목표가</th>
+            <th>수량</th>
+            <th>투입금액</th>
+            <th>예상 수익</th>
+            <th>수익률</th>
+            <th>상태</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="quant-tbody">
+          <tr><td colspan="9" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">기록 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let entries = JSON.parse(localStorage.getItem('div_entries') || '[]');
+let quantLog = JSON.parse(localStorage.getItem('quant_log') || '[]');
+let lineChartInst = null;
+
+function save() {
+  localStorage.setItem('div_entries', JSON.stringify(entries));
+  localStorage.setItem('quant_log', JSON.stringify(quantLog));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+}
+
+function fmt(n, prefix='$', decimals=2) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return prefix + Number(n).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function fmtKRW(n) {
+  return '₩' + Math.round(n).toLocaleString();
+}
+
+function renderDashboard() {
+  if (!entries.length) {
+    document.getElementById('m-total').textContent = '—';
+    document.getElementById('m-qqqi').textContent = '—';
+    document.getElementById('m-491').textContent = '—';
+    document.getElementById('m-fcf').textContent = '$0';
+    document.getElementById('m-total-sub').textContent = '데이터 없음';
+    document.getElementById('m-qqqi-sub').textContent = '보유 주수 —';
+    document.getElementById('m-491-sub').textContent = '보유 주수 —';
+    return;
+  }
+
+  const last = entries[entries.length - 1];
+  const fcfTotal = entries.reduce((s, e) => s + Number(e.fcf || 0), 0);
+  const totalUSD = Number(last.qqqiAmt || 0) + Number(last.fcf || 0);
+
+  document.getElementById('m-qqqi').textContent = fmt(last.qqqiAmt);
+  document.getElementById('m-qqqi-sub').textContent = '보유 주수 ' + (last.qqqiShares || '—');
+  document.getElementById('m-491').textContent = fmtKRW(last.amt491 || 0);
+  document.getElementById('m-491-sub').textContent = '보유 주수 ' + (last.shares491 || '—');
+  document.getElementById('m-fcf').textContent = fmt(fcfTotal);
+  document.getElementById('m-total').textContent = fmt(totalUSD);
+  document.getElementById('m-total-sub').textContent = last.month + ' 기준';
+
+  renderLineChart();
+  renderAlloc(last, fcfTotal);
+}
+
+function renderLineChart() {
+  const wrap = document.getElementById('line-chart-wrap');
+  const empty = document.getElementById('line-empty');
+  const canvas = document.getElementById('lineChart');
+
+  if (!entries.length) {
+    empty.style.display = 'flex';
+    canvas.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  canvas.style.display = 'block';
+  document.getElementById('chart-hint').style.display = 'block';
+
+  const labels = entries.map(e => e.month);
+  const qqqi = entries.map(e => Number(e.qqqiAmt || 0));
+  const e491 = entries.map(e => Math.round(Number(e.amt491 || 0) / 1000));
+  const fcf  = entries.map(e => Number(e.fcf || 0));
+
+  if (lineChartInst) lineChartInst.destroy();
+
+  lineChartInst = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'QQQI ($)', data: qqqi, borderColor: '#f0b429', backgroundColor: 'rgba(240,180,41,0.08)', tension: 0.4, pointRadius: 4, pointBackgroundColor: '#f0b429', borderWidth: 2 },
+        { label: '491620 (₩÷1k)', data: e491, borderColor: '#00d4aa', backgroundColor: 'rgba(0,212,170,0.08)', tension: 0.4, pointRadius: 4, pointBackgroundColor: '#00d4aa', borderWidth: 2 },
+        { label: 'FCF ($)', data: fcf, borderColor: '#7b68ee', backgroundColor: 'rgba(123,104,238,0.08)', tension: 0.4, pointRadius: 4, pointBackgroundColor: '#7b68ee', borderWidth: 2, borderDash: [4,3] },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#141820',
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          titleColor: '#8892a4',
+          bodyColor: '#f0f2f5',
+          titleFont: { family: 'Space Mono', size: 10 },
+          bodyFont: { family: 'Space Mono', size: 12 },
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 10 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 10 } }
+        }
+      },
+      onClick: (evt, elements) => {
+        if (!elements.length) return;
+        const idx = elements[0].index;
+        openDeleteModal(idx);
+      }
+    },
+    onHover: (evt, elements) => {
+      evt.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+    }
+  });
+}
+
+function renderAlloc(last, fcfTotal) {
+  const wrap = document.getElementById('alloc-wrap');
+  const q = Number(last.qqqiAmt || 0);
+  const k = Number(last.amt491 || 0) / 1300;
+  const f = Number(last.fcf || 0);
+  const total = q + k + f;
+  if (!total) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">◈</div>자산 배분 데이터 없음</div>'; return; }
+
+  const pQ = (q/total*100).toFixed(1);
+  const pK = (k/total*100).toFixed(1);
+  const pF = (f/total*100).toFixed(1);
+
+  wrap.innerHTML = `
+    <div class="donut-labels">
+      <div>
+        <div class="donut-label-row"><span class="name">QQQI</span><span class="pct">${pQ}%</span></div>
+        <div class="donut-bar"><div class="donut-bar-fill" style="width:${pQ}%;background:#f0b429"></div></div>
+      </div>
+      <div>
+        <div class="donut-label-row"><span class="name">491620</span><span class="pct">${pK}%</span></div>
+        <div class="donut-bar"><div class="donut-bar-fill" style="width:${pK}%;background:#00d4aa"></div></div>
+      </div>
+      <div>
+        <div class="donut-label-row"><span class="name">FCF 적립</span><span class="pct">${pF}%</span></div>
+        <div class="donut-bar"><div class="donut-bar-fill" style="width:${pF}%;background:#7b68ee"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('data-tbody');
+  if (!entries.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>';
+    document.getElementById('chk-all').checked = false;
+    return;
+  }
+  tbody.innerHTML = entries.slice().reverse().map((e, ri) => {
+    const i = entries.length - 1 - ri;
+    return `<tr id="row-${i}">
+      <td><input type="checkbox" class="row-chk" data-idx="${i}" onchange="onRowCheck()"></td>
+      <td class="gold">${e.month}</td>
+      <td>${e.qqqiShares}</td>
+      <td class="gold">${fmt(e.qqqiAmt)}</td>
+      <td>${e.shares491}</td>
+      <td class="cyan">₩${Number(e.amt491).toLocaleString()}</td>
+      <td>${fmt(e.fcf)}</td>
+      <td><button class="btn-del" onclick="deleteEntry(${i})">삭제</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('chk-all').checked = false;
+  updateBulkToolbar();
+}
+
+function toggleAll(chk) {
+  document.querySelectorAll('.row-chk').forEach(c => {
+    c.checked = chk.checked;
+    c.closest('tr').classList.toggle('selected', chk.checked);
+  });
+  updateBulkToolbar();
+}
+
+function onRowCheck() {
+  document.querySelectorAll('.row-chk').forEach(c => {
+    c.closest('tr').classList.toggle('selected', c.checked);
+  });
+  const total = document.querySelectorAll('.row-chk').length;
+  const checked = document.querySelectorAll('.row-chk:checked').length;
+  document.getElementById('chk-all').checked = checked === total && total > 0;
+  updateBulkToolbar();
+}
+
+function updateBulkToolbar() {
+  const checked = document.querySelectorAll('.row-chk:checked').length;
+  const toolbar = document.getElementById('bulk-toolbar');
+  toolbar.style.display = checked > 0 ? 'flex' : 'none';
+  document.getElementById('bulk-count').textContent = checked + '개 선택됨';
+}
+
+function clearSelection() {
+  document.querySelectorAll('.row-chk').forEach(c => { c.checked = false; c.closest('tr').classList.remove('selected'); });
+  document.getElementById('chk-all').checked = false;
+  updateBulkToolbar();
+}
+
+function deleteSelected() {
+  const idxs = [...document.querySelectorAll('.row-chk:checked')].map(c => parseInt(c.dataset.idx)).sort((a,b) => b - a);
+  idxs.forEach(i => entries.splice(i, 1));
+  save();
+  renderTable();
+  renderDashboard();
+  toast('✓ ' + idxs.length + '개 삭제됨');
+}
+
+function addEntry() {
+  const month = document.getElementById('f-month').value.trim();
+  if (!month) { toast('월을 입력해주세요'); return; }
+  const entry = {
+    month,
+    qqqiShares: document.getElementById('f-qqqi-shares').value || 0,
+    qqqiAmt:    document.getElementById('f-qqqi-amt').value || 0,
+    shares491:  document.getElementById('f-491-shares').value || 0,
+    amt491:     document.getElementById('f-491-amt').value || 0,
+    fcf:        document.getElementById('f-fcf').value || 0,
+  };
+  const idx = entries.findIndex(e => e.month === month);
+  if (idx >= 0) entries[idx] = entry; else entries.push(entry);
+  entries.sort((a,b) => a.month.localeCompare(b.month));
+  save();
+  renderTable();
+  toast('✓ ' + month + ' 데이터 저장됨');
+  ['f-month','f-qqqi-shares','f-qqqi-amt','f-491-shares','f-491-amt','f-fcf'].forEach(id => document.getElementById(id).value = '');
+}
+
+function deleteEntry(i) {
+  entries.splice(i, 1);
+  save();
+  renderTable();
+  renderDashboard();
+  toast('삭제됨');
+}
+
+let pendingDeleteIdx = null;
+
+function openDeleteModal(idx) {
+  pendingDeleteIdx = idx;
+  document.getElementById('delete-modal-month').textContent = entries[idx].month;
+  document.getElementById('delete-modal').style.display = 'block';
+  document.getElementById('btn-confirm-del').onclick = () => {
+    deleteEntry(pendingDeleteIdx);
+    closeDeleteModal();
+  };
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').style.display = 'none';
+  pendingDeleteIdx = null;
+}
+
+function setETF(ticker) {
+  document.getElementById('q-etf').value = ticker;
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.startsWith(ticker));
+  });
+}
+
+document.getElementById('q-etf').addEventListener('input', () => {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+});
+
+function autoCalcShares() {
+  const buy = parseFloat(document.getElementById('q-buy').value);
+  const fcfTotal = entries.reduce((s,e) => s + Number(e.fcf||0), 0);
+  document.getElementById('hint-fcf-total').textContent = fmt(fcfTotal);
+  if (buy > 0 && fcfTotal > 0) {
+    const auto = Math.floor(fcfTotal / buy);
+    document.getElementById('q-shares').placeholder = '자동: ' + auto + '주';
+    document.getElementById('q-invested').placeholder = '자동: ' + fmt(fcfTotal);
+  }
+}
+
+function calcQuant() {
+  const etf  = document.getElementById('q-etf').value.trim().toUpperCase();
+  if (!etf) { toast('종목명을 입력해주세요'); return; }
+
+  const buy  = parseFloat(document.getElementById('q-buy').value);
+  const sell = parseFloat(document.getElementById('q-sell').value);
+  if (!buy || !sell || buy <= 0 || sell <= 0) { toast('매수가와 목표가를 입력해주세요'); return; }
+
+  const fcfTotal   = entries.reduce((s,e) => s + Number(e.fcf||0), 0);
+  const manualShares   = parseInt(document.getElementById('q-shares').value);
+  const manualInvested = parseFloat(document.getElementById('q-invested').value);
+
+  // 수량 우선 → 투입금액 우선 → FCF 자동
+  let shares, invested;
+  if (manualShares > 0) {
+    shares   = manualShares;
+    invested = manualInvested > 0 ? manualInvested : shares * buy;
+  } else if (manualInvested > 0) {
+    invested = manualInvested;
+    shares   = Math.floor(invested / buy);
+  } else {
+    invested = fcfTotal;
+    shares   = Math.floor(invested / buy);
+  }
+
+  if (shares <= 0) { toast('매수 가능 수량이 0주예요. 금액이나 수량을 확인해주세요'); return; }
+
+  const profit = shares * (sell - buy);
+  const pct    = ((sell - buy) / buy * 100).toFixed(2);
+  const total  = invested + profit;
+
+  document.getElementById('q-r-fcf').textContent    = fmt(invested);
+  document.getElementById('q-r-shares').textContent = shares.toLocaleString() + ' 주';
+  document.getElementById('q-r-profit').textContent = fmt(profit);
+  document.getElementById('q-r-pct').textContent    = (profit >= 0 ? '+' : '') + pct + '%';
+  document.getElementById('q-r-total').textContent  = fmt(total);
+
+  // 결과 색상 — 수익/손실
+  const profitEl = document.getElementById('q-r-profit');
+  const pctEl    = document.getElementById('q-r-pct');
+  profitEl.style.color = profit >= 0 ? 'var(--cyan)' : 'var(--red)';
+  pctEl.style.color    = profit >= 0 ? 'var(--cyan)' : 'var(--red)';
+
+  document.getElementById('quant-results').style.display = 'grid';
+  document.getElementById('quant-bar-card').style.display = 'block';
+
+  const maxVal = Math.max(invested, Math.abs(profit), total, 1);
+  document.getElementById('quant-bars').innerHTML = `
+    <div class="quant-bar-row">
+      <div class="quant-bar-label">투입</div>
+      <div class="quant-bar-track">
+        <div class="quant-bar-fill" style="width:${(invested/maxVal*100).toFixed(1)}%;background:#f0b429">${fmt(invested)}</div>
+      </div>
+    </div>
+    <div class="quant-bar-row">
+      <div class="quant-bar-label">수익</div>
+      <div class="quant-bar-track">
+        <div class="quant-bar-fill" style="width:${(Math.abs(profit)/maxVal*100).toFixed(1)}%;background:${profit>=0?'#00d4aa':'#ff4757'}">${fmt(profit)}</div>
+      </div>
+    </div>
+    <div class="quant-bar-row">
+      <div class="quant-bar-label">총액</div>
+      <div class="quant-bar-track">
+        <div class="quant-bar-fill" style="width:${(total/maxVal*100).toFixed(1)}%;background:#7b68ee">${fmt(total)}</div>
+      </div>
+    </div>
+  `;
+
+  const record = {
+    etf, buy: buy.toFixed(2), sell: sell.toFixed(2),
+    shares, invested: invested.toFixed(2),
+    profit: profit.toFixed(2), pct,
+    status: 'pending', date: new Date().toISOString().slice(0,7)
+  };
+  quantLog.push(record);
+  save();
+  renderQuantTable();
+}
+
+function renderQuantTable() {
+  const tbody = document.getElementById('quant-tbody');
+  if (!quantLog.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">기록 없음</td></tr>';
+    return;
+  }
+  tbody.innerHTML = quantLog.slice().reverse().map((r, ri) => {
+    const i = quantLog.length - 1 - ri;
+    const profitNum = parseFloat(r.profit);
+    const profitColor = profitNum >= 0 ? 'var(--cyan)' : 'var(--red)';
+    const pctSign = profitNum >= 0 ? '+' : '';
+    return `<tr>
+      <td class="gold">${r.etf}</td>
+      <td>${fmt(r.buy)}</td>
+      <td>${fmt(r.sell)}</td>
+      <td style="color:var(--text-1)">${r.shares ? r.shares.toLocaleString() + '주' : '—'}</td>
+      <td>${fmt(r.invested)}</td>
+      <td style="color:${profitColor}">${fmt(r.profit)}</td>
+      <td style="color:${profitColor}">${pctSign}${r.pct}%</td>
+      <td><span class="pill ${r.status}">${r.status === 'done' ? '완료' : '대기'}</span></td>
+      <td>
+        <button class="btn-del" onclick="toggleStatus(${i})">${r.status==='done'?'↺':'✓'}</button>
+        <button class="btn-del" onclick="delQuant(${i})" style="margin-left:4px">삭제</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleStatus(i) {
+  quantLog[i].status = quantLog[i].status === 'done' ? 'pending' : 'done';
+  save();
+  renderQuantTable();
+}
+
+function delQuant(i) {
+  quantLog.splice(i, 1);
+  save();
+  renderQuantTable();
+}
+
+function exportData() {
+  const payload = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    entries,
+    quantLog
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href     = url;
+  a.download = `dividend-dashboard-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ 데이터 내보내기 완료');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const raw = JSON.parse(e.target.result);
+
+      // v2 포맷 (entries + quantLog 포함)
+      if (raw.version === 2 && Array.isArray(raw.entries)) {
+        entries  = raw.entries;
+        quantLog = raw.quantLog || [];
+      }
+      // 구버전 — 배열 자체
+      else if (Array.isArray(raw)) {
+        entries  = raw;
+        quantLog = [];
+      }
+      // 구버전 — {entries:[...]} 객체
+      else if (raw.entries && Array.isArray(raw.entries)) {
+        entries  = raw.entries;
+        quantLog = raw.quantLog || [];
+      } else {
+        toast('⚠ 파일 형식을 인식할 수 없어요');
+        return;
+      }
+
+      save();
+      renderDashboard();
+      renderTable();
+      renderQuantTable();
+      // FCF 힌트 업데이트
+      const fcfSum = entries.reduce((s,e) => s + Number(e.fcf||0), 0);
+      const hintEl = document.getElementById('hint-fcf-total');
+      if (hintEl) hintEl.textContent = fmt(fcfSum);
+      toast('✓ 불러오기 완료 — ' + entries.length + '개월치 데이터 복원됨');
+    } catch (err) {
+      toast('⚠ JSON 파일이 손상됐거나 형식이 맞지 않아요');
+    }
+    event.target.value = ''; // 같은 파일 재업로드 허용
+  };
+  reader.readAsText(file);
+}
+
+renderDashboard();
+renderTable();
+renderQuantTable();
+// FCF 힌트 초기화
+const _fcfInit = entries.reduce((s,e) => s + Number(e.fcf||0), 0);
+const _hintEl = document.getElementById('hint-fcf-total');
+if (_hintEl) _hintEl.textContent = fmt(_fcfInit);
+</script>
+</body>
+</html>
