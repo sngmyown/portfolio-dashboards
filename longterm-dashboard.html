@@ -1988,11 +1988,49 @@ function createPositionId(seed) {
 
 function ensurePositionIds() {
   let changed = false;
+  const used = new Set();
 
   state.positions = (state.positions || []).map((pos, idx) => {
-    if (pos.id) return pos;
-    changed = true;
-    return { ...pos, id: makeLegacyPositionId(pos, idx) };
+    let nextId = String(pos.id || '').trim();
+
+    if (!nextId) {
+      nextId = makeLegacyPositionId(pos, idx);
+      changed = true;
+    }
+
+    if (used.has(nextId)) {
+      const baseId = makeLegacyPositionId(pos, idx);
+      let suffix = 2;
+      let repairedId = baseId;
+
+      while (used.has(repairedId)) {
+        repairedId = baseId + '_' + suffix;
+        suffix += 1;
+      }
+
+      if (state.customChecklistsByStock?.[nextId] && !state.customChecklistsByStock[repairedId]) {
+        state.customChecklistsByStock[repairedId] = normalizeChecklistTemplate(state.customChecklistsByStock[nextId]);
+      }
+
+      const monthState = state.monthlyChecklistState || {};
+      Object.values(monthState).forEach(monthBucket => {
+        if (monthBucket[nextId] && !monthBucket[repairedId]) {
+          monthBucket[repairedId] = JSON.parse(JSON.stringify(monthBucket[nextId]));
+        }
+      });
+
+      nextId = repairedId;
+      changed = true;
+    }
+
+    used.add(nextId);
+
+    if (pos.id !== nextId) {
+      changed = true;
+      return { ...pos, id: nextId };
+    }
+
+    return pos;
   });
 
   if (changed) saveState();
@@ -2057,6 +2095,19 @@ function getCheckKey(cat, item) {
 function getChecklistStocks() {
   ensurePositionIds();
   return (state.positions || []).slice(0, MAX_POSITIONS);
+}
+
+function repairChecklistIsolation(stocks) {
+  if (!state.customChecklistsByStock) state.customChecklistsByStock = {};
+  let changed = false;
+
+  stocks.forEach(stock => {
+    const before = state.customChecklistsByStock[stock.id];
+    state.customChecklistsByStock[stock.id] = normalizeChecklistTemplate(before || DEFAULT_CHECKLISTS);
+    if (!before) changed = true;
+  });
+
+  if (changed) saveState();
 }
 
 function getStockDisplayName(pos) {
@@ -2169,6 +2220,7 @@ function renderChecklist() {
 
   const stocks = getChecklistStocks();
   migrateSharedChecklistTemplatesIfNeeded(stocks);
+  repairChecklistIsolation(stocks);
   migrateLegacyChecklistIfNeeded(stocks);
 
   const root = document.getElementById('tab-checklist');
@@ -2277,7 +2329,7 @@ function renderStockChecklistGrid(stock) {
         </div>
         <div class="check-list">
           ${(lists[cat] || []).map(item => renderStockChecklistItem(stock.id, cat, item)).join('')}
-          ${state.checklistEditMode ? `<button type="button" class="check-add-item-btn" data-add-check-item="${cat}">+ 항목 추가</button>` : ''}
+          ${state.checklistEditMode ? `<button type="button" class="check-add-item-btn" data-add-check-item="${escapeAttr(stock.id)}|${cat}">+ 항목 추가</button>` : ''}
         </div>
         <div class="checklist-date">
           <span>완료: <span>${escapeHtml(last)}</span></span>
@@ -2299,17 +2351,17 @@ function renderStockChecklistItem(stockId, cat, item) {
     return `
       <div class="check-item check-item-edit">
         <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
-          <input class="check-edit-input" value="${escapeAttr(item.text || '')}" placeholder="체크 항목" data-edit-item-text="${cat}:${escapeAttr(item.id)}">
-          <input class="check-edit-input small" value="${escapeAttr(item.tip || '')}" placeholder="설명 / 판단 기준" data-edit-item-tip="${cat}:${escapeAttr(item.id)}">
+          <input class="check-edit-input" value="${escapeAttr(item.text || '')}" placeholder="체크 항목" data-edit-item-text="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}">
+          <input class="check-edit-input small" value="${escapeAttr(item.tip || '')}" placeholder="설명 / 판단 기준" data-edit-item-tip="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}">
         </div>
-        <button type="button" class="check-delete-item-btn" data-toggle-critical="${cat}:${escapeAttr(item.id)}">${isCritical ? '핵심 해제' : '핵심 표시'}</button>
-        <button type="button" class="check-delete-item-btn" data-delete-check-item="${cat}:${escapeAttr(item.id)}">삭제</button>
+        <button type="button" class="check-delete-item-btn" data-toggle-critical="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}">${isCritical ? '핵심 해제' : '핵심 표시'}</button>
+        <button type="button" class="check-delete-item-btn" data-delete-check-item="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}">삭제</button>
       </div>
     `;
   }
 
   return `
-    <div class="check-item ${checked ? 'checked' : ''}" data-toggle-check="${cat}:${escapeAttr(item.id)}" style="${isCritical ? 'border:1px solid rgba(255,107,107,0.15); background:rgba(255,107,107,0.04);' : ''}">
+    <div class="check-item ${checked ? 'checked' : ''}" data-toggle-check="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}" style="${isCritical ? 'border:1px solid rgba(255,107,107,0.15); background:rgba(255,107,107,0.04);' : ''}">
       <div class="check-box"></div>
       <div style="flex:1;">
         <div class="check-text" style="${isCritical ? 'color:var(--danger); font-weight:600;' : ''}">${escapeHtml(item.text || '')}</div>
@@ -2325,41 +2377,44 @@ function bindStockChecklistGridEvents() {
 
   gridEl.querySelectorAll('[data-toggle-check]').forEach(itemEl => {
     itemEl.addEventListener('click', () => {
-      const [cat, itemId] = itemEl.dataset.toggleCheck.split(':');
-      toggleCheck(cat, itemId);
+      const [stockId, cat, itemId] = itemEl.dataset.toggleCheck.split('|');
+      toggleCheckForStock(stockId, cat, itemId);
     });
   });
 
   gridEl.querySelectorAll('[data-edit-item-text]').forEach(input => {
     input.addEventListener('change', () => {
-      const [cat, itemId] = input.dataset.editItemText.split(':');
-      updateChecklistItem(cat, itemId, 'text', input.value);
+      const [stockId, cat, itemId] = input.dataset.editItemText.split('|');
+      updateChecklistItemForStock(stockId, cat, itemId, 'text', input.value);
     });
   });
 
   gridEl.querySelectorAll('[data-edit-item-tip]').forEach(input => {
     input.addEventListener('change', () => {
-      const [cat, itemId] = input.dataset.editItemTip.split(':');
-      updateChecklistItem(cat, itemId, 'tip', input.value);
+      const [stockId, cat, itemId] = input.dataset.editItemTip.split('|');
+      updateChecklistItemForStock(stockId, cat, itemId, 'tip', input.value);
     });
   });
 
   gridEl.querySelectorAll('[data-toggle-critical]').forEach(button => {
     button.addEventListener('click', () => {
-      const [cat, itemId] = button.dataset.toggleCritical.split(':');
-      toggleChecklistCritical(cat, itemId);
+      const [stockId, cat, itemId] = button.dataset.toggleCritical.split('|');
+      toggleChecklistCriticalForStock(stockId, cat, itemId);
     });
   });
 
   gridEl.querySelectorAll('[data-delete-check-item]').forEach(button => {
     button.addEventListener('click', () => {
-      const [cat, itemId] = button.dataset.deleteCheckItem.split(':');
-      removeChecklistItem(cat, itemId);
+      const [stockId, cat, itemId] = button.dataset.deleteCheckItem.split('|');
+      removeChecklistItemForStock(stockId, cat, itemId);
     });
   });
 
   gridEl.querySelectorAll('[data-add-check-item]').forEach(button => {
-    button.addEventListener('click', () => addChecklistItem(button.dataset.addCheckItem));
+    button.addEventListener('click', () => {
+      const [stockId, cat] = button.dataset.addCheckItem.split('|');
+      addChecklistItemForStock(stockId, cat);
+    });
   });
 }
 
@@ -2371,11 +2426,8 @@ function renderStockChecklistMemo(stock) {
   memoEl.value = bucket.memo || '';
 
   memoEl.oninput = () => {
-    const active = getActiveChecklistStock(getChecklistStocks());
-    if (!active) return;
-
-    const activeBucket = getStockChecklistBucket(active.id);
-    activeBucket.memo = memoEl.value;
+    const bucketForThisStock = getStockChecklistBucket(stock.id);
+    bucketForThisStock.memo = memoEl.value;
 
     saveState();
 
@@ -2421,11 +2473,16 @@ function getActiveStockChecklists() {
   };
 }
 
-function updateChecklistItem(cat, id, field, value) {
-  const active = getActiveStockChecklists();
-  if (!active) return;
+function getStockById(stockId) {
+  return getChecklistStocks().find(pos => pos.id === stockId) || null;
+}
 
-  const item = active.lists[cat].find(x => x.id === id);
+function updateChecklistItemForStock(stockId, cat, id, field, value) {
+  const stock = getStockById(stockId);
+  if (!stock) return;
+
+  const lists = getStockChecklists(stock.id);
+  const item = lists[cat]?.find(x => x.id === id);
   if (!item) return;
 
   item[field] = value;
@@ -2433,11 +2490,12 @@ function updateChecklistItem(cat, id, field, value) {
   renderChecklist();
 }
 
-function toggleChecklistCritical(cat, id) {
-  const active = getActiveStockChecklists();
-  if (!active) return;
+function toggleChecklistCriticalForStock(stockId, cat, id) {
+  const stock = getStockById(stockId);
+  if (!stock) return;
 
-  const item = active.lists[cat].find(x => x.id === id);
+  const lists = getStockChecklists(stock.id);
+  const item = lists[cat]?.find(x => x.id === id);
   if (!item) return;
 
   item.critical = !item.critical;
@@ -2445,35 +2503,68 @@ function toggleChecklistCritical(cat, id) {
   renderChecklist();
 }
 
-function addChecklistItem(cat) {
-  const active = getActiveStockChecklists();
-  if (!active) return;
+function addChecklistItemForStock(stockId, cat) {
+  const stock = getStockById(stockId);
+  if (!stock) return;
 
-  active.lists[cat].push({ id: cat + '_' + Date.now(), text: '새 점검 항목', tip: '이 항목의 판단 기준을 입력하세요.' });
+  const lists = getStockChecklists(stock.id);
+  if (!Array.isArray(lists[cat])) lists[cat] = [];
+
+  lists[cat].push({
+    id: cat + '_' + stock.id + '_' + Date.now(),
+    text: '새 점검 항목',
+    tip: '이 항목의 판단 기준을 입력하세요.'
+  });
+
   saveState();
   renderChecklist();
 }
 
-function removeChecklistItem(cat, id) {
-  if (!confirm('선택한 종목의 체크리스트 항목만 삭제할까요?')) return;
+function removeChecklistItemForStock(stockId, cat, id) {
+  const stock = getStockById(stockId);
+  if (!stock) return;
 
-  const active = getActiveStockChecklists();
-  if (!active) return;
+  if (!confirm(getStockDisplayName(stock) + '의 체크리스트 항목만 삭제할까요?')) return;
 
-  const item = active.lists[cat].find(x => x.id === id);
+  const lists = getStockChecklists(stock.id);
+  const item = lists[cat]?.find(x => x.id === id);
   const key = item ? getCheckKey(cat, item) : '';
 
-  active.lists[cat] = active.lists[cat].filter(x => x.id !== id);
+  lists[cat] = (lists[cat] || []).filter(x => x.id !== id);
 
   if (key && state.monthlyChecklistState) {
     Object.values(state.monthlyChecklistState).forEach(monthBucket => {
-      const stockBucket = monthBucket[active.stock.id];
+      const stockBucket = monthBucket[stock.id];
       if (stockBucket?.checked) delete stockBucket.checked[key];
     });
   }
 
   saveState();
   renderChecklist();
+}
+
+function updateChecklistItem(cat, id, field, value) {
+  const active = getActiveStockChecklists();
+  if (!active) return;
+  updateChecklistItemForStock(active.stock.id, cat, id, field, value);
+}
+
+function toggleChecklistCritical(cat, id) {
+  const active = getActiveStockChecklists();
+  if (!active) return;
+  toggleChecklistCriticalForStock(active.stock.id, cat, id);
+}
+
+function addChecklistItem(cat) {
+  const active = getActiveStockChecklists();
+  if (!active) return;
+  addChecklistItemForStock(active.stock.id, cat);
+}
+
+function removeChecklistItem(cat, id) {
+  const active = getActiveStockChecklists();
+  if (!active) return;
+  removeChecklistItemForStock(active.stock.id, cat, id);
 }
 
 function resetChecklistTemplate() {
@@ -2489,12 +2580,11 @@ function resetChecklistTemplate() {
   toast('✓ 선택 종목 기본 체크리스트 복원 완료');
 }
 
-function toggleCheck(cat, itemId) {
-  const stocks = getChecklistStocks();
-  const stock = getActiveChecklistStock(stocks);
+function toggleCheckForStock(stockId, cat, itemId) {
+  const stock = getStockById(stockId);
   if (!stock) return;
 
-  const item = getStockChecklists(stock.id)[cat].find(x => x.id === itemId);
+  const item = getStockChecklists(stock.id)[cat]?.find(x => x.id === itemId);
   if (!item) return;
 
   const bucket = getStockChecklistBucket(stock.id);
@@ -2521,6 +2611,12 @@ function toggleCheck(cat, itemId) {
 
   saveState();
   renderChecklist();
+}
+
+function toggleCheck(cat, itemId) {
+  const active = getActiveStockChecklists();
+  if (!active) return;
+  toggleCheckForStock(active.stock.id, cat, itemId);
 }
 
 function updateChecklistProgress(stocks, activeStock) {
