@@ -1282,6 +1282,8 @@ function normalizeState(nextState) {
     },
     scenarioByTicker: nextState.scenarioByTicker || {},
     customChecklists: nextState.customChecklists || null,
+    customChecklistsByStock: nextState.customChecklistsByStock || {},
+    checklistTemplateMigrationDone: !!nextState.checklistTemplateMigrationDone,
     checklistEditMode: !!nextState.checklistEditMode,
     chartTicker: nextState.chartTicker || 'NYSE:BMNR',
     chartType: nextState.chartType || 'candlestick',
@@ -1996,18 +1998,56 @@ function ensurePositionIds() {
   if (changed) saveState();
 }
 
-function getChecklists() {
-  if (!state.customChecklists) state.customChecklists = cloneDefaultChecklists();
+function normalizeChecklistTemplate(template) {
+  const defaults = cloneDefaultChecklists();
+  const source = template && typeof template === 'object' ? template : defaults;
+  const normalized = {};
 
   CHECK_CATS.forEach(cat => {
-    if (!Array.isArray(state.customChecklists[cat])) state.customChecklists[cat] = cloneDefaultChecklists()[cat];
+    normalized[cat] = Array.isArray(source[cat])
+      ? JSON.parse(JSON.stringify(source[cat]))
+      : defaults[cat];
 
-    state.customChecklists[cat].forEach((item, idx) => {
+    normalized[cat].forEach((item, idx) => {
       if (!item.id) item.id = cat + '_' + Date.now() + '_' + idx;
     });
   });
 
-  return state.customChecklists;
+  return normalized;
+}
+
+function migrateSharedChecklistTemplatesIfNeeded(stocks) {
+  if (!state.customChecklistsByStock) state.customChecklistsByStock = {};
+  if (state.checklistTemplateMigrationDone) return;
+
+  const activeId = state.activeChecklistStockId && stocks.some(pos => pos.id === state.activeChecklistStockId)
+    ? state.activeChecklistStockId
+    : (stocks[0]?.id || '');
+
+  stocks.forEach(pos => {
+    if (!state.customChecklistsByStock[pos.id]) {
+      const source = state.customChecklists && pos.id === activeId
+        ? state.customChecklists
+        : DEFAULT_CHECKLISTS;
+
+      state.customChecklistsByStock[pos.id] = normalizeChecklistTemplate(source);
+    }
+  });
+
+  state.customChecklists = null;
+  state.checklistTemplateMigrationDone = true;
+  saveState();
+}
+
+function getStockChecklists(stockId) {
+  if (!state.customChecklistsByStock) state.customChecklistsByStock = {};
+  if (!state.customChecklistsByStock[stockId]) {
+    state.customChecklistsByStock[stockId] = normalizeChecklistTemplate(DEFAULT_CHECKLISTS);
+  } else {
+    state.customChecklistsByStock[stockId] = normalizeChecklistTemplate(state.customChecklistsByStock[stockId]);
+  }
+
+  return state.customChecklistsByStock[stockId];
 }
 
 function getCheckKey(cat, item) {
@@ -2092,7 +2132,7 @@ function getActiveChecklistStock(stocks) {
 }
 
 function getStockProgress(stockId) {
-  const lists = getChecklists();
+  const lists = getStockChecklists(stockId);
   const bucket = getStockChecklistBucket(stockId);
 
   return CHECK_CATS.reduce((acc, cat) => {
@@ -2104,7 +2144,7 @@ function getStockProgress(stockId) {
 }
 
 function getCategoryProgress(stockId, cat) {
-  const lists = getChecklists();
+  const lists = getStockChecklists(stockId);
   const bucket = getStockChecklistBucket(stockId);
   const items = lists[cat] || [];
 
@@ -2128,6 +2168,7 @@ function renderChecklist() {
   if (monthDisplay) monthDisplay.textContent = getCurrentMonthLabel() + ' 월간 점검';
 
   const stocks = getChecklistStocks();
+  migrateSharedChecklistTemplatesIfNeeded(stocks);
   migrateLegacyChecklistIfNeeded(stocks);
 
   const root = document.getElementById('tab-checklist');
@@ -2220,7 +2261,7 @@ function renderStockChecklistGrid(stock) {
 
   titleEl.textContent = getStockDisplayName(stock) + ' 월간 점검';
 
-  const lists = getChecklists();
+  const lists = getStockChecklists(stock.id);
 
   gridEl.innerHTML = CHECK_CATS.map(cat => {
     const progress = getCategoryProgress(stock.id, cat);
@@ -2369,9 +2410,22 @@ function toggleChecklistEditMode() {
   toast(state.checklistEditMode ? '체크리스트 수정 모드' : '체크리스트 수정 완료');
 }
 
+function getActiveStockChecklists() {
+  const stocks = getChecklistStocks();
+  const stock = getActiveChecklistStock(stocks);
+  if (!stock) return null;
+
+  return {
+    stock,
+    lists: getStockChecklists(stock.id)
+  };
+}
+
 function updateChecklistItem(cat, id, field, value) {
-  const lists = getChecklists();
-  const item = lists[cat].find(x => x.id === id);
+  const active = getActiveStockChecklists();
+  if (!active) return;
+
+  const item = active.lists[cat].find(x => x.id === id);
   if (!item) return;
 
   item[field] = value;
@@ -2380,7 +2434,10 @@ function updateChecklistItem(cat, id, field, value) {
 }
 
 function toggleChecklistCritical(cat, id) {
-  const item = getChecklists()[cat].find(x => x.id === id);
+  const active = getActiveStockChecklists();
+  if (!active) return;
+
+  const item = active.lists[cat].find(x => x.id === id);
   if (!item) return;
 
   item.critical = !item.critical;
@@ -2389,26 +2446,29 @@ function toggleChecklistCritical(cat, id) {
 }
 
 function addChecklistItem(cat) {
-  const lists = getChecklists();
-  lists[cat].push({ id: cat + '_' + Date.now(), text: '새 점검 항목', tip: '이 항목의 판단 기준을 입력하세요.' });
+  const active = getActiveStockChecklists();
+  if (!active) return;
+
+  active.lists[cat].push({ id: cat + '_' + Date.now(), text: '새 점검 항목', tip: '이 항목의 판단 기준을 입력하세요.' });
   saveState();
   renderChecklist();
 }
 
 function removeChecklistItem(cat, id) {
-  if (!confirm('이 체크리스트 항목을 삭제할까요?')) return;
+  if (!confirm('선택한 종목의 체크리스트 항목만 삭제할까요?')) return;
 
-  const lists = getChecklists();
-  const item = lists[cat].find(x => x.id === id);
+  const active = getActiveStockChecklists();
+  if (!active) return;
+
+  const item = active.lists[cat].find(x => x.id === id);
   const key = item ? getCheckKey(cat, item) : '';
 
-  lists[cat] = lists[cat].filter(x => x.id !== id);
+  active.lists[cat] = active.lists[cat].filter(x => x.id !== id);
 
   if (key && state.monthlyChecklistState) {
     Object.values(state.monthlyChecklistState).forEach(monthBucket => {
-      Object.values(monthBucket).forEach(stockBucket => {
-        if (stockBucket.checked) delete stockBucket.checked[key];
-      });
+      const stockBucket = monthBucket[active.stock.id];
+      if (stockBucket?.checked) delete stockBucket.checked[key];
     });
   }
 
@@ -2417,12 +2477,16 @@ function removeChecklistItem(cat, id) {
 }
 
 function resetChecklistTemplate() {
-  if (!confirm('체크리스트 템플릿을 기본값으로 되돌릴까요?\n종목별 체크 상태와 메모는 유지됩니다.')) return;
+  const active = getActiveStockChecklists();
+  if (!active) return;
 
-  state.customChecklists = cloneDefaultChecklists();
+  const stockName = getStockDisplayName(active.stock);
+  if (!confirm(stockName + ' 체크리스트 문항만 기본값으로 되돌릴까요?\n이 종목의 체크 상태와 메모는 유지됩니다.')) return;
+
+  state.customChecklistsByStock[active.stock.id] = normalizeChecklistTemplate(DEFAULT_CHECKLISTS);
   saveState();
   renderChecklist();
-  toast('✓ 기본 체크리스트 복원 완료');
+  toast('✓ 선택 종목 기본 체크리스트 복원 완료');
 }
 
 function toggleCheck(cat, itemId) {
@@ -2430,7 +2494,7 @@ function toggleCheck(cat, itemId) {
   const stock = getActiveChecklistStock(stocks);
   if (!stock) return;
 
-  const item = getChecklists()[cat].find(x => x.id === itemId);
+  const item = getStockChecklists(stock.id)[cat].find(x => x.id === itemId);
   if (!item) return;
 
   const bucket = getStockChecklistBucket(stock.id);
