@@ -787,6 +787,123 @@
     font-family: var(--mono);
   }
 
+
+  .journal-history-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .journal-history-title {
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .journal-history-note {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
+  .journal-history-select {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 8px 10px;
+    outline: none;
+  }
+
+  .journal-history-content {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .journal-history-empty {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .journal-history-memo {
+    background: rgba(125,249,170,0.05);
+    border: 1px solid rgba(125,249,170,0.16);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .journal-history-memo-title {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 7px;
+  }
+
+  .journal-history-memo-body {
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
+  .journal-history-cat {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.015);
+  }
+
+  .journal-history-cat-head {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .journal-history-entry {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .journal-history-entry:last-child {
+    border-bottom: none;
+  }
+
+  .journal-history-question {
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.55;
+    margin-bottom: 6px;
+  }
+
+  .journal-history-answer {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .journal-history-muted {
+    color: var(--muted);
+    font-style: italic;
+  }
+
   @media (max-width: 900px) {
     .stock-checklist-grid,
     .stock-check-summary {
@@ -1192,6 +1309,18 @@
         <div class="stock-check-summary-label">마지막 전체 완료</div>
         <div class="stock-check-summary-value" id="last-full-check">—</div>
       </div>
+    </div>
+
+    <!-- 월별 점검 기록 보관함 -->
+    <div class="check-section" id="journal-history-section" style="margin-top:16px;">
+      <div class="journal-history-controls">
+        <div>
+          <div class="journal-history-title">월별 점검 기록 보관함</div>
+          <div class="journal-history-note">선택한 종목의 과거 월간 답변과 투자 일지를 다시 확인합니다. 이 영역은 기록 확인용입니다.</div>
+        </div>
+        <select id="journal-history-month" class="journal-history-select"></select>
+      </div>
+      <div id="journal-history-content" class="journal-history-content"></div>
     </div>
 
   </div>
@@ -2183,11 +2312,37 @@ function getTodayLabel() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getMonthBucket() {
-  const monthKey = getCurrentMonthKey();
+function getMonthBucketByKey(monthKey, createIfMissing = true) {
   if (!state.monthlyChecklistState) state.monthlyChecklistState = {};
-  if (!state.monthlyChecklistState[monthKey]) state.monthlyChecklistState[monthKey] = {};
-  return state.monthlyChecklistState[monthKey];
+  if (!state.monthlyChecklistState[monthKey] && createIfMissing) {
+    state.monthlyChecklistState[monthKey] = {};
+  }
+  return state.monthlyChecklistState[monthKey] || {};
+}
+
+function getMonthBucket() {
+  return getMonthBucketByKey(getCurrentMonthKey(), true);
+}
+
+function getStockChecklistBucketForMonth(stockId, monthKey, createIfMissing = false) {
+  const monthBucket = getMonthBucketByKey(monthKey, createIfMissing);
+  if (!monthBucket[stockId]) {
+    if (!createIfMissing) return null;
+    monthBucket[stockId] = {
+      checked: {},
+      answers: {},
+      memo: '',
+      lastByCat: {},
+      completedAt: ''
+    };
+  }
+
+  if (!monthBucket[stockId].checked) monthBucket[stockId].checked = {};
+  if (!monthBucket[stockId].answers) monthBucket[stockId].answers = {};
+  if (!monthBucket[stockId].lastByCat) monthBucket[stockId].lastByCat = {};
+  if (typeof monthBucket[stockId].memo !== 'string') monthBucket[stockId].memo = '';
+
+  return monthBucket[stockId];
 }
 
 function getStockChecklistBucket(stockId) {
@@ -2297,6 +2452,7 @@ function renderChecklist() {
   renderStockChecklistTabs(stocks, activeStock);
   renderStockChecklistGrid(activeStock);
   renderStockChecklistMemo(activeStock);
+  renderChecklistJournalHistory(activeStock);
   updateChecklistProgress(stocks, activeStock);
   updateCountdown();
 }
@@ -2327,6 +2483,11 @@ function renderEmptyStockChecklist() {
   if (barEl) barEl.style.width = '0%';
   if (countEl) countEl.textContent = '0/0';
   if (lastEl) lastEl.textContent = state.lastFullCheck || '—';
+
+  const historySelect = document.getElementById('journal-history-month');
+  const historyContent = document.getElementById('journal-history-content');
+  if (historySelect) historySelect.innerHTML = '';
+  if (historyContent) historyContent.innerHTML = '<div class="journal-history-empty">보유 종목을 추가하면 월별 점검 기록이 이곳에 표시됩니다.</div>';
 }
 
 function renderStockChecklistTabs(stocks, activeStock) {
@@ -2518,10 +2679,116 @@ function renderStockChecklistMemo(stock) {
 
     saveState();
 
+    renderChecklistJournalHistory(stock);
+
     const status = document.getElementById('memo-save-status');
     if (status) status.textContent = '저장됨 ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
   };
 }
+
+
+function getChecklistMonthLabel(monthKey) {
+  const [year, month] = String(monthKey).split('-');
+  if (!year || !month) return monthKey;
+  return `${year}년 ${Number(month)}월`;
+}
+
+function getAvailableJournalMonths(stockId) {
+  const allMonths = Object.keys(state.monthlyChecklistState || {});
+  return allMonths
+    .filter(monthKey => !!state.monthlyChecklistState?.[monthKey]?.[stockId])
+    .sort((a, b) => b.localeCompare(a));
+}
+
+function renderChecklistJournalHistory(stock) {
+  const selectEl = document.getElementById('journal-history-month');
+  const contentEl = document.getElementById('journal-history-content');
+  if (!selectEl || !contentEl || !stock) return;
+
+  const months = getAvailableJournalMonths(stock.id);
+
+  if (!months.length) {
+    selectEl.innerHTML = '';
+    contentEl.innerHTML = '<div class="journal-history-empty">아직 저장된 월간 기록이 없습니다. 위 체크리스트 문항 아래 답변칸이나 종합 판단칸에 입력하면 자동 저장되고, 이곳에 기록으로 표시됩니다.</div>';
+    return;
+  }
+
+  if (!state.journalHistoryMonthByStock) state.journalHistoryMonthByStock = {};
+  let selectedMonth = state.journalHistoryMonthByStock[stock.id] || getCurrentMonthKey();
+
+  if (!months.includes(selectedMonth)) {
+    selectedMonth = months[0];
+    state.journalHistoryMonthByStock[stock.id] = selectedMonth;
+    saveState();
+  }
+
+  selectEl.innerHTML = months.map(monthKey => `
+    <option value="${escapeAttr(monthKey)}" ${monthKey === selectedMonth ? 'selected' : ''}>
+      ${escapeHtml(getChecklistMonthLabel(monthKey))}
+    </option>
+  `).join('');
+
+  selectEl.onchange = () => {
+    if (!state.journalHistoryMonthByStock) state.journalHistoryMonthByStock = {};
+    state.journalHistoryMonthByStock[stock.id] = selectEl.value;
+    saveState();
+    renderChecklistJournalHistory(stock);
+  };
+
+  contentEl.innerHTML = renderJournalHistoryContent(stock, selectedMonth);
+}
+
+function renderJournalHistoryContent(stock, monthKey) {
+  const bucket = getStockChecklistBucketForMonth(stock.id, monthKey, false);
+
+  if (!bucket) {
+    return '<div class="journal-history-empty">선택한 월의 기록이 없습니다.</div>';
+  }
+
+  const lists = getStockChecklists(stock.id);
+  const memo = bucket.memo || '';
+  const answerCount = Object.values(bucket.answers || {}).filter(value => String(value || '').trim()).length;
+  const checkedCount = Object.values(bucket.checked || {}).filter(Boolean).length;
+
+  let html = `
+    <div style="font-size:12px; color:var(--muted); font-family:var(--mono);">
+      ${escapeHtml(getStockDisplayName(stock))} · ${escapeHtml(getChecklistMonthLabel(monthKey))} · 체크 ${checkedCount}개 · 답변 ${answerCount}개
+    </div>
+    <div class="journal-history-memo">
+      <div class="journal-history-memo-title">투자 일지 / 종합 판단</div>
+      <div class="journal-history-memo-body ${memo.trim() ? '' : 'journal-history-muted'}">${memo.trim() ? escapeHtml(memo) : '작성된 종합 판단이 없습니다.'}</div>
+    </div>
+  `;
+
+  CHECK_CATS.forEach(cat => {
+    const items = lists[cat] || [];
+    const rows = items.map(item => {
+      const key = getCheckKey(cat, item);
+      const answer = bucket.answers?.[key] || '';
+      const checked = !!bucket.checked?.[key];
+
+      return `
+        <div class="journal-history-entry">
+          <div class="journal-history-question">${checked ? '✓ ' : '□ '}${escapeHtml(item.text || '')}</div>
+          <div class="journal-history-answer ${answer.trim() ? '' : 'journal-history-muted'}">${answer.trim() ? escapeHtml(answer) : '작성된 답변이 없습니다.'}</div>
+        </div>
+      `;
+    }).join('');
+
+    html += `
+      <div class="journal-history-cat">
+        <div class="journal-history-cat-head">
+          <div class="check-dot" style="background:${CHECK_DOTS[cat]}"></div>
+          ${escapeHtml(CHECK_LABELS[cat])}
+        </div>
+        ${rows || '<div class="journal-history-entry journal-history-muted">항목이 없습니다.</div>'}
+      </div>
+    `;
+  });
+
+  return html;
+}
+
 
 function editChecklistStockName(stockId) {
   const stock = getChecklistStocks().find(pos => pos.id === stockId);
@@ -2576,6 +2843,11 @@ function updateChecklistAnswerForStock(stockId, cat, id, value) {
 
   bucket.answers[key] = value;
   saveState();
+
+  const active = getActiveChecklistStock(getChecklistStocks());
+  if (active && active.id === stock.id) {
+    renderChecklistJournalHistory(active);
+  }
 }
 
 function updateChecklistItemForStock(stockId, cat, id, field, value) {
