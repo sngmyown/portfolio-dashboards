@@ -652,6 +652,61 @@
     margin-top: 3px;
     font-family: var(--mono);
   }
+  .check-item.with-answer {
+    flex-direction: column;
+    align-items: stretch;
+    cursor: default;
+  }
+
+  .check-item-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .check-answer-wrap {
+    margin-left: 26px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .check-answer-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .check-answer-textarea {
+    width: 100%;
+    min-height: 76px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 12.5px;
+    line-height: 1.65;
+    padding: 9px 10px;
+    resize: vertical;
+    font-family: var(--sans);
+    outline: none;
+  }
+
+  .check-answer-textarea:focus {
+    border-color: rgba(125,249,170,0.35);
+  }
+
+  .check-answer-status {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-top: 5px;
+    text-align: right;
+  }
 
   .check-item-edit {
     cursor: default;
@@ -1085,7 +1140,7 @@
 
     <div class="check-admin-bar">
       <div style="font-size:12px; color:var(--muted); font-family:var(--mono); line-height:1.6;">
-        체크리스트는 보유 기업과 투자 thesis에 맞게 직접 수정할 수 있습니다. 수정 모드에서는 항목 문장과 설명을 바꾸거나 항목을 추가/삭제할 수 있습니다.
+        체크리스트는 종목별로 완전히 분리됩니다. 각 문항 아래의 답변 칸에는 이번 달 판단, 근거, 감정 상태, 다음 행동을 직접 기록할 수 있습니다.
       </div>
     </div>
 
@@ -1110,10 +1165,10 @@
     <div class="check-section" style="margin-bottom:16px;">
       <div class="check-section-header">
         <div class="check-dot" style="background:var(--muted)"></div>
-        이번 달 점검 메모
+        이번 달 투자 일지 / 종합 판단
       </div>
       <div style="padding:12px 16px;">
-        <textarea id="stock-checklist-memo" placeholder="선택한 종목에 대한 이번 달 판단, 리스크, 추가매수 여부를 기록하세요." style="width:100%; min-height:120px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; line-height:1.7; padding:10px 12px; resize:vertical; font-family:var(--sans); outline:none;"></textarea>
+        <textarea id="stock-checklist-memo" placeholder="이번 달 이 종목을 보며 든 생각, 원칙을 지켰는지, 다음 달까지 지켜볼 포인트를 일기처럼 기록하세요." style="width:100%; min-height:120px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; line-height:1.7; padding:10px 12px; resize:vertical; font-family:var(--sans); outline:none;"></textarea>
       </div>
       <div class="checklist-date">
         <span id="memo-save-status" style="color:var(--muted);">종목별 자동 저장됨</span>
@@ -2141,6 +2196,7 @@ function getStockChecklistBucket(stockId) {
   if (!monthBucket[stockId]) {
     monthBucket[stockId] = {
       checked: {},
+      answers: {},
       memo: '',
       lastByCat: {},
       completedAt: ''
@@ -2148,6 +2204,7 @@ function getStockChecklistBucket(stockId) {
   }
 
   if (!monthBucket[stockId].checked) monthBucket[stockId].checked = {};
+  if (!monthBucket[stockId].answers) monthBucket[stockId].answers = {};
   if (!monthBucket[stockId].lastByCat) monthBucket[stockId].lastByCat = {};
   if (typeof monthBucket[stockId].memo !== 'string') monthBucket[stockId].memo = '';
 
@@ -2360,12 +2417,26 @@ function renderStockChecklistItem(stockId, cat, item) {
     `;
   }
 
+  const answer = bucket.answers[key] || '';
+
   return `
-    <div class="check-item ${checked ? 'checked' : ''}" data-toggle-check="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}" style="${isCritical ? 'border:1px solid rgba(255,107,107,0.15); background:rgba(255,107,107,0.04);' : ''}">
-      <div class="check-box"></div>
-      <div style="flex:1;">
-        <div class="check-text" style="${isCritical ? 'color:var(--danger); font-weight:600;' : ''}">${escapeHtml(item.text || '')}</div>
-        ${item.tip ? `<div class="check-desc">${escapeHtml(item.tip)}</div>` : ''}
+    <div class="check-item with-answer ${checked ? 'checked' : ''}" style="${isCritical ? 'border:1px solid rgba(255,107,107,0.15); background:rgba(255,107,107,0.04);' : ''}">
+      <div class="check-item-main" data-toggle-check="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}">
+        <div class="check-box"></div>
+        <div style="flex:1;">
+          <div class="check-text" style="${isCritical ? 'color:var(--danger); font-weight:600;' : ''}">${escapeHtml(item.text || '')}</div>
+          ${item.tip ? `<div class="check-desc">${escapeHtml(item.tip)}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="check-answer-wrap">
+        <div class="check-answer-label">내 답변 / 이번 달 판단 기록</div>
+        <textarea
+          class="check-answer-textarea"
+          data-check-answer="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}"
+          placeholder="이 문항에 대한 내 판단을 직접 적으세요. 예: 유지 / 훼손 / 보류 / 추가매수 근거..."
+        >${escapeHtml(answer)}</textarea>
+        <div class="check-answer-status" data-answer-status="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}">종목별 자동 저장</div>
       </div>
     </div>
   `;
@@ -2379,6 +2450,22 @@ function bindStockChecklistGridEvents() {
     itemEl.addEventListener('click', () => {
       const [stockId, cat, itemId] = itemEl.dataset.toggleCheck.split('|');
       toggleCheckForStock(stockId, cat, itemId);
+    });
+  });
+
+  gridEl.querySelectorAll('[data-check-answer]').forEach(textarea => {
+    textarea.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+
+    textarea.addEventListener('input', () => {
+      const [stockId, cat, itemId] = textarea.dataset.checkAnswer.split('|');
+      updateChecklistAnswerForStock(stockId, cat, itemId, textarea.value);
+
+      const status = gridEl.querySelector(`[data-answer-status="${textarea.dataset.checkAnswer}"]`);
+      if (status) {
+        status.textContent = '저장됨 ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+      }
     });
   });
 
@@ -2477,6 +2564,20 @@ function getStockById(stockId) {
   return getChecklistStocks().find(pos => pos.id === stockId) || null;
 }
 
+function updateChecklistAnswerForStock(stockId, cat, id, value) {
+  const stock = getStockById(stockId);
+  if (!stock) return;
+
+  const item = getStockChecklists(stock.id)[cat]?.find(x => x.id === id);
+  if (!item) return;
+
+  const bucket = getStockChecklistBucket(stock.id);
+  const key = getCheckKey(cat, item);
+
+  bucket.answers[key] = value;
+  saveState();
+}
+
 function updateChecklistItemForStock(stockId, cat, id, field, value) {
   const stock = getStockById(stockId);
   if (!stock) return;
@@ -2536,6 +2637,7 @@ function removeChecklistItemForStock(stockId, cat, id) {
     Object.values(state.monthlyChecklistState).forEach(monthBucket => {
       const stockBucket = monthBucket[stock.id];
       if (stockBucket?.checked) delete stockBucket.checked[key];
+      if (stockBucket?.answers) delete stockBucket.answers[key];
     });
   }
 
