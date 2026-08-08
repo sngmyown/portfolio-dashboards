@@ -846,6 +846,29 @@
   }
 
 
+  /* DYNAMIC COVERED-CALL INSTRUMENTS */
+  .metrics-contents { display: contents; }
+  .instrument-manager { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; margin-bottom:1.25rem; }
+  .instrument-manager-head { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  .instrument-add-row { display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+  .instrument-add-row input,.instrument-add-row select { background:var(--bg-card); border:1px solid var(--border-accent); border-radius:var(--radius-sm); color:var(--text-1); font-family:var(--mono); font-size:11px; padding:8px 9px; outline:none; min-width:110px; }
+  .instrument-list { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .instrument-chip { display:inline-flex; align-items:center; gap:7px; border:1px solid var(--border-accent); background:var(--bg-card); border-radius:999px; padding:5px 8px 5px 10px; font-family:var(--mono); font-size:10px; color:var(--text-2); }
+  .instrument-chip strong { color:var(--text-1); }
+  .instrument-chip button { border:0; background:none; color:var(--text-3); cursor:pointer; font-size:13px; line-height:1; padding:0 2px; }
+  .instrument-chip button:hover { color:var(--red); }
+  .instrument-input-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:10px; margin-bottom:1.25rem; }
+  .instrument-input-card { border:1px solid var(--border); background:var(--bg-surface); border-radius:var(--radius-sm); padding:12px; }
+  .instrument-input-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .instrument-input-title { font-family:var(--mono); font-size:12px; font-weight:700; }
+  .instrument-input-currency { font-family:var(--mono); font-size:9px; color:var(--text-3); border:1px solid var(--border); padding:2px 6px; border-radius:999px; }
+  .instrument-input-fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+  .instrument-input-fields label { display:block; font-family:var(--mono); font-size:8px; color:var(--text-3); text-transform:uppercase; margin-bottom:4px; }
+  .instrument-input-fields input { width:100%; background:var(--bg-card); border:1px solid var(--border-accent); border-radius:6px; color:var(--text-1); font-family:var(--mono); font-size:11px; padding:7px 8px; outline:none; }
+  .entry-assets-summary { display:flex; flex-wrap:wrap; gap:6px; min-width:380px; }
+  .entry-asset-pill { border:1px solid var(--border); background:var(--bg-surface); border-radius:6px; padding:5px 7px; font-family:var(--mono); font-size:9px; color:var(--text-2); line-height:1.5; }
+  @media (max-width:700px) { .header { height:auto; min-height:64px; padding-top:10px; padding-bottom:10px; align-items:flex-start; } .header-actions { flex-wrap:wrap; justify-content:flex-end; } .instrument-input-fields { grid-template-columns:1fr; } .entry-assets-summary { min-width:260px; } }
+
   /* MONTHLY COVERED-CALL REPORT */
   .report-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:1.5rem; }
   .report-toolbar-title { font-size:15px; font-weight:700; }
@@ -900,6 +923,7 @@
 <header class="header">
   <div class="logo">COVERED<span>/</span>CALL · DESK</div>
   <div class="header-actions">
+    <a class="btn-sync" href="longterm-dashboard.html" title="장기투자 대시보드로 이동">장기투자 ↗</a>
     <button class="btn-sync" onclick="exportData()" title="데이터 백업">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       내보내기
@@ -939,21 +963,7 @@
       <div class="metric-value cyan" id="m-total-growth">—</div>
       <div class="metric-sub" id="m-total-growth-sub">전월 대비 —</div>
     </div>
-    <div class="metric-card">
-      <div class="metric-label">QQQI 배당</div>
-      <div class="metric-value" id="m-qqqi">—</div>
-      <div class="metric-sub" id="m-qqqi-sub">보유 주수 —</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">XQQI 배당</div>
-      <div class="metric-value" id="m-xqqi">—</div>
-      <div class="metric-sub" id="m-xqqi-sub">보유 주수 —</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">491620 배당</div>
-      <div class="metric-value" id="m-491">—</div>
-      <div class="metric-sub" id="m-491-sub">보유 주수 —</div>
-    </div>
+    <div id="instrument-metrics" class="metrics-contents"></div>
     <div class="metric-card">
       <div class="metric-label">FCF 누적액</div>
       <div class="metric-value cyan" id="m-fcf">$0</div>
@@ -967,12 +977,7 @@
         <div class="chart-title">월별 배당 수령액 추이</div>
         <div class="chart-sub">매달 입력한 수령액 기준 — 지속 가능성 모니터링</div>
       </div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#f0b429"></div>QQQI ($)</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ff8c42"></div>XQQI ($)</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#00d4aa"></div>491620 (₩÷1000)</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#7b68ee"></div>FCF 적립액 ($)</div>
-      </div>
+      <div class="legend" id="line-legend"></div>
     </div>
     <div style="position:relative; width:100%; height:260px;" id="line-chart-wrap">
       <canvas id="lineChart" role="img" aria-label="월별 QQQI, XQQI, 491620, FCF 배당 추이 차트">월별 배당 데이터 차트</canvas>
@@ -1013,7 +1018,7 @@
     <div class="chart-header">
       <div>
         <div class="chart-title">자산 배분 현황</div>
-        <div class="chart-sub">최근 월 기준 QQQI / XQQI / 491620 / FCF 비중</div>
+        <div class="chart-sub">최근 월 기준 보유 종목 시장가치 + FCF 현금 비중</div>
       </div>
     </div>
     <div id="alloc-wrap">
@@ -1033,56 +1038,39 @@
     <div class="form-title">월별 데이터 추가</div>
     <div class="form-subtitle">매달 한 번, 배당 수령액과 월말 주가를 입력하면 차트와 월간 리포트가 자동 업데이트됩니다</div>
 
+    <div class="instrument-manager">
+      <div class="instrument-manager-head">
+        <div>
+          <div class="form-title" style="font-size:14px;">배당 종목 관리</div>
+          <div class="form-subtitle" style="margin-bottom:0;">티커와 통화를 직접 추가하세요. 기존 종목을 제거해도 과거 월별 기록은 보존됩니다.</div>
+        </div>
+        <div class="instrument-add-row">
+          <input type="text" id="instrument-ticker" placeholder="티커 (예: JEPI)" aria-label="추가할 종목 티커">
+          <input type="text" id="instrument-name" placeholder="종목명 (선택)" aria-label="추가할 종목명">
+          <select id="instrument-currency" aria-label="종목 통화"><option value="USD">USD</option><option value="KRW">KRW</option></select>
+          <button type="button" class="btn-primary" onclick="addCoveredInstrument()" style="padding:.6rem 1rem;">+ 종목 추가</button>
+        </div>
+      </div>
+      <div id="instrument-list" class="instrument-list"></div>
+    </div>
+
     <div class="form-grid">
       <div class="form-group">
         <label>월 (예: 2026-05)</label>
-        <input type="text" id="f-month" placeholder="2026-05">
+        <input type="text" id="f-month" placeholder="2026-05" onchange="loadCoveredMonthForm()">
       </div>
       <div class="form-group">
-        <label>환율 KRW/USD <span class="label-hint">— 전체 배당 USD 환산용, 기본 1300</span></label>
+        <label>환율 KRW/USD <span class="label-hint">— KRW 종목 USD 환산용, 기본 1300</span></label>
         <input type="number" id="f-fx" placeholder="1300">
-      </div>
-      <div class="form-group">
-        <label>QQQI 보유 주수</label>
-        <input type="number" id="f-qqqi-shares" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>QQQI 월말 주가 ($)</label>
-        <input type="number" id="f-qqqi-price" placeholder="0.00" step="0.01">
-      </div>
-      <div class="form-group">
-        <label>QQQI 수령액 ($)</label>
-        <input type="number" id="f-qqqi-amt" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label>XQQI 보유 주수</label>
-        <input type="number" id="f-xqqi-shares" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>XQQI 월말 주가 ($)</label>
-        <input type="number" id="f-xqqi-price" placeholder="0.00" step="0.01">
-      </div>
-      <div class="form-group">
-        <label>XQQI 수령액 ($)</label>
-        <input type="number" id="f-xqqi-amt" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label>491620 보유 주수</label>
-        <input type="number" id="f-491-shares" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>491620 월말 주가 (₩)</label>
-        <input type="number" id="f-491-price" placeholder="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>491620 수령액 (₩)</label>
-        <input type="number" id="f-491-amt" placeholder="0">
       </div>
       <div class="form-group">
         <label>FCF 적립액 ($)</label>
         <input type="number" id="f-fcf" placeholder="0.00">
       </div>
     </div>
+
+    <div class="section-label" style="margin-top:1rem;">선택 종목 월별 데이터</div>
+    <div id="instrument-input-grid" class="instrument-input-grid"></div>
 
     <button class="btn-primary" onclick="addEntry()">+ 이번 달 데이터 추가</button>
   </div>
@@ -1099,22 +1087,14 @@
         <tr>
           <th style="width:36px"><input type="checkbox" id="chk-all" onchange="toggleAll(this)"></th>
           <th>월</th>
-          <th>QQQI 주수</th>
-          <th>QQQI 가격</th>
-          <th>QQQI ($)</th>
-          <th>XQQI 주수</th>
-          <th>XQQI 가격</th>
-          <th>XQQI ($)</th>
-          <th>491620 주수</th>
-          <th>491620 가격</th>
-          <th>491620 (₩)</th>
+          <th>종목별 입력 데이터</th>
           <th>총 배당 변화</th>
           <th>FCF ($)</th>
           <th></th>
         </tr>
       </thead>
       <tbody id="data-tbody">
-        <tr><td colspan="14" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>
+        <tr><td colspan="6" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>
       </tbody>
     </table>
   </div>
@@ -1977,6 +1957,404 @@ function importData(event) {
   };
   reader.readAsText(file);
 }
+
+// ════════════════════════════════
+// V2 DYNAMIC COVERED-CALL INSTRUMENTS
+// 기존 div_entries / quant_log 키는 유지하고, 종목 목록만 별도 저장합니다.
+// ════════════════════════════════
+const COVERED_INSTRUMENTS_KEY = 'covered_instruments_v2';
+const COVERED_DYNAMIC_COLORS = ['#f0b429','#ff8c42','#00d4aa','#7b68ee','#4FC3F7','#A78BFA','#FF8FAB','#F9E87D','#7DF9AA','#ff6b6b','#2dd4bf','#60a5fa'];
+
+function defaultCoveredInstruments() {
+  return [
+    { id:'qqqi', ticker:'QQQI', name:'', currency:'USD', color:'#f0b429', active:true },
+    { id:'xqqi', ticker:'XQQI', name:'', currency:'USD', color:'#ff8c42', active:true },
+    { id:'k491620', ticker:'491620', name:'', currency:'KRW', color:'#00d4aa', active:true },
+  ];
+}
+
+function normalizeCoveredInstrument(raw, idx=0) {
+  const ticker = String(raw?.ticker || raw?.symbol || 'ASSET').trim().toUpperCase();
+  return {
+    id: String(raw?.id || makeCoveredInstrumentId(ticker, raw?.currency || 'USD')).trim().replace(/[^a-zA-Z0-9가-힣_-]+/g,'_'),
+    ticker,
+    name: String(raw?.name || '').trim(),
+    currency: String(raw?.currency || 'USD').toUpperCase() === 'KRW' ? 'KRW' : 'USD',
+    color: raw?.color || COVERED_DYNAMIC_COLORS[idx % COVERED_DYNAMIC_COLORS.length],
+    active: raw?.active !== false,
+  };
+}
+
+function makeCoveredInstrumentId(ticker, currency='USD') {
+  const slug = String(ticker || 'asset').toLowerCase().replace(/[^a-z0-9가-힣]+/g,'_').replace(/^_+|_+$/g,'') || 'asset';
+  const cur = String(currency || 'USD').toLowerCase();
+  return slug + '_' + cur;
+}
+
+function loadCoveredInstruments() {
+  const raw = localStorage.getItem(COVERED_INSTRUMENTS_KEY);
+  if (raw === null) return defaultCoveredInstruments();
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(normalizeCoveredInstrument) : defaultCoveredInstruments();
+  } catch(e) { return defaultCoveredInstruments(); }
+}
+
+let coveredInstruments = loadCoveredInstruments();
+
+function activeCoveredInstruments() { return coveredInstruments.filter(x => x.active !== false); }
+function getCoveredInstrument(id) { return coveredInstruments.find(x => x.id === id) || null; }
+function currencyPrefix(currency) { return currency === 'KRW' ? '₩' : '$'; }
+function formatCoveredNative(n, currency, decimals=2) {
+  if (n === null || n === undefined || !Number.isFinite(Number(n))) return '—';
+  return currency === 'KRW' ? fmtKRW(n) : fmt(n, '$', decimals);
+}
+function hasOwn(obj,key){ return Object.prototype.hasOwnProperty.call(obj||{},key); }
+
+function snapshotInstrument(inst, data={}) {
+  return {
+    id: inst.id,
+    ticker: inst.ticker,
+    name: inst.name || '',
+    currency: inst.currency || 'USD',
+    color: inst.color || '#8892a4',
+    shares: Number(data.shares || 0),
+    price: Number(data.price || 0),
+    dividend: Number(data.dividend || 0),
+  };
+}
+
+function ensureLegacyAssets(entry) {
+  if (!entry || typeof entry !== 'object') return entry;
+  if (!entry.assets || typeof entry.assets !== 'object' || Array.isArray(entry.assets)) entry.assets = {};
+  const legacy = [
+    { id:'qqqi', ticker:'QQQI', currency:'USD', color:'#f0b429', shareKey:'qqqiShares', priceKey:'qqqiPrice', divKey:'qqqiAmt' },
+    { id:'xqqi', ticker:'XQQI', currency:'USD', color:'#ff8c42', shareKey:'xqqiShares', priceKey:'xqqiPrice', divKey:'xqqiAmt' },
+    { id:'k491620', ticker:'491620', currency:'KRW', color:'#00d4aa', shareKey:'shares491', priceKey:'price491', divKey:'amt491' },
+  ];
+  legacy.forEach((spec,idx) => {
+    const hasLegacy = hasOwn(entry,spec.shareKey) || hasOwn(entry,spec.priceKey) || hasOwn(entry,spec.divKey);
+    if (!entry.assets[spec.id] && hasLegacy) {
+      entry.assets[spec.id] = snapshotInstrument({ ...spec, name:'', active:true }, {
+        shares: entry[spec.shareKey], price: entry[spec.priceKey], dividend: entry[spec.divKey]
+      });
+    }
+  });
+  Object.keys(entry.assets).forEach((id,idx) => {
+    const a = entry.assets[id] || {};
+    const reg = getCoveredInstrument(id);
+    entry.assets[id] = snapshotInstrument({
+      id,
+      ticker: a.ticker || reg?.ticker || id.toUpperCase(),
+      name: a.name || reg?.name || '',
+      currency: a.currency || reg?.currency || 'USD',
+      color: a.color || reg?.color || COVERED_DYNAMIC_COLORS[idx % COVERED_DYNAMIC_COLORS.length]
+    }, a);
+  });
+  return entry;
+}
+
+function migrateCoveredEntries() {
+  let changed = false;
+  entries.forEach(e => {
+    const before = JSON.stringify(e.assets || {});
+    ensureLegacyAssets(e);
+    if (before !== JSON.stringify(e.assets || {})) changed = true;
+  });
+  if (changed) localStorage.setItem('div_entries', JSON.stringify(entries));
+}
+
+function getEntryAssets(entry) {
+  if (!entry) return [];
+  ensureLegacyAssets(entry);
+  return Object.values(entry.assets || {});
+}
+function getEntryAsset(entry, id) {
+  if (!entry) return null;
+  ensureLegacyAssets(entry);
+  return entry.assets?.[id] || null;
+}
+function assetDividendUsd(asset, entry) {
+  if (!asset) return 0;
+  return asset.currency === 'KRW' ? Number(asset.dividend||0) / getFx(entry) : Number(asset.dividend||0);
+}
+function assetMarketUsd(asset, entry) {
+  if (!asset) return 0;
+  const native = Number(asset.shares||0) * Number(asset.price||0);
+  return asset.currency === 'KRW' ? native / getFx(entry) : native;
+}
+function totalDividendUsd(entry) {
+  return getEntryAssets(entry).reduce((sum,a) => sum + assetDividendUsd(a,entry), 0);
+}
+
+function save() {
+  localStorage.setItem('div_entries', JSON.stringify(entries));
+  localStorage.setItem('quant_log', JSON.stringify(quantLog));
+  localStorage.setItem('covered_report_snapshots_v1', JSON.stringify(coveredReportSnapshots));
+  localStorage.setItem(COVERED_INSTRUMENTS_KEY, JSON.stringify(coveredInstruments));
+}
+
+function renderInstrumentManager() {
+  const list = document.getElementById('instrument-list');
+  if (!list) return;
+  const active = activeCoveredInstruments();
+  list.innerHTML = active.length ? active.map(inst => `
+    <div class="instrument-chip">
+      <span class="report-dot" style="background:${inst.color}"></span>
+      <strong>${escapeHtmlCc(inst.ticker)}</strong>
+      <span>${inst.currency}${inst.name ? ' · '+escapeHtmlCc(inst.name) : ''}</span>
+      <button type="button" onclick="deactivateCoveredInstrument('${escapeHtmlCc(inst.id)}')" title="입력 목록에서 제거">×</button>
+    </div>`).join('') : '<span style="font-family:var(--mono);font-size:10px;color:var(--text-3);">활성 종목이 없습니다. 위에서 종목을 추가하세요.</span>';
+}
+
+function addCoveredInstrument() {
+  const tickerEl=document.getElementById('instrument-ticker');
+  const nameEl=document.getElementById('instrument-name');
+  const currencyEl=document.getElementById('instrument-currency');
+  const ticker=String(tickerEl?.value||'').trim().toUpperCase();
+  const name=String(nameEl?.value||'').trim();
+  const currency=String(currencyEl?.value||'USD').toUpperCase()==='KRW'?'KRW':'USD';
+  if(!ticker){ toast('종목 티커를 입력해주세요'); return; }
+  let existing=coveredInstruments.find(x=>x.ticker===ticker && x.currency===currency);
+  if(existing){ existing.active=true; if(name) existing.name=name; }
+  else {
+    let id=makeCoveredInstrumentId(ticker,currency), suffix=2;
+    while(coveredInstruments.some(x=>x.id===id)){ id=makeCoveredInstrumentId(ticker,currency)+'_'+suffix++; }
+    coveredInstruments.push(normalizeCoveredInstrument({id,ticker,name,currency,color:COVERED_DYNAMIC_COLORS[coveredInstruments.length%COVERED_DYNAMIC_COLORS.length],active:true},coveredInstruments.length));
+  }
+  save();
+  if(tickerEl) tickerEl.value=''; if(nameEl) nameEl.value='';
+  renderInstrumentManager(); renderInstrumentInputs(); renderDashboard();
+  toast('✓ '+ticker+' 종목 추가됨');
+}
+
+function deactivateCoveredInstrument(id) {
+  const inst=getCoveredInstrument(id); if(!inst) return;
+  if(!confirm(`${inst.ticker}를 월별 입력 목록에서 제거할까요?\n과거 기록과 저장된 리포트는 삭제되지 않습니다.`)) return;
+  inst.active=false; save(); renderInstrumentManager(); renderInstrumentInputs(); renderDashboard(); renderCoveredReport();
+  toast('✓ '+inst.ticker+' 입력 목록에서 제거됨');
+}
+
+function renderInstrumentInputs(entry=null) {
+  const root=document.getElementById('instrument-input-grid'); if(!root) return;
+  const active=activeCoveredInstruments();
+  if(!active.length){ root.innerHTML='<div class="empty-state" style="grid-column:1/-1;padding:1.5rem;">먼저 배당 종목을 추가해주세요.</div>'; return; }
+  root.innerHTML=active.map(inst=>{
+    const a=getEntryAsset(entry,inst.id);
+    const step=inst.currency==='KRW'?'1':'0.01';
+    return `<div class="instrument-input-card">
+      <div class="instrument-input-head"><div><div class="instrument-input-title" style="color:${inst.color}">${escapeHtmlCc(inst.ticker)}</div>${inst.name?`<div style="font-family:var(--mono);font-size:9px;color:var(--text-3);">${escapeHtmlCc(inst.name)}</div>`:''}</div><span class="instrument-input-currency">${inst.currency}</span></div>
+      <div class="instrument-input-fields">
+        <div><label>보유 주수</label><input type="number" id="asset-${inst.id}-shares" value="${a ? Number(a.shares||0) : ''}" placeholder="0" step="0.0001"></div>
+        <div><label>월말 주가 (${currencyPrefix(inst.currency)})</label><input type="number" id="asset-${inst.id}-price" value="${a && Number(a.price||0) ? Number(a.price) : ''}" placeholder="0" step="${step}"></div>
+        <div><label>수령 배당 (${currencyPrefix(inst.currency)})</label><input type="number" id="asset-${inst.id}-dividend" value="${a && Number(a.dividend||0) ? Number(a.dividend) : ''}" placeholder="0" step="${step}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadCoveredMonthForm() {
+  const month=String(document.getElementById('f-month')?.value||'').trim();
+  const entry=entries.find(e=>e.month===month) || null;
+  if(entry){
+    document.getElementById('f-fx').value=entry.fxRate || '';
+    document.getElementById('f-fcf').value=entry.fcf || '';
+  } else {
+    document.getElementById('f-fx').value=''; document.getElementById('f-fcf').value='';
+  }
+  renderInstrumentInputs(entry);
+}
+
+function syncLegacyCoveredFields(entry) {
+  const q=getEntryAsset(entry,'qqqi'); const x=getEntryAsset(entry,'xqqi'); const k=getEntryAsset(entry,'k491620');
+  if(q){ entry.qqqiShares=q.shares; entry.qqqiPrice=q.price; entry.qqqiAmt=q.dividend; }
+  if(x){ entry.xqqiShares=x.shares; entry.xqqiPrice=x.price; entry.xqqiAmt=x.dividend; }
+  if(k){ entry.shares491=k.shares; entry.price491=k.price; entry.amt491=k.dividend; }
+}
+
+function addEntry() {
+  const month=String(document.getElementById('f-month')?.value||'').trim();
+  if(!month){ toast('월을 입력해주세요'); return; }
+  const idx=entries.findIndex(e=>e.month===month);
+  const existing=idx>=0 ? ensureLegacyAssets(entries[idx]) : {month,assets:{}};
+  const entry={...existing, month, assets:{...(existing.assets||{})}};
+  const fxRaw=document.getElementById('f-fx')?.value;
+  const fcfRaw=document.getElementById('f-fcf')?.value;
+  entry.fxRate=fxRaw!=='' ? fxRaw : (existing.fxRate || 1300);
+  entry.fcf=fcfRaw!=='' ? fcfRaw : (existing.fcf || 0);
+  activeCoveredInstruments().forEach(inst=>{
+    const old=entry.assets[inst.id] || snapshotInstrument(inst,{});
+    const sRaw=document.getElementById(`asset-${inst.id}-shares`)?.value ?? '';
+    const pRaw=document.getElementById(`asset-${inst.id}-price`)?.value ?? '';
+    const dRaw=document.getElementById(`asset-${inst.id}-dividend`)?.value ?? '';
+    entry.assets[inst.id]=snapshotInstrument(inst,{
+      shares:sRaw!==''?sRaw:old.shares,
+      price:pRaw!==''?pRaw:old.price,
+      dividend:dRaw!==''?dRaw:old.dividend,
+    });
+  });
+  syncLegacyCoveredFields(entry);
+  if(idx>=0) entries[idx]=entry; else entries.push(entry);
+  entries.sort((a,b)=>a.month.localeCompare(b.month));
+  save(); renderTable(); renderDashboard(); renderCoveredReport();
+  toast('✓ '+month+(idx>=0?' 데이터 업데이트됨':' 데이터 저장됨'));
+  document.getElementById('f-month').value=''; document.getElementById('f-fx').value=''; document.getElementById('f-fcf').value=''; renderInstrumentInputs();
+}
+
+function renderDashboard() {
+  const metricRoot=document.getElementById('instrument-metrics');
+  if(!entries.length){
+    document.getElementById('m-total').textContent='—'; document.getElementById('m-total-growth').textContent='—'; document.getElementById('m-fcf').textContent='$0';
+    document.getElementById('m-total-sub').textContent='USD 환산 기준 · 데이터 없음'; document.getElementById('m-total-growth-sub').textContent='전월 대비 —';
+    if(metricRoot) metricRoot.innerHTML=activeCoveredInstruments().map(i=>`<div class="metric-card"><div class="metric-label">${escapeHtmlCc(i.ticker)} 배당</div><div class="metric-value">—</div><div class="metric-sub">보유 주수 —</div></div>`).join('');
+    renderLineChart(); renderGrowth(null,null); renderAlloc(null,0); return;
+  }
+  entries.forEach(ensureLegacyAssets);
+  const last=entries[entries.length-1], prev=entries.length>1?entries[entries.length-2]:null;
+  const fcfTotal=entries.reduce((s,e)=>s+Number(e.fcf||0),0);
+  const totalUsd=totalDividendUsd(last), prevTotal=prev?totalDividendUsd(prev):0;
+  const totalGrowth=diffInfo(totalUsd,prevTotal,fmtDiffUsd);
+  document.getElementById('m-total').textContent=fmt(totalUsd);
+  document.getElementById('m-total-sub').textContent=`${last.month} 기준 · KRW 종목은 ${getFx(last).toLocaleString()}원/$ 환산`;
+  document.getElementById('m-total-growth').textContent=prev?totalGrowth.text.split(' · ')[0]:'—';
+  document.getElementById('m-total-growth').className='metric-value '+(totalGrowth.cls==='up'?'cyan':'');
+  document.getElementById('m-total-growth-sub').textContent=prev?`전월 대비 ${totalGrowth.text}`:'전월 데이터 없음';
+  document.getElementById('m-fcf').textContent=fmt(fcfTotal);
+  const displayAssets=getEntryAssets(last).filter(a=>a.shares||a.dividend||a.price);
+  if(metricRoot) metricRoot.innerHTML=displayAssets.map(a=>`<div class="metric-card"><div class="metric-label">${escapeHtmlCc(a.ticker)} 배당</div><div class="metric-value" style="color:${a.color}">${formatCoveredNative(a.dividend,a.currency)}</div><div class="metric-sub">보유 주수 ${Number(a.shares||0).toLocaleString()} · ${a.currency}</div></div>`).join('');
+  renderLineChart(); renderGrowth(last,prev); renderAlloc(last,fcfTotal);
+}
+
+function historicalInstrumentMap() {
+  const map=new Map();
+  entries.forEach(e=>getEntryAssets(e).forEach(a=>{ if(!map.has(a.id)) map.set(a.id,a); }));
+  activeCoveredInstruments().forEach(i=>{ if(!map.has(i.id)) map.set(i.id,snapshotInstrument(i,{})); });
+  return map;
+}
+
+function renderLineChart() {
+  const empty=document.getElementById('line-empty'), canvas=document.getElementById('lineChart'), legend=document.getElementById('line-legend');
+  if(!entries.length){ empty.style.display='flex'; canvas.style.display='none'; if(lineChartInst){lineChartInst.destroy();lineChartInst=null;} if(legend)legend.innerHTML=''; return; }
+  empty.style.display='none'; canvas.style.display='block'; document.getElementById('chart-hint').style.display='block';
+  const map=historicalInstrumentMap();
+  const datasets=[...map.values()].filter(meta=>entries.some(e=>{const a=getEntryAsset(e,meta.id); return a && Number(a.dividend||0)!==0;})).map(meta=>({
+    label:`${meta.ticker} 배당 (USD환산)`, data:entries.map(e=>assetDividendUsd(getEntryAsset(e,meta.id),e)), borderColor:meta.color, backgroundColor:meta.color, tension:.4, pointRadius:3, pointBackgroundColor:meta.color, borderWidth:2
+  }));
+  datasets.push({label:'FCF ($)',data:entries.map(e=>Number(e.fcf||0)),borderColor:'#7b68ee',backgroundColor:'#7b68ee',tension:.4,pointRadius:3,pointBackgroundColor:'#7b68ee',borderWidth:2,borderDash:[4,3]});
+  if(legend) legend.innerHTML=datasets.map(ds=>`<div class="legend-item"><div class="legend-dot" style="background:${ds.borderColor}"></div>${escapeHtmlCc(ds.label)}</div>`).join('');
+  if(lineChartInst) lineChartInst.destroy();
+  lineChartInst=new Chart(canvas,{type:'line',data:{labels:entries.map(e=>e.month),datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#141820',borderColor:'rgba(255,255,255,.08)',borderWidth:1,titleColor:'#8892a4',bodyColor:'#f0f2f5',titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{family:'Space Mono',size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{family:'Space Mono',size:10}}}},onClick:(evt,elements)=>{if(elements.length)openDeleteModal(elements[0].index);}}});
+}
+
+function renderGrowth(last, prev) {
+  const wrap=document.getElementById('growth-wrap'); if(!wrap)return;
+  if(!last||!prev){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">◈</div>최소 2개월 데이터가 필요합니다</div>';return;}
+  const ids=new Set([...getEntryAssets(last).map(a=>a.id),...getEntryAssets(prev).map(a=>a.id)]);
+  const rows=[...ids].map(id=>{
+    const curr=getEntryAsset(last,id), before=getEntryAsset(prev,id), meta=curr||before;
+    const cv=Number(curr?.dividend||0), pv=Number(before?.dividend||0);
+    const formatter=meta.currency==='KRW'?fmtDiffKrw:fmtDiffUsd;
+    return {name:meta.ticker,current:formatCoveredNative(cv,meta.currency),info:diffInfo(cv,pv,formatter)};
+  });
+  rows.push({name:'전체 배당 (USD 환산)',current:fmt(totalDividendUsd(last)),info:diffInfo(totalDividendUsd(last),totalDividendUsd(prev),fmtDiffUsd)});
+  wrap.innerHTML=`<div class="growth-grid">${rows.map(r=>`<div class="growth-card"><div class="growth-name">${escapeHtmlCc(r.name)}</div><div class="growth-current">${r.current}</div><div class="growth-change ${r.info.cls}">${r.info.text}</div></div>`).join('')}</div><div class="growth-note">KRW 종목은 각 월에 입력한 KRW/USD 환율로 USD 환산해 전체 배당을 계산합니다.</div>`;
+}
+
+function renderAlloc(last, fcfTotal) {
+  const wrap=document.getElementById('alloc-wrap'); if(!wrap)return;
+  if(!last){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">◈</div>자산 배분 데이터 없음</div>';return;}
+  const rows=getEntryAssets(last).map(a=>({name:a.ticker,value:assetMarketUsd(a,last),color:a.color})).filter(x=>x.value>0);
+  if(fcfTotal>0) rows.push({name:'FCF 현금',value:Number(fcfTotal),color:'#7b68ee'});
+  const total=rows.reduce((s,x)=>s+x.value,0); if(!total){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">◈</div>월말 주가와 보유주수를 입력하면 시장가치 비중이 표시됩니다</div>';return;}
+  wrap.innerHTML=`<div class="donut-labels">${rows.map(r=>{const pct=(r.value/total*100).toFixed(1);return `<div><div class="donut-label-row"><span class="name">${escapeHtmlCc(r.name)}</span><span class="pct">${pct}%</span></div><div class="donut-bar"><div class="donut-bar-fill" style="width:${pct}%;background:${r.color}"></div></div></div>`;}).join('')}</div>`;
+}
+
+function renderTable() {
+  const tbody=document.getElementById('data-tbody'); if(!tbody)return;
+  if(!entries.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:2rem;font-family:var(--mono);font-size:11px;">데이터 없음</td></tr>';document.getElementById('chk-all').checked=false;return;}
+  tbody.innerHTML=entries.slice().reverse().map((e,ri)=>{
+    ensureLegacyAssets(e); const i=entries.length-1-ri, prev=i>0?entries[i-1]:null;
+    const growth=prev?diffInfo(totalDividendUsd(e),totalDividendUsd(prev),fmtDiffUsd):{text:'—',cls:'flat'};
+    const assets=getEntryAssets(e).filter(a=>a.shares||a.price||a.dividend);
+    const pills=assets.length?assets.map(a=>`<span class="entry-asset-pill"><strong style="color:${a.color}">${escapeHtmlCc(a.ticker)}</strong> · ${Number(a.shares||0).toLocaleString()}주 · ${a.price?formatCoveredNative(a.price,a.currency):'가격 —'} · 배당 ${formatCoveredNative(a.dividend,a.currency)}</span>`).join(''):'<span style="color:var(--text-3)">종목 데이터 없음</span>';
+    return `<tr id="row-${i}"><td><input type="checkbox" class="row-chk" data-idx="${i}" onchange="onRowCheck()"></td><td class="gold">${escapeHtmlCc(e.month)}</td><td><div class="entry-assets-summary">${pills}</div></td><td class="${growth.cls==='up'?'cyan':''}" style="font-family:var(--mono);font-size:10px;">${growth.text}</td><td>${fmt(e.fcf||0)}</td><td><button class="btn-del" onclick="deleteEntry(${i})">삭제</button></td></tr>`;
+  }).join(''); document.getElementById('chk-all').checked=false; updateBulkToolbar();
+}
+
+function buildCoveredHoldings(entry, previous) {
+  if(!entry)return[]; ensureLegacyAssets(entry); if(previous)ensureLegacyAssets(previous);
+  const ids=new Set([...getEntryAssets(entry).map(a=>a.id),...activeCoveredInstruments().map(i=>i.id)]);
+  const result=[...ids].map(id=>{
+    const a=getEntryAsset(entry,id); const reg=getCoveredInstrument(id); const meta=a||snapshotInstrument(reg||{id,ticker:id.toUpperCase(),currency:'USD',color:'#8892a4'},{});
+    const prev=getEntryAsset(previous,id); const shares=Number(a?.shares||0), price=Number(a?.price||0), dividend=Number(a?.dividend||0), prevPrice=Number(prev?.price||0);
+    const marketNative=shares*price, marketUsd=meta.currency==='KRW'?marketNative/getFx(entry):marketNative, dividendUsd=meta.currency==='KRW'?dividend/getFx(entry):dividend;
+    const divPerShare=shares>0?dividend/shares:0, reinvestShares=price>0?dividend/price:0, projectedShares=shares+reinvestShares, projectedNextDividend=projectedShares*divPerShare;
+    return {id,key:meta.ticker,ticker:meta.ticker,name:meta.name,currency:meta.currency,color:meta.color,shares,price,prevPrice,dividend,marketNative,marketUsd,dividendUsd,divPerShare,reinvestShares,projectedShares,projectedNextDividend,priceChange:ccPct(price,prevPrice),weight:0,dividendContribution:0};
+  }).filter(h=>h.shares||h.price||h.dividend);
+  const totalDiv=result.reduce((s,h)=>s+h.dividendUsd,0); result.forEach(h=>h.dividendContribution=totalDiv>0?h.dividendUsd/totalDiv*100:0); return result;
+}
+
+function buildPriceIndex(windowEntries) {
+  if(!windowEntries.length)return[];
+  const universe=new Map(); windowEntries.forEach(e=>getEntryAssets(e).forEach(a=>{if(!universe.has(a.id))universe.set(a.id,a);}));
+  const bases=[];
+  universe.forEach((meta,id)=>{
+    const first=windowEntries.find(e=>Number(getEntryAsset(e,id)?.price||0)>0);
+    const a=getEntryAsset(first,id); if(!a)return;
+    const basePrice=Number(a.price||0), baseWeight=assetMarketUsd(a,first); if(basePrice>0&&baseWeight>0)bases.push({id,basePrice,baseWeight});
+  });
+  return windowEntries.map(e=>{let weighted=0,used=0;bases.forEach(b=>{const a=getEntryAsset(e,b.id);const p=Number(a?.price||0);if(p>0){weighted+=((p/b.basePrice)-1)*100*b.baseWeight;used+=b.baseWeight;}});return used>0?weighted/used:null;});
+}
+
+function getCoveredReportData(month) {
+  const entry=getEntryAt(month); if(!entry)return null;
+  const prev=getEntryBefore(month), holdings=buildCoveredHoldings(entry,prev), through=getEntriesThrough(month), windowEntries=through.slice(-6);
+  const totalDiv=totalDividendUsd(entry), prevDiv=prev?totalDividendUsd(prev):0, divGrowth=prev?ccPct(totalDiv,prevDiv):null;
+  const fcfUsd=through.reduce((s,e)=>s+ccNum(e.fcf),0), totalMarket=holdings.reduce((s,h)=>s+h.marketUsd,0)+fcfUsd;
+  holdings.forEach(h=>h.weight=totalMarket>0?h.marketUsd/totalMarket*100:0);
+  const projectedNextUsd=holdings.reduce((s,h)=>s+(h.currency==='KRW'?h.projectedNextDividend/getFx(entry):h.projectedNextDividend),0);
+  const priceIndex=buildPriceIndex(windowEntries), latestPriceGrowth=priceIndex.length?priceIndex[priceIndex.length-1]:null;
+  return {month,entry,prev,holdings,windowEntries,totalDiv,divGrowth,fcfUsd,totalMarket,projectedNextUsd,latestPriceGrowth,createdAt:new Date().toISOString()};
+}
+
+function renderCoveredReport() {
+  const root=document.getElementById('cc-report-root'); if(!root)return;
+  populateCoveredReportMonths(); const sel=document.getElementById('cc-report-month'); const month=sel?.value||entries[entries.length-1]?.month;
+  if(!month){root.innerHTML='<div class="report-card"><div class="report-empty">데이터 입력 탭에서 월별 배당 데이터를 먼저 추가해주세요.</div></div>';return;}
+  const d=getCoveredReportData(month); if(!d)return;
+  const missingPrices=d.holdings.filter(h=>h.shares>0&&!h.price).map(h=>h.key);
+  root.innerHTML=`
+    <div style="margin-bottom:14px;"><div style="font-family:var(--mono);font-size:10px;color:var(--text-3);letter-spacing:.14em;">${escapeHtmlCc(month)} MONTHLY INCOME REPORT</div><div style="font-size:25px;font-weight:800;margin-top:3px;">커버드콜 월간 리포트</div>${missingPrices.length?`<div style="margin-top:7px;font-family:var(--mono);font-size:10px;color:var(--red);">월말 주가 미입력: ${missingPrices.map(escapeHtmlCc).join(', ')} · 가격 성장/비중/재투자 계산이 제한됩니다.</div>`:''}</div>
+    <div class="report-summary-grid">
+      <div class="report-summary-card"><div class="report-summary-label">이번 달 총 배당</div><div class="report-summary-value" style="color:var(--gold)">${fmt(d.totalDiv)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">전월 대비 배당</div><div class="report-summary-value" style="color:${d.divGrowth===null?'var(--text-2)':d.divGrowth>=0?'var(--cyan)':'var(--red)'}">${ccFmtPct(d.divGrowth)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">최근 6개월 주가 지수</div><div class="report-summary-value" style="color:${d.latestPriceGrowth===null?'var(--text-2)':d.latestPriceGrowth>=0?'var(--cyan)':'var(--red)'}">${ccFmtPct(d.latestPriceGrowth)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">전액 재투자 다음 배당</div><div class="report-summary-value" style="color:var(--cyan)">${fmt(d.projectedNextUsd)}</div></div>
+    </div>
+    <div class="report-grid">
+      <div class="report-card"><div class="report-card-title">배당 종목 비중</div><div class="report-card-sub">각 종목의 월말 주가 × 보유주수 기준 시장가치입니다. KRW 종목은 입력 환율로 USD 환산하고 누적 FCF는 현금으로 포함합니다.</div><div class="report-alloc"><canvas id="cc-report-pie" width="200" height="200"></canvas><div class="report-legend">${d.holdings.filter(h=>h.marketUsd>0).map(h=>`<div class="report-legend-row"><span class="report-legend-name"><span class="report-dot" style="background:${h.color}"></span>${escapeHtmlCc(h.key)}</span><strong>${d.totalMarket>0?(h.marketUsd/d.totalMarket*100).toFixed(1):'0.0'}%</strong></div>`).join('')}${d.fcfUsd>0?`<div class="report-legend-row"><span class="report-legend-name"><span class="report-dot" style="background:#7b68ee"></span>FCF 현금</span><strong>${d.totalMarket>0?(d.fcfUsd/d.totalMarket*100).toFixed(1):'0.0'}%</strong></div>`:''}</div></div></div>
+      <div class="report-card"><div class="report-card-title">최근 6개월 배당 vs 주가</div><div class="report-card-sub">막대=월 배당금, 실선=첫 관측 배당 대비 성장률, 점선=최근 6개월 내 각 종목의 첫 유효 월말 가격을 기준으로 한 시장가치 가중 가격지수 성장률.</div><div style="height:250px;"><canvas id="cc-report-trend-chart"></canvas></div></div>
+    </div>
+    <div class="report-holdings">${d.holdings.map(h=>{const nf=n=>formatCoveredNative(n,h.currency);const prevText=h.prevPrice>0?ccFmtPct(h.priceChange):'기준 없음';const narrative=h.priceChange===null?`${escapeHtmlCc(h.key)}는 이전 월말 가격이 없어 가격 변화율을 계산하지 못했습니다.`:`${escapeHtmlCc(h.key)} 주가는 전월 기록 대비 ${ccFmtPct(h.priceChange)} 변했습니다.`;const divText=h.divPerShare>0?`현재 기록 기준 주당 배당은 ${nf(h.divPerShare)}이며, 이번 달 배당을 전액 재투자하면 약 ${h.reinvestShares.toFixed(4)}주가 추가되어 동일한 주당 배당을 가정할 때 다음 배당은 ${nf(h.projectedNextDividend)}로 계산됩니다.`:'보유주수 또는 배당 데이터가 없어 주당 배당/재투자 계산을 생략했습니다.';return `<article class="report-holding"><div class="report-holding-head"><div><div class="report-holding-ticker">${escapeHtmlCc(h.key)}</div><div class="report-holding-sub">배당 기여도 ${h.dividendContribution.toFixed(1)}% · 전체 계좌 자산 비중 ${h.weight.toFixed(1)}%${h.name?' · '+escapeHtmlCc(h.name):''}</div></div><div style="font-family:var(--mono);font-size:11px;color:${h.priceChange===null?'var(--text-3)':h.priceChange>=0?'var(--cyan)':'var(--red)'}">${prevText}</div></div><div class="report-holding-body"><div class="report-metrics"><div class="report-metric"><div class="report-metric-label">월말 주가</div><div class="report-metric-value">${h.price>0?nf(h.price):'—'}</div></div><div class="report-metric"><div class="report-metric-label">보유 주수</div><div class="report-metric-value">${h.shares.toLocaleString()}</div></div><div class="report-metric"><div class="report-metric-label">이번 달 배당</div><div class="report-metric-value">${nf(h.dividend)}</div></div><div class="report-metric"><div class="report-metric-label">주당 배당</div><div class="report-metric-value">${h.divPerShare>0?nf(h.divPerShare):'—'}</div></div><div class="report-metric"><div class="report-metric-label">재투자 후 다음 배당</div><div class="report-metric-value" style="color:var(--cyan)">${h.projectedNextDividend>0?nf(h.projectedNextDividend):'—'}</div></div></div><div class="report-narrative">${narrative} ${divText}</div></div></article>`;}).join('')}</div>
+    <div class="report-card" style="margin-top:1.5rem;"><div class="report-card-title">계산 가정</div><div class="report-card-sub" style="margin-bottom:0;">재투자 예상 배당은 현재 월말 주가와 이번 달에 관측된 주당 배당금이 다음 배당에서도 그대로 유지된다는 단순 시뮬레이션입니다. 실제 분배금과 가격은 변동할 수 있습니다.</div></div>`;
+  requestAnimationFrame(()=>{renderCoveredPie(document.getElementById('cc-report-pie'),d.holdings,d.fcfUsd);renderCoveredTrendChart(d.windowEntries);});
+}
+
+function exportData() {
+  const payload={version:5,exportedAt:new Date().toISOString(),entries,quantLog,coveredReportSnapshots,coveredInstruments};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a'),date=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`dividend-dashboard-${date}.json`;a.click();URL.revokeObjectURL(url);toast('✓ 데이터 내보내기 완료');
+}
+
+function importData(event) {
+  const file=event.target.files[0]; if(!file)return; const reader=new FileReader();
+  reader.onload=(e)=>{try{const raw=JSON.parse(e.target.result);if(Array.isArray(raw)){entries=raw;quantLog=[];}else if(raw&&Array.isArray(raw.entries)){entries=raw.entries;quantLog=raw.quantLog||[];coveredReportSnapshots=raw.coveredReportSnapshots||{};if(Array.isArray(raw.coveredInstruments))coveredInstruments=raw.coveredInstruments.map(normalizeCoveredInstrument);}else{toast('⚠ 파일 형식을 인식할 수 없어요');event.target.value='';return;}migrateCoveredEntries();save();renderInstrumentManager();renderInstrumentInputs();renderDashboard();renderTable();renderQuantTable();renderCoveredReport();const fcfSum=entries.reduce((s,x)=>s+Number(x.fcf||0),0);const hint=document.getElementById('hint-fcf-total');if(hint)hint.textContent=fmt(fcfSum);toast('✓ 불러오기 완료 — '+entries.length+'개월치 데이터 복원됨');}catch(err){console.error(err);toast('⚠ JSON 파일이 손상됐거나 형식이 맞지 않아요');}event.target.value='';};reader.readAsText(file);
+}
+
+migrateCoveredEntries();
+renderInstrumentManager();
+renderInstrumentInputs();
+
 
 renderDashboard();
 renderTable();
