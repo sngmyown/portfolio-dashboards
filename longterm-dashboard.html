@@ -1019,9 +1019,15 @@
 
   /* Responsive */
   @media (max-width: 900px) {
+    header { align-items:flex-start; gap:14px; }
+    .header-right { flex-wrap:wrap; justify-content:flex-end; gap:8px; }
     .positions-grid, .check-grid, .scenario-grid { grid-template-columns: 1fr; }
     .summary-bar { grid-template-columns: 1fr 1fr; }
     .financials-panel { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 680px) {
+    header { flex-direction:column; }
+    .header-right { width:100%; justify-content:flex-start; }
   }
 
   /* ── MONTHLY INVESTMENT REPORT ── */
@@ -1078,7 +1084,8 @@
   .report-signal { border:1px solid var(--border); border-radius:8px; padding:8px 9px; font-size:10px; font-family:var(--mono); }
   .report-signal.good { color:var(--accent); background:rgba(125,249,170,.05); }
   .report-signal.bad { color:var(--danger); background:rgba(255,107,107,.05); }
-  .report-signal.neutral { color:var(--muted); background:rgba(255,255,255,.02); }
+  .report-signal.neutral { color:var(--warn); background:rgba(255,179,71,.08); border-color:rgba(255,179,71,.28); }
+  .report-signal.meta { color:var(--muted); background:rgba(255,255,255,.02); }
   .report-why { border-top:1px solid var(--border); padding-top:10px; }
   .report-why-title { font-size:10px; color:var(--muted); font-family:var(--mono); text-transform:uppercase; margin-bottom:6px; }
   .report-why ul { margin:0; padding-left:18px; color:var(--text); font-size:12px; line-height:1.75; }
@@ -1131,6 +1138,7 @@
       </div>
     </div>
     <div class="header-right">
+      <a class="btn-sync" href="covered-call-dashboard.html" title="커버드콜 대시보드로 이동">커버드콜 ↗</a>
       <button class="btn-sync" onclick="exportStateData()" title="현재 대시보드 데이터를 JSON으로 백업">
         내보내기
       </button>
@@ -3620,7 +3628,7 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
             </div>
             <div class="report-signal-grid" style="grid-template-columns:1fr 1fr;">
               <div class="report-signal ${a.scenario.cls}">시나리오 가격 위치 · ${escapeHtml(a.scenario.label)}</div>
-              <div class="report-signal neutral">월간 기록 · 답변 ${a.checklist.answerCount}개 / 체크 ${a.checklist.checkedCount}/${a.checklist.totalItems}</div>
+              <div class="report-signal meta">월간 기록 · 답변 ${a.checklist.answerCount}개 / 체크 ${a.checklist.checkedCount}/${a.checklist.totalItems}</div>
             </div>
             <div class="report-why"><div class="report-why-title">WHY · 대시보드 근거</div><ul>${a.reasons.map(r=>`<li>${escapeHtml(r)}</li>`).join('')}</ul></div>
           </div>
