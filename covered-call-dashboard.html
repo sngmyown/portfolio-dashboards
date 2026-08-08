@@ -845,6 +845,54 @@
     margin-top: .85rem;
   }
 
+
+  /* MONTHLY COVERED-CALL REPORT */
+  .report-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:1.5rem; }
+  .report-toolbar-title { font-size:15px; font-weight:700; }
+  .report-toolbar-note { font-family:var(--mono); font-size:10px; color:var(--text-3); margin-top:3px; line-height:1.5; }
+  .report-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .report-select { background:var(--bg-surface); border:1px solid var(--border-accent); color:var(--text-1); border-radius:var(--radius-sm); padding:7px 10px; font-family:var(--mono); font-size:11px; outline:none; }
+  .report-btn { background:var(--bg-surface); border:1px solid var(--border-accent); color:var(--text-2); border-radius:var(--radius-sm); padding:7px 11px; font-family:var(--mono); font-size:11px; cursor:pointer; }
+  .report-btn:hover { color:var(--gold); border-color:var(--gold); }
+  .report-btn.primary { background:var(--gold); border-color:var(--gold); color:#0a0c0f; font-weight:700; }
+  .report-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1.5rem; }
+  .report-summary-card { background:var(--bg-card); padding:1.25rem; }
+  .report-summary-label { font-family:var(--mono); font-size:9px; text-transform:uppercase; color:var(--text-3); letter-spacing:.12em; margin-bottom:.4rem; }
+  .report-summary-value { font-family:var(--mono); font-size:20px; font-weight:700; }
+  .report-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+  .report-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; min-width:0; }
+  .report-card-title { font-size:14px; font-weight:700; margin-bottom:3px; }
+  .report-card-sub { font-family:var(--mono); font-size:10px; color:var(--text-3); margin-bottom:1rem; line-height:1.6; }
+  .report-alloc { display:flex; gap:1.5rem; align-items:center; min-height:220px; }
+  .report-legend { flex:1; display:flex; flex-direction:column; gap:8px; }
+  .report-legend-row { display:flex; justify-content:space-between; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; }
+  .report-legend-name { display:flex; align-items:center; gap:7px; color:var(--text-2); }
+  .report-dot { width:8px; height:8px; border-radius:2px; }
+  .report-holdings { display:flex; flex-direction:column; gap:12px; }
+  .report-holding { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; break-inside:avoid; page-break-inside:avoid; }
+  .report-holding-head { padding:13px 15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+  .report-holding-ticker { font-family:var(--mono); font-size:16px; font-weight:700; }
+  .report-holding-sub { font-family:var(--mono); font-size:10px; color:var(--text-3); margin-top:2px; }
+  .report-holding-body { padding:14px 15px; }
+  .report-metrics { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+  .report-metric { background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; padding:8px 9px; }
+  .report-metric-label { font-family:var(--mono); font-size:8px; color:var(--text-3); text-transform:uppercase; margin-bottom:3px; }
+  .report-metric-value { font-family:var(--mono); font-size:12px; font-weight:700; }
+  .report-narrative { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; line-height:1.75; color:var(--text-2); }
+  .report-empty { padding:2.5rem 1rem; text-align:center; color:var(--text-3); font-family:var(--mono); font-size:11px; line-height:1.8; }
+  @media (max-width: 900px) { .report-summary-grid,.report-metrics { grid-template-columns:1fr 1fr; } .report-grid { grid-template-columns:1fr; } }
+  @media (max-width: 620px) { .report-summary-grid,.report-metrics { grid-template-columns:1fr; } .report-alloc { flex-direction:column; align-items:flex-start; } }
+  @media print {
+    body { background:#fff !important; color:#111 !important; }
+    body::before, .header, .nav, .toast, .report-toolbar { display:none !important; }
+    .panel { display:none !important; max-width:none !important; padding:0 !important; }
+    #tab-report { display:block !important; }
+    #tab-report .report-card,#tab-report .report-holding,#tab-report .report-summary-card { background:#fff !important; color:#111 !important; border:1px solid #ddd !important; }
+    #tab-report .report-metric { background:#f7f7f7 !important; border-color:#ddd !important; }
+    #tab-report .report-card-sub,#tab-report .report-holding-sub,#tab-report .report-metric-label,#tab-report .report-narrative { color:#666 !important; }
+    #tab-report .report-summary-value,#tab-report .report-metric-value,#tab-report .report-holding-ticker { color:#111 !important; }
+  }
+
 </style>
 </head>
 <body>
@@ -872,6 +920,7 @@
   <button class="nav-btn active" onclick="switchTab('dashboard', this)">대시보드</button>
   <button class="nav-btn" onclick="switchTab('input', this)">데이터 입력</button>
   <button class="nav-btn" onclick="switchTab('fcf', this)">FCF 퀀트 점프</button>
+  <button class="nav-btn" onclick="switchTab('report', this)">월간 리포트</button>
 </nav>
 
 <!-- DASHBOARD -->
@@ -982,7 +1031,7 @@
 
   <div class="form-card">
     <div class="form-title">월별 데이터 추가</div>
-    <div class="form-subtitle">매달 한 번, 수령액을 입력하면 차트가 자동 업데이트됩니다</div>
+    <div class="form-subtitle">매달 한 번, 배당 수령액과 월말 주가를 입력하면 차트와 월간 리포트가 자동 업데이트됩니다</div>
 
     <div class="form-grid">
       <div class="form-group">
@@ -998,6 +1047,10 @@
         <input type="number" id="f-qqqi-shares" placeholder="0">
       </div>
       <div class="form-group">
+        <label>QQQI 월말 주가 ($)</label>
+        <input type="number" id="f-qqqi-price" placeholder="0.00" step="0.01">
+      </div>
+      <div class="form-group">
         <label>QQQI 수령액 ($)</label>
         <input type="number" id="f-qqqi-amt" placeholder="0.00">
       </div>
@@ -1006,12 +1059,20 @@
         <input type="number" id="f-xqqi-shares" placeholder="0">
       </div>
       <div class="form-group">
+        <label>XQQI 월말 주가 ($)</label>
+        <input type="number" id="f-xqqi-price" placeholder="0.00" step="0.01">
+      </div>
+      <div class="form-group">
         <label>XQQI 수령액 ($)</label>
         <input type="number" id="f-xqqi-amt" placeholder="0.00">
       </div>
       <div class="form-group">
         <label>491620 보유 주수</label>
         <input type="number" id="f-491-shares" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>491620 월말 주가 (₩)</label>
+        <input type="number" id="f-491-price" placeholder="0" step="1">
       </div>
       <div class="form-group">
         <label>491620 수령액 (₩)</label>
@@ -1039,10 +1100,13 @@
           <th style="width:36px"><input type="checkbox" id="chk-all" onchange="toggleAll(this)"></th>
           <th>월</th>
           <th>QQQI 주수</th>
+          <th>QQQI 가격</th>
           <th>QQQI ($)</th>
           <th>XQQI 주수</th>
+          <th>XQQI 가격</th>
           <th>XQQI ($)</th>
           <th>491620 주수</th>
+          <th>491620 가격</th>
           <th>491620 (₩)</th>
           <th>총 배당 변화</th>
           <th>FCF ($)</th>
@@ -1050,7 +1114,7 @@
         </tr>
       </thead>
       <tbody id="data-tbody">
-        <tr><td colspan="11" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>
+        <tr><td colspan="14" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>
       </tbody>
     </table>
   </div>
@@ -1164,17 +1228,37 @@
 
 </div>
 
+<!-- MONTHLY REPORT -->
+<div id="tab-report" class="panel">
+  <div class="report-toolbar">
+    <div>
+      <div class="report-toolbar-title">Covered Call Monthly Income Report</div>
+      <div class="report-toolbar-note">기존 월별 배당 기록 + 월말 주가 + 보유주수만 사용해 가격 훼손, 배당 성장, 재투자 효과를 계산합니다.</div>
+    </div>
+    <div class="report-actions">
+      <select id="cc-report-month" class="report-select" onchange="renderCoveredReport()"></select>
+      <button class="report-btn" onclick="renderCoveredReport()">새로고침</button>
+      <button class="report-btn primary" onclick="saveCoveredReportSnapshot()">리포트 저장</button>
+      <button class="report-btn" onclick="window.print()">인쇄 / PDF</button>
+    </div>
+  </div>
+  <div id="cc-report-root"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 let entries = JSON.parse(localStorage.getItem('div_entries') || '[]');
 let quantLog = JSON.parse(localStorage.getItem('quant_log') || '[]');
+let coveredReportSnapshots = JSON.parse(localStorage.getItem('covered_report_snapshots_v1') || '{}');
 let lineChartInst = null;
+let coveredReportChartInst = null;
 
 function save() {
   localStorage.setItem('div_entries', JSON.stringify(entries));
   localStorage.setItem('quant_log', JSON.stringify(quantLog));
+  localStorage.setItem('covered_report_snapshots_v1', JSON.stringify(coveredReportSnapshots));
 }
 
 function toast(msg) {
@@ -1190,6 +1274,7 @@ function switchTab(id, btn) {
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
   if (id === 'dashboard') renderDashboard();
+  if (id === 'report') renderCoveredReport();
 }
 
 function fmt(n, prefix='$', decimals=2) {
@@ -1408,7 +1493,7 @@ function renderAlloc(last, fcfTotal) {
 function renderTable() {
   const tbody = document.getElementById('data-tbody');
   if (!entries.length) {
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; color:var(--text-3); padding:2rem; font-family:var(--mono); font-size:11px;">데이터 없음</td></tr>';
     document.getElementById('chk-all').checked = false;
     return;
   }
@@ -1420,10 +1505,13 @@ function renderTable() {
       <td><input type="checkbox" class="row-chk" data-idx="${i}" onchange="onRowCheck()"></td>
       <td class="gold">${e.month}</td>
       <td>${e.qqqiShares}</td>
+      <td>${Number(e.qqqiPrice || 0) ? fmt(e.qqqiPrice) : '—'}</td>
       <td class="gold">${fmt(e.qqqiAmt)}</td>
       <td>${e.xqqiShares || 0}</td>
+      <td>${Number(e.xqqiPrice || 0) ? fmt(e.xqqiPrice) : '—'}</td>
       <td style="color:#ff8c42">${fmt(getXqqiAmt(e))}</td>
       <td>${e.shares491}</td>
+      <td>${Number(e.price491 || 0) ? fmtKRW(e.price491) : '—'}</td>
       <td class="cyan">₩${Number(e.amt491).toLocaleString()}</td>
       <td class="${growth.cls === 'up' ? 'cyan' : growth.cls === 'down' ? '' : ''}" style="font-family:var(--mono);font-size:10px;">${growth.text}</td>
       <td>${fmt(e.fcf)}</td>
@@ -1477,25 +1565,40 @@ function deleteSelected() {
 function addEntry() {
   const month = document.getElementById('f-month').value.trim();
   if (!month) { toast('월을 입력해주세요'); return; }
-  const entry = {
-    month,
-    fxRate:     document.getElementById('f-fx').value || 1300,
-    qqqiShares: document.getElementById('f-qqqi-shares').value || 0,
-    qqqiAmt:    document.getElementById('f-qqqi-amt').value || 0,
-    xqqiShares: document.getElementById('f-xqqi-shares').value || 0,
-    xqqiAmt:    document.getElementById('f-xqqi-amt').value || 0,
-    shares491:  document.getElementById('f-491-shares').value || 0,
-    amt491:     document.getElementById('f-491-amt').value || 0,
-    fcf:        document.getElementById('f-fcf').value || 0,
-  };
+
   const idx = entries.findIndex(e => e.month === month);
-  if (idx >= 0) entries[idx] = { ...entries[idx], ...entry }; else entries.push(entry);
+  const existing = idx >= 0 ? entries[idx] : {};
+  const read = (id, key, fallback = 0) => {
+    const raw = document.getElementById(id).value;
+    if (raw !== '') return raw;
+    if (existing[key] !== undefined && existing[key] !== null && existing[key] !== '') return existing[key];
+    return fallback;
+  };
+
+  const entry = {
+    ...existing,
+    month,
+    fxRate:     read('f-fx', 'fxRate', 1300),
+    qqqiShares: read('f-qqqi-shares', 'qqqiShares', 0),
+    qqqiPrice:  read('f-qqqi-price', 'qqqiPrice', 0),
+    qqqiAmt:    read('f-qqqi-amt', 'qqqiAmt', 0),
+    xqqiShares: read('f-xqqi-shares', 'xqqiShares', 0),
+    xqqiPrice:  read('f-xqqi-price', 'xqqiPrice', 0),
+    xqqiAmt:    read('f-xqqi-amt', 'xqqiAmt', 0),
+    shares491:  read('f-491-shares', 'shares491', 0),
+    price491:   read('f-491-price', 'price491', 0),
+    amt491:     read('f-491-amt', 'amt491', 0),
+    fcf:        read('f-fcf', 'fcf', 0),
+  };
+
+  if (idx >= 0) entries[idx] = entry; else entries.push(entry);
   entries.sort((a,b) => a.month.localeCompare(b.month));
   save();
   renderTable();
   renderDashboard();
-  toast('✓ ' + month + ' 데이터 저장됨');
-  ['f-month','f-fx','f-qqqi-shares','f-qqqi-amt','f-xqqi-shares','f-xqqi-amt','f-491-shares','f-491-amt','f-fcf'].forEach(id => document.getElementById(id).value = '');
+  renderCoveredReport();
+  toast('✓ ' + month + (idx >= 0 ? ' 데이터 업데이트됨' : ' 데이터 저장됨'));
+  ['f-month','f-fx','f-qqqi-shares','f-qqqi-price','f-qqqi-amt','f-xqqi-shares','f-xqqi-price','f-xqqi-amt','f-491-shares','f-491-price','f-491-amt','f-fcf'].forEach(id => document.getElementById(id).value = '');
 }
 
 function deleteEntry(i) {
@@ -1664,12 +1767,159 @@ function delQuant(i) {
   renderQuantTable();
 }
 
+
+// ════════════════════════════════
+// COVERED CALL MONTHLY REPORT
+// ════════════════════════════════
+const CC_COLORS = { QQQI:'#f0b429', XQQI:'#ff8c42', K491:'#00d4aa', FCF:'#7b68ee' };
+
+function getEntryBefore(month) {
+  const sorted = entries.filter(e => e.month < month).slice().sort((a,b)=>a.month.localeCompare(b.month));
+  return sorted.length ? sorted[sorted.length-1] : null;
+}
+function getEntryAt(month) { return entries.find(e => e.month === month) || null; }
+function getEntriesThrough(month) { return entries.filter(e => e.month <= month).slice().sort((a,b)=>a.month.localeCompare(b.month)); }
+function ccNum(v){ return Number(v || 0); }
+function ccPct(curr, prev){ return prev>0 ? (curr-prev)/prev*100 : null; }
+function ccFmtPct(v){ return v===null||!Number.isFinite(v)?'—':(v>0?'+':'')+v.toFixed(1)+'%'; }
+
+function buildCoveredHoldings(entry, previous) {
+  if (!entry) return [];
+  const fx=getFx(entry);
+  const specs=[
+    {key:'QQQI', shares:ccNum(entry.qqqiShares), price:ccNum(entry.qqqiPrice), prevPrice:ccNum(previous?.qqqiPrice), dividend:ccNum(entry.qqqiAmt), currency:'USD', color:CC_COLORS.QQQI},
+    {key:'XQQI', shares:getXqqiShares(entry), price:ccNum(entry.xqqiPrice), prevPrice:ccNum(previous?.xqqiPrice), dividend:getXqqiAmt(entry), currency:'USD', color:CC_COLORS.XQQI},
+    {key:'491620', shares:ccNum(entry.shares491), price:ccNum(entry.price491), prevPrice:ccNum(previous?.price491), dividend:ccNum(entry.amt491), currency:'KRW', color:CC_COLORS.K491},
+  ];
+  const result=specs.map(s=>{
+    const marketNative=s.shares*s.price;
+    const marketUsd=s.currency==='KRW'?marketNative/fx:marketNative;
+    const dividendUsd=s.currency==='KRW'?s.dividend/fx:s.dividend;
+    const divPerShare=s.shares>0?s.dividend/s.shares:0;
+    const reinvestShares=s.price>0?s.dividend/s.price:0;
+    const projectedShares=s.shares+reinvestShares;
+    const projectedNextDividend=projectedShares*divPerShare;
+    return {...s, marketNative,marketUsd,dividendUsd,divPerShare,reinvestShares,projectedShares,projectedNextDividend,priceChange:ccPct(s.price,s.prevPrice)};
+  });
+  const totalMarket=result.reduce((s,h)=>s+h.marketUsd,0);
+  const totalDiv=result.reduce((s,h)=>s+h.dividendUsd,0);
+  result.forEach(h=>{h.weight=totalMarket>0?h.marketUsd/totalMarket*100:0;h.dividendContribution=totalDiv>0?h.dividendUsd/totalDiv*100:0;});
+  return result;
+}
+
+function buildPriceIndex(windowEntries) {
+  if (!windowEntries.length) return [];
+  const first=windowEntries[0];
+  const fxFirst=getFx(first);
+  const bases=[
+    {price:ccNum(first.qqqiPrice), weight:ccNum(first.qqqiPrice)*ccNum(first.qqqiShares)},
+    {price:ccNum(first.xqqiPrice), weight:ccNum(first.xqqiPrice)*getXqqiShares(first)},
+    {price:ccNum(first.price491), weight:(ccNum(first.price491)*ccNum(first.shares491))/fxFirst, krw:true},
+  ];
+  let weightSum=bases.reduce((s,b)=>s+(b.price>0?b.weight:0),0);
+  return windowEntries.map(e=>{
+    const current=[ccNum(e.qqqiPrice),ccNum(e.xqqiPrice),ccNum(e.price491)];
+    let weighted=0, used=0;
+    bases.forEach((b,i)=>{ if(b.price>0 && current[i]>0 && b.weight>0){ weighted += ((current[i]/b.price)-1)*100*b.weight; used += b.weight; } });
+    return used>0?weighted/used:null;
+  });
+}
+
+function populateCoveredReportMonths() {
+  const sel=document.getElementById('cc-report-month'); if(!sel) return;
+  const months=entries.map(e=>e.month).slice().sort((a,b)=>b.localeCompare(a));
+  const prev=sel.value;
+  sel.innerHTML=months.map(m=>`<option value="${m}">${m}</option>`).join('');
+  if(months.includes(prev)) sel.value=prev;
+}
+
+function renderCoveredPie(canvas, holdings, fcfUsd) {
+  if(!canvas) return; const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height; ctx.clearRect(0,0,W,H);
+  const slices=holdings.filter(h=>h.marketUsd>0).map(h=>({label:h.key,value:h.marketUsd,color:h.color}));
+  if(fcfUsd>0) slices.push({label:'FCF',value:fcfUsd,color:CC_COLORS.FCF});
+  const total=slices.reduce((s,x)=>s+x.value,0); if(!total)return;
+  let start=-Math.PI/2; const cx=W/2,cy=H/2,outer=82,inner=48;
+  slices.forEach(s=>{const a=s.value/total*Math.PI*2;ctx.beginPath();ctx.arc(cx,cy,outer,start,start+a);ctx.arc(cx,cy,inner,start+a,start,true);ctx.closePath();ctx.fillStyle=s.color;ctx.fill();start+=a;});
+  ctx.fillStyle='#f0f2f5';ctx.font='700 13px Space Mono, monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('INCOME',cx,cy-6);ctx.fillStyle='#8892a4';ctx.font='10px Space Mono, monospace';ctx.fillText('PORTFOLIO',cx,cy+12);
+}
+
+function renderCoveredTrendChart(windowEntries) {
+  const canvas=document.getElementById('cc-report-trend-chart'); if(!canvas || typeof Chart==='undefined') return;
+  if(coveredReportChartInst) coveredReportChartInst.destroy();
+  if(!windowEntries.length) return;
+  const dividends=windowEntries.map(e=>totalDividendUsd(e));
+  const firstDiv=dividends.find(v=>v>0)||0;
+  const divGrowth=dividends.map(v=>firstDiv>0?(v/firstDiv-1)*100:null);
+  const priceIndex=buildPriceIndex(windowEntries);
+  coveredReportChartInst=new Chart(canvas,{type:'bar',data:{labels:windowEntries.map(e=>e.month),datasets:[
+    {type:'bar',label:'월 배당 ($)',data:dividends,backgroundColor:'rgba(240,180,41,.35)',borderColor:'#f0b429',borderWidth:1,yAxisID:'y'},
+    {type:'line',label:'배당 성장률',data:divGrowth,borderColor:'#00d4aa',backgroundColor:'#00d4aa',tension:.35,pointRadius:3,borderWidth:2,yAxisID:'y1'},
+    {type:'line',label:'주가 지수 성장률',data:priceIndex,borderColor:'#ff8c42',backgroundColor:'#ff8c42',tension:.35,pointRadius:3,borderWidth:2,borderDash:[4,3],yAxisID:'y1'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{family:'Space Mono',size:10}}},tooltip:{backgroundColor:'#141820',borderColor:'rgba(255,255,255,.08)',borderWidth:1,titleColor:'#8892a4',bodyColor:'#f0f2f5'}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568'}},y:{position:'left',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',callback:v=>'$'+v}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#4a5568',callback:v=>v+'%'}}}}});
+}
+
+function getCoveredReportData(month) {
+  const entry=getEntryAt(month); if(!entry) return null;
+  const prev=getEntryBefore(month); const holdings=buildCoveredHoldings(entry,prev); const through=getEntriesThrough(month); const windowEntries=through.slice(-6);
+  const totalDiv=totalDividendUsd(entry); const prevDiv=prev?totalDividendUsd(prev):0; const divGrowth=prev?ccPct(totalDiv,prevDiv):null;
+  const fcfUsd=through.reduce((s,e)=>s+ccNum(e.fcf),0);
+  const totalMarket=holdings.reduce((s,h)=>s+h.marketUsd,0)+fcfUsd;
+  const projectedNextUsd=holdings.reduce((s,h)=>s+(h.currency==='KRW'?h.projectedNextDividend/getFx(entry):h.projectedNextDividend),0);
+  const priceIndex=buildPriceIndex(windowEntries); const latestPriceGrowth=priceIndex.length?priceIndex[priceIndex.length-1]:null;
+  return {month,entry,prev,holdings,windowEntries,totalDiv,divGrowth,fcfUsd,totalMarket,projectedNextUsd,latestPriceGrowth,createdAt:new Date().toISOString()};
+}
+
+function renderCoveredReport() {
+  const root=document.getElementById('cc-report-root'); if(!root) return;
+  populateCoveredReportMonths(); const sel=document.getElementById('cc-report-month'); const month=sel?.value || entries[entries.length-1]?.month;
+  if(!month){root.innerHTML='<div class="report-card"><div class="report-empty">데이터 입력 탭에서 월별 배당 데이터를 먼저 추가해주세요.</div></div>';return;}
+  const d=getCoveredReportData(month); if(!d)return;
+  const missingPrices=d.holdings.filter(h=>h.shares>0&&!h.price).map(h=>h.key);
+  root.innerHTML=`
+    <div style="margin-bottom:14px;"><div style="font-family:var(--mono);font-size:10px;color:var(--text-3);letter-spacing:.14em;">${escapeHtmlCc(month)} MONTHLY INCOME REPORT</div><div style="font-size:25px;font-weight:800;margin-top:3px;">커버드콜 월간 리포트</div>${missingPrices.length?`<div style="margin-top:7px;font-family:var(--mono);font-size:10px;color:var(--red);">월말 주가 미입력: ${missingPrices.join(', ')} · 가격 성장/비중/재투자 계산이 제한됩니다.</div>`:''}</div>
+    <div class="report-summary-grid">
+      <div class="report-summary-card"><div class="report-summary-label">이번 달 총 배당</div><div class="report-summary-value" style="color:var(--gold)">${fmt(d.totalDiv)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">전월 대비 배당</div><div class="report-summary-value" style="color:${d.divGrowth===null?'var(--text-2)':d.divGrowth>=0?'var(--cyan)':'var(--red)'}">${ccFmtPct(d.divGrowth)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">최근 6개월 주가 지수</div><div class="report-summary-value" style="color:${d.latestPriceGrowth===null?'var(--text-2)':d.latestPriceGrowth>=0?'var(--cyan)':'var(--red)'}">${ccFmtPct(d.latestPriceGrowth)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">전액 재투자 다음 배당</div><div class="report-summary-value" style="color:var(--cyan)">${fmt(d.projectedNextUsd)}</div></div>
+    </div>
+    <div class="report-grid">
+      <div class="report-card">
+        <div class="report-card-title">배당 종목 비중</div><div class="report-card-sub">월말 주가 × 보유주수 기준 시장가치. 491620은 입력 환율로 USD 환산하고 누적 FCF는 현금으로 포함합니다.</div>
+        <div class="report-alloc"><canvas id="cc-report-pie" width="200" height="200"></canvas><div class="report-legend">${d.holdings.filter(h=>h.marketUsd>0).map(h=>`<div class="report-legend-row"><span class="report-legend-name"><span class="report-dot" style="background:${h.color}"></span>${h.key}</span><strong>${(h.marketUsd/d.totalMarket*100).toFixed(1)}%</strong></div>`).join('')}${d.fcfUsd>0?`<div class="report-legend-row"><span class="report-legend-name"><span class="report-dot" style="background:${CC_COLORS.FCF}"></span>FCF 현금</span><strong>${(d.fcfUsd/d.totalMarket*100).toFixed(1)}%</strong></div>`:''}</div></div>
+      </div>
+      <div class="report-card">
+        <div class="report-card-title">최근 6개월 배당 vs 주가</div><div class="report-card-sub">막대=월 배당금, 실선=첫 달 대비 배당 성장률, 점선=첫 달 월말 가격을 기준으로 한 보유종목 가중 가격지수 성장률.</div>
+        <div style="height:250px;"><canvas id="cc-report-trend-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="report-holdings">
+      ${d.holdings.map(h=>{
+        const nativeFmt=h.currency==='KRW'?(n=>fmtKRW(n)):(n=>fmt(n));
+        const prevText=h.prevPrice>0?ccFmtPct(h.priceChange):'기준 없음';
+        const narrative=h.priceChange===null?`${h.key}는 이전 월말 가격이 없어 가격 변화율을 계산하지 못했습니다.`:`${h.key} 주가는 전월 기록 대비 ${ccFmtPct(h.priceChange)} 변했습니다.`;
+        const divText=h.divPerShare>0?`현재 기록 기준 주당 배당은 ${nativeFmt(h.divPerShare)}이며, 이번 달 배당을 전액 재투자하면 약 ${h.reinvestShares.toFixed(4)}주가 추가되어 동일한 주당 배당을 가정할 때 다음 배당은 ${nativeFmt(h.projectedNextDividend)}로 계산됩니다.`:'보유주수 또는 배당 데이터가 없어 주당 배당/재투자 계산을 생략했습니다.';
+        return `<article class="report-holding"><div class="report-holding-head"><div><div class="report-holding-ticker">${h.key}</div><div class="report-holding-sub">배당 기여도 ${h.dividendContribution.toFixed(1)}% · 자산 비중 ${h.weight.toFixed(1)}%</div></div><div style="font-family:var(--mono);font-size:11px;color:${h.priceChange===null?'var(--text-3)':h.priceChange>=0?'var(--cyan)':'var(--red)'}">${prevText}</div></div><div class="report-holding-body"><div class="report-metrics"><div class="report-metric"><div class="report-metric-label">월말 주가</div><div class="report-metric-value">${h.price>0?nativeFmt(h.price):'—'}</div></div><div class="report-metric"><div class="report-metric-label">보유 주수</div><div class="report-metric-value">${h.shares.toLocaleString()}</div></div><div class="report-metric"><div class="report-metric-label">이번 달 배당</div><div class="report-metric-value">${nativeFmt(h.dividend)}</div></div><div class="report-metric"><div class="report-metric-label">주당 배당</div><div class="report-metric-value">${h.divPerShare>0?nativeFmt(h.divPerShare):'—'}</div></div><div class="report-metric"><div class="report-metric-label">재투자 후 다음 배당</div><div class="report-metric-value" style="color:var(--cyan)">${h.projectedNextDividend>0?nativeFmt(h.projectedNextDividend):'—'}</div></div></div><div class="report-narrative">${narrative} ${divText}</div></div></article>`;
+      }).join('')}
+    </div>
+    <div class="report-card" style="margin-top:1.5rem;"><div class="report-card-title">계산 가정</div><div class="report-card-sub" style="margin-bottom:0;">재투자 예상 배당은 현재 월말 주가와 이번 달에 관측된 주당 배당금이 다음 배당에서도 그대로 유지된다는 단순 시뮬레이션입니다. 실제 분배금과 가격은 변동할 수 있습니다.</div></div>`;
+  requestAnimationFrame(()=>{renderCoveredPie(document.getElementById('cc-report-pie'),d.holdings,d.fcfUsd);renderCoveredTrendChart(d.windowEntries);});
+}
+
+function escapeHtmlCc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function saveCoveredReportSnapshot(){
+  const month=document.getElementById('cc-report-month')?.value; if(!month)return;
+  coveredReportSnapshots[month]=getCoveredReportData(month); save(); toast('✓ '+month+' 리포트 Snapshot 저장');
+}
+
 function exportData() {
   const payload = {
-    version: 3,
+    version: 4,
     exportedAt: new Date().toISOString(),
     entries,
-    quantLog
+    quantLog,
+    coveredReportSnapshots
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
@@ -1691,9 +1941,10 @@ function importData(event) {
       const raw = JSON.parse(e.target.result);
 
       // v2 포맷 (entries + quantLog 포함)
-      if ((raw.version === 2 || raw.version === 3) && Array.isArray(raw.entries)) {
+      if ((raw.version === 2 || raw.version === 3 || raw.version === 4) && Array.isArray(raw.entries)) {
         entries  = raw.entries;
         quantLog = raw.quantLog || [];
+        coveredReportSnapshots = raw.coveredReportSnapshots || {};
       }
       // 구버전 — 배열 자체
       else if (Array.isArray(raw)) {
@@ -1704,6 +1955,7 @@ function importData(event) {
       else if (raw.entries && Array.isArray(raw.entries)) {
         entries  = raw.entries;
         quantLog = raw.quantLog || [];
+        coveredReportSnapshots = raw.coveredReportSnapshots || {};
       } else {
         toast('⚠ 파일 형식을 인식할 수 없어요');
         return;
@@ -1729,6 +1981,7 @@ function importData(event) {
 renderDashboard();
 renderTable();
 renderQuantTable();
+renderCoveredReport();
 // FCF 힌트 초기화
 const _fcfInit = entries.reduce((s,e) => s + Number(e.fcf||0), 0);
 const _hintEl = document.getElementById('hint-fcf-total');
