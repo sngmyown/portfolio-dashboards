@@ -916,6 +916,60 @@
     #tab-report .report-summary-value,#tab-report .report-metric-value,#tab-report .report-holding-ticker { color:#111 !important; }
   }
 
+
+
+  /* 491620 SHARE LEVEL SYSTEM */
+  .share-goal-card {
+    background: linear-gradient(180deg, rgba(240,180,41,0.055), rgba(15,18,23,0.98));
+    border: 1px solid rgba(240,180,41,0.18);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .share-goal-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:1.25rem; }
+  .share-goal-kicker { font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--gold); text-transform:uppercase; margin-bottom:4px; }
+  .share-goal-title { font-size:18px; font-weight:800; }
+  .share-goal-note { font-family:var(--mono); font-size:10px; color:var(--text-3); margin-top:4px; line-height:1.6; }
+  .share-goal-status { display:flex; gap:8px; flex-wrap:wrap; }
+  .share-status-pill { font-family:var(--mono); font-size:10px; border:1px solid var(--border-accent); background:var(--bg-surface); color:var(--text-2); border-radius:999px; padding:5px 9px; }
+  .share-status-pill.ok { color:var(--cyan); border-color:rgba(0,212,170,.35); background:var(--cyan-dim); }
+  .share-status-pill.warn { color:var(--gold); border-color:rgba(240,180,41,.35); background:var(--gold-dim); }
+  .share-status-pill.danger { color:var(--red); border-color:rgba(255,71,87,.38); background:var(--red-dim); }
+  .share-summary-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin-bottom:1rem; }
+  .share-summary-item { background:var(--bg-card); padding:1rem; min-width:0; }
+  .share-summary-label { font-family:var(--mono); font-size:9px; color:var(--text-3); letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+  .share-summary-value { font-family:var(--mono); font-size:18px; font-weight:700; overflow-wrap:anywhere; }
+  .share-progress-wrap { margin:1rem 0 1.15rem; }
+  .share-progress-label { display:flex; justify-content:space-between; gap:12px; font-family:var(--mono); font-size:10px; color:var(--text-2); margin-bottom:7px; }
+  .share-progress-track { height:10px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border); overflow:hidden; }
+  .share-progress-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#f0b429,#00d4aa); transition:width .5s ease; }
+  .share-level-rail { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:1.35rem; }
+  .share-level { border:1px solid var(--border); border-radius:10px; background:var(--bg-surface); padding:10px 11px; position:relative; }
+  .share-level.done { border-color:rgba(0,212,170,.28); background:rgba(0,212,170,.055); }
+  .share-level.current { border-color:rgba(240,180,41,.45); background:rgba(240,180,41,.08); box-shadow:0 0 0 1px rgba(240,180,41,.06) inset; }
+  .share-level-label { font-family:var(--mono); font-size:9px; color:var(--text-3); letter-spacing:.1em; }
+  .share-level-target { font-family:var(--mono); font-size:15px; font-weight:700; margin-top:3px; }
+  .share-level-state { font-family:var(--mono); font-size:9px; margin-top:4px; color:var(--text-3); }
+  .share-level.done .share-level-state { color:var(--cyan); }
+  .share-level.current .share-level-state { color:var(--gold); }
+  .share-goal-body { display:grid; grid-template-columns:minmax(280px,.9fr) minmax(0,1.6fr); gap:1.25rem; }
+  .share-subcard { border:1px solid var(--border); border-radius:var(--radius-sm); background:rgba(255,255,255,.015); padding:1rem; min-width:0; }
+  .share-subtitle { font-size:13px; font-weight:700; margin-bottom:3px; }
+  .share-subnote { font-family:var(--mono); font-size:9px; color:var(--text-3); line-height:1.5; margin-bottom:10px; }
+  .share-principles { display:flex; flex-direction:column; gap:7px; }
+  .share-principle { display:grid; grid-template-columns:24px 1fr; gap:8px; align-items:start; padding:7px 8px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border); font-size:11px; line-height:1.55; color:var(--text-2); }
+  .share-principle-num { font-family:var(--mono); color:var(--gold); font-size:10px; font-weight:700; }
+  .share-principle.rule-ok { border-color:rgba(0,212,170,.25); background:rgba(0,212,170,.04); }
+  .share-principle.rule-danger { border-color:rgba(255,71,87,.3); background:rgba(255,71,87,.055); }
+  .share-principle.rule-warn { border-color:rgba(240,180,41,.28); background:rgba(240,180,41,.05); }
+  .share-table-wrap { overflow:auto; border:1px solid var(--border); border-radius:8px; }
+  .share-table { min-width:760px; }
+  .share-table th { font-size:9px; }
+  .share-table td { font-size:10px; padding:.65rem .7rem; }
+  .share-table td strong { color:var(--gold); }
+  .share-plan-footnote { font-family:var(--mono); font-size:9px; color:var(--text-3); line-height:1.6; margin-top:8px; }
+  @media (max-width:1000px) { .share-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .share-goal-body { grid-template-columns:1fr; } }
+  @media (max-width:680px) { .share-level-rail { grid-template-columns:1fr 1fr; } .share-summary-grid { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -970,6 +1024,20 @@
       <div class="metric-sub">퀀트 대기 자금</div>
     </div>
   </div>
+
+
+
+  <section class="share-goal-card" id="share-goal-491620">
+    <div class="share-goal-head">
+      <div>
+        <div class="share-goal-kicker">491620 · SHARE LEVEL SYSTEM</div>
+        <div class="share-goal-title">배당 단계별 목표</div>
+        <div class="share-goal-note">최신 월별 기록의 491620 보유주수와 시장가치를 자동으로 읽어 진행률을 계산합니다.</div>
+      </div>
+      <div class="share-goal-status" id="share491620-status"></div>
+    </div>
+    <div id="share491620-root"></div>
+  </section>
 
   <div class="chart-card">
     <div class="chart-header">
@@ -2207,7 +2275,7 @@ function renderDashboard() {
     document.getElementById('m-total').textContent='—'; document.getElementById('m-total-growth').textContent='—'; document.getElementById('m-fcf').textContent='$0';
     document.getElementById('m-total-sub').textContent='USD 환산 기준 · 데이터 없음'; document.getElementById('m-total-growth-sub').textContent='전월 대비 —';
     if(metricRoot) metricRoot.innerHTML=activeCoveredInstruments().map(i=>`<div class="metric-card"><div class="metric-label">${escapeHtmlCc(i.ticker)} 배당</div><div class="metric-value">—</div><div class="metric-sub">보유 주수 —</div></div>`).join('');
-    renderLineChart(); renderGrowth(null,null); renderAlloc(null,0); return;
+    renderLineChart(); renderGrowth(null,null); renderAlloc(null,0); render491620GoalSystem(); return;
   }
   entries.forEach(ensureLegacyAssets);
   const last=entries[entries.length-1], prev=entries.length>1?entries[entries.length-2]:null;
@@ -2222,7 +2290,7 @@ function renderDashboard() {
   document.getElementById('m-fcf').textContent=fmt(fcfTotal);
   const displayAssets=getEntryAssets(last).filter(a=>a.shares||a.dividend||a.price);
   if(metricRoot) metricRoot.innerHTML=displayAssets.map(a=>`<div class="metric-card"><div class="metric-label">${escapeHtmlCc(a.ticker)} 배당</div><div class="metric-value" style="color:${a.color}">${formatCoveredNative(a.dividend,a.currency)}</div><div class="metric-sub">보유 주수 ${Number(a.shares||0).toLocaleString()} · ${a.currency}</div></div>`).join('');
-  renderLineChart(); renderGrowth(last,prev); renderAlloc(last,fcfTotal);
+  renderLineChart(); renderGrowth(last,prev); renderAlloc(last,fcfTotal); render491620GoalSystem();
 }
 
 function historicalInstrumentMap() {
@@ -2338,6 +2406,139 @@ function renderCoveredReport() {
     <div class="report-holdings">${d.holdings.map(h=>{const nf=n=>formatCoveredNative(n,h.currency);const prevText=h.prevPrice>0?ccFmtPct(h.priceChange):'기준 없음';const narrative=h.priceChange===null?`${escapeHtmlCc(h.key)}는 이전 월말 가격이 없어 가격 변화율을 계산하지 못했습니다.`:`${escapeHtmlCc(h.key)} 주가는 전월 기록 대비 ${ccFmtPct(h.priceChange)} 변했습니다.`;const divText=h.divPerShare>0?`현재 기록 기준 주당 배당은 ${nf(h.divPerShare)}이며, 이번 달 배당을 전액 재투자하면 약 ${h.reinvestShares.toFixed(4)}주가 추가되어 동일한 주당 배당을 가정할 때 다음 배당은 ${nf(h.projectedNextDividend)}로 계산됩니다.`:'보유주수 또는 배당 데이터가 없어 주당 배당/재투자 계산을 생략했습니다.';return `<article class="report-holding"><div class="report-holding-head"><div><div class="report-holding-ticker">${escapeHtmlCc(h.key)}</div><div class="report-holding-sub">배당 기여도 ${h.dividendContribution.toFixed(1)}% · 전체 계좌 자산 비중 ${h.weight.toFixed(1)}%${h.name?' · '+escapeHtmlCc(h.name):''}</div></div><div style="font-family:var(--mono);font-size:11px;color:${h.priceChange===null?'var(--text-3)':h.priceChange>=0?'var(--cyan)':'var(--red)'}">${prevText}</div></div><div class="report-holding-body"><div class="report-metrics"><div class="report-metric"><div class="report-metric-label">월말 주가</div><div class="report-metric-value">${h.price>0?nf(h.price):'—'}</div></div><div class="report-metric"><div class="report-metric-label">보유 주수</div><div class="report-metric-value">${h.shares.toLocaleString()}</div></div><div class="report-metric"><div class="report-metric-label">이번 달 배당</div><div class="report-metric-value">${nf(h.dividend)}</div></div><div class="report-metric"><div class="report-metric-label">주당 배당</div><div class="report-metric-value">${h.divPerShare>0?nf(h.divPerShare):'—'}</div></div><div class="report-metric"><div class="report-metric-label">재투자 후 다음 배당</div><div class="report-metric-value" style="color:var(--cyan)">${h.projectedNextDividend>0?nf(h.projectedNextDividend):'—'}</div></div></div><div class="report-narrative">${narrative} ${divText}</div></div></article>`;}).join('')}</div>
     <div class="report-card" style="margin-top:1.5rem;"><div class="report-card-title">계산 가정</div><div class="report-card-sub" style="margin-bottom:0;">재투자 예상 배당은 현재 월말 주가와 이번 달에 관측된 주당 배당금이 다음 배당에서도 그대로 유지된다는 단순 시뮬레이션입니다. 실제 분배금과 가격은 변동할 수 있습니다.</div></div>`;
   requestAnimationFrame(()=>{renderCoveredPie(document.getElementById('cc-report-pie'),d.holdings,d.fcfUsd);renderCoveredTrendChart(d.windowEntries);});
+}
+
+
+// ════════════════════════════════
+// 491620 SHARE LEVEL SYSTEM
+// ════════════════════════════════
+const SHARE491620_LEVELS = [
+  { level:1, target:3000 },
+  { level:2, target:4000 },
+  { level:3, target:5000 },
+  { level:4, target:6500 },
+];
+
+const SHARE491620_PRINCIPLES = [
+  '매년 ISA 2,000만 원 납입',
+  '분배금의 80% 매월 자동 재투자',
+  '나머지 20%는 매수 대기자금',
+  '평단은 매수 기준으로 사용하지 않음',
+  '최근 가격 대비 큰 조정이 오면 대기자금 투입 (달마다 20%씩 모아둔 현금)',
+  '3개월 동안 조정이 없으면 대기자금도 투자',
+  '무엇보다 491620이 전체 자산 40%를 넘지 않도록 관리',
+];
+
+const SHARE491620_PLAN_ROWS = [
+  { principal:'2,000만 원', initial:'1,823주', afterYear:'2,139주', reinvest:'+316주', cash:'약 87만 원', monthly:'약 39.4만 원' },
+  { principal:'3,000만 원', initial:'2,734주', afterYear:'3,209주', reinvest:'+475주', cash:'약 130만 원', monthly:'약 59.1만 원' },
+  { principal:'4,000만 원', initial:'3,646주', afterYear:'4,279주', reinvest:'+633주', cash:'약 174만 원', monthly:'약 78.8만 원' },
+  { principal:'5,000만 원', initial:'4,557주', afterYear:'5,349주', reinvest:'+792주', cash:'약 217만 원', monthly:'약 98.6만 원' },
+  { principal:'6,000만 원', initial:'5,469주', afterYear:'6,419주', reinvest:'+950주', cash:'약 261만 원', monthly:'약 118.3만 원' },
+];
+
+function getLatest491620Data() {
+  for (let i = entries.length - 1; i >= 0; i -= 1) {
+    const entry = entries[i];
+    ensureLegacyAssets(entry);
+    const asset = getEntryAssets(entry).find(a => String(a.ticker || '').trim() === '491620');
+    if (asset) return { entry, asset, index:i };
+  }
+  return null;
+}
+
+function get491620Weight(latest) {
+  if (!latest) return null;
+  const { entry, asset } = latest;
+  const market491 = assetMarketUsd(asset, entry);
+  const holdingsMarket = getEntryAssets(entry).reduce((sum, a) => sum + assetMarketUsd(a, entry), 0);
+  const through = entries.filter(e => String(e.month || '') <= String(entry.month || ''));
+  const fcfUsd = through.reduce((sum, e) => sum + Number(e.fcf || 0), 0);
+  const total = holdingsMarket + fcfUsd;
+  if (!(total > 0) || !(market491 >= 0)) return null;
+  return market491 / total * 100;
+}
+
+function render491620GoalSystem() {
+  const root = document.getElementById('share491620-root');
+  const statusRoot = document.getElementById('share491620-status');
+  if (!root || !statusRoot) return;
+
+  const latest = getLatest491620Data();
+  const shares = latest ? Number(latest.asset.shares || 0) : 0;
+  const weight = get491620Weight(latest);
+  const finalTarget = SHARE491620_LEVELS[SHARE491620_LEVELS.length - 1].target;
+  const nextLevel = SHARE491620_LEVELS.find(x => shares < x.target) || null;
+  const completed = SHARE491620_LEVELS.filter(x => shares >= x.target).length;
+  const currentLevelLabel = nextLevel ? `LV.${nextLevel.level}` : 'LV.4 COMPLETE';
+  const nextTarget = nextLevel ? nextLevel.target : finalTarget;
+  const remaining = nextLevel ? Math.max(0, nextTarget - shares) : 0;
+  const overallPct = Math.max(0, Math.min(100, finalTarget > 0 ? shares / finalTarget * 100 : 0));
+  const priorTarget = nextLevel && nextLevel.level > 1 ? SHARE491620_LEVELS[nextLevel.level - 2].target : 0;
+  const stagePct = nextLevel ? Math.max(0, Math.min(100, (shares - priorTarget) / Math.max(1, nextTarget - priorTarget) * 100)) : 100;
+  const weightState = weight === null ? 'warn' : weight <= 40 ? 'ok' : 'danger';
+  const weightText = weight === null ? '491620 비중 계산 대기' : `491620 비중 ${weight.toFixed(1)}% / 40% 한도`;
+
+  statusRoot.innerHTML = `
+    <span class="share-status-pill ${latest ? 'ok' : 'warn'}">${latest ? escapeHtmlCc(latest.entry.month) + ' 기준' : '데이터 없음'}</span>
+    <span class="share-status-pill ${weightState}">${weightText}</span>
+  `;
+
+  const levelRail = SHARE491620_LEVELS.map(item => {
+    const done = shares >= item.target;
+    const current = nextLevel && nextLevel.level === item.level;
+    const cls = done ? 'done' : current ? 'current' : '';
+    const state = done ? '✓ 달성' : current ? `● 현재 목표 · ${Math.max(0,item.target-shares).toLocaleString()}주 남음` : 'LOCKED';
+    return `<div class="share-level ${cls}"><div class="share-level-label">LV.${item.level}</div><div class="share-level-target">${item.target.toLocaleString()}주</div><div class="share-level-state">${state}</div></div>`;
+  }).join('');
+
+  const principles = SHARE491620_PRINCIPLES.map((text, idx) => {
+    let cls = '';
+    let suffix = '';
+    if (idx === 6) {
+      cls = weight === null ? 'rule-warn' : weight <= 40 ? 'rule-ok' : 'rule-danger';
+      suffix = weight === null ? ' · 현재 비중 계산을 위해 월말 주가/보유주수 입력 필요' : ` · 현재 ${weight.toFixed(1)}%`;
+    }
+    return `<div class="share-principle ${cls}"><div class="share-principle-num">${String(idx+1).padStart(2,'0')}</div><div>${escapeHtmlCc(text)}${suffix ? `<strong style="color:${weight!==null&&weight>40?'var(--red)':weight!==null?'var(--cyan)':'var(--gold)'}">${escapeHtmlCc(suffix)}</strong>` : ''}</div></div>`;
+  }).join('');
+
+  const tableRows = SHARE491620_PLAN_ROWS.map(row => `<tr><td><strong>${row.principal}</strong></td><td>${row.initial}</td><td><strong>${row.afterYear}</strong></td><td>${row.reinvest}</td><td>${row.cash}</td><td><strong>${row.monthly}</strong></td></tr>`).join('');
+
+  root.innerHTML = `
+    <div class="share-summary-grid">
+      <div class="share-summary-item"><div class="share-summary-label">현재 보유주수</div><div class="share-summary-value" style="color:var(--gold)">${shares.toLocaleString()}주</div></div>
+      <div class="share-summary-item"><div class="share-summary-label">현재 단계</div><div class="share-summary-value">${currentLevelLabel}</div></div>
+      <div class="share-summary-item"><div class="share-summary-label">다음 목표</div><div class="share-summary-value">${nextTarget.toLocaleString()}주</div></div>
+      <div class="share-summary-item"><div class="share-summary-label">다음 목표까지</div><div class="share-summary-value" style="color:${remaining ? 'var(--gold)' : 'var(--cyan)'}">${remaining.toLocaleString()}주</div></div>
+      <div class="share-summary-item"><div class="share-summary-label">최종 목표 진행률</div><div class="share-summary-value" style="color:var(--cyan)">${overallPct.toFixed(1)}%</div></div>
+    </div>
+
+    <div class="share-progress-wrap">
+      <div class="share-progress-label"><span>${nextLevel ? `LV.${nextLevel.level} 구간 진행률 ${stagePct.toFixed(1)}%` : '모든 단계 달성'}</span><span>${shares.toLocaleString()} / ${finalTarget.toLocaleString()}주</span></div>
+      <div class="share-progress-track"><div class="share-progress-fill" style="width:${overallPct.toFixed(2)}%"></div></div>
+    </div>
+
+    <div class="share-level-rail">${levelRail}</div>
+
+    <div class="share-goal-body">
+      <div class="share-subcard">
+        <div class="share-subtitle">배당 포트폴리오 운용 목표</div>
+        <div class="share-subnote">사용자가 설정한 장기 운용 원칙. ⑦의 40% 비중 규칙은 최신 월별 데이터로 자동 점검합니다.</div>
+        <div class="share-principles">${principles}</div>
+      </div>
+      <div class="share-subcard">
+        <div class="share-subtitle">투자원금별 1년 예상 계획</div>
+        <div class="share-subnote">사용자가 준비한 계획표를 기준값으로 표시합니다.</div>
+        <div class="share-table-wrap">
+          <table class="share-table">
+            <thead><tr><th>투자원금</th><th>처음 살 수 있는 주식</th><th>1년 후 예상 보유주식*</th><th>재투자로 증가</th><th>대기 현금 20%</th><th>1년 후 예상 월 분배금</th></tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+        <div class="share-plan-footnote">* 위 표는 현재 대시보드의 실시간 예측값이 아니라 사용자가 설정한 운용 계획 기준입니다. 실제 주가와 분배금 변동에 따라 결과는 달라질 수 있습니다.</div>
+      </div>
+    </div>
+  `;
 }
 
 function exportData() {
