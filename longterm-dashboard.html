@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Long-Term Portfolio Tracker v5</title>
+<title>Long-Term Portfolio Tracker v10</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1256,7 +1256,7 @@
   .grade-NA { color:var(--muted); border-color:var(--border2); background:var(--surface2); }
   .scorecard-main-body { padding:15px; }
   .scorecard-empty { padding:34px 18px; color:var(--muted); font-size:12px; text-align:center; line-height:1.8; }
-  .scorecard-overview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin-bottom:14px; }
+  .scorecard-overview { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:9px; margin-bottom:14px; }
   .scorecard-overview-card { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 12px; }
   .scorecard-overview-label { color:var(--muted); font-size:9px; font-family:var(--mono); text-transform:uppercase; }
   .scorecard-overview-value { font-size:16px; font-weight:800; margin-top:4px; font-family:var(--mono); }
@@ -1769,12 +1769,12 @@
     <div class="scorecard-toolbar">
       <div>
         <div class="scorecard-title">장기투자 종목 스코어카드</div>
-        <div class="scorecard-sub">보유 여부와 관계없이 관심 종목을 등록하고, 이익 창출력·주주환원·미래 성장 잠재력의 100점 투자표로 평가합니다. 각 기준을 선택하면 점수가 자동 합산되고 A/B/C/D 등급과 투자 결론을 기록할 수 있습니다.</div>
+        <div class="scorecard-sub">보유 여부와 관계없이 관심 종목을 등록하고, 이익 창출력·주주환원·미래 성장 잠재력·사업의 질을 합산한 130점 투자표로 평가합니다. 총점뿐 아니라 사업의 질 최소점수와 구조적 위험 조건을 함께 적용해 A/B/C/D 등급을 자동 판정합니다.</div>
       </div>
       <div class="scorecard-actions">
         <button class="scorecard-btn" onclick="importHeldPositionsToScorecard()">보유 종목 불러오기</button>
         <button class="scorecard-btn scorecard-policy-btn" onclick="openScorecardGradeGuide()">등급 기준 보기</button>
-        <button class="scorecard-btn" onclick="toggleScorecardSettings()">등급 기준 설정</button>
+        <button class="scorecard-btn" onclick="toggleScorecardSettings()">판정 정책</button>
       </div>
     </div>
 
@@ -1799,18 +1799,16 @@
     </div>
 
     <section id="scorecard-settings" class="scorecard-settings">
-      <div class="scorecard-settings-head"><strong>등급 기준 설정</strong><span>투자 평가표의 13개 항목과 35/40/25점 섹터 배점은 고정됩니다. A/B/C/D 컷만 조정할 수 있습니다.</span></div>
+      <div class="scorecard-settings-head"><strong>130점 등급 판정 정책</strong><span>평가 항목과 등급 기준은 새 장기투자 기업 평가표에 맞춰 고정됩니다.</span></div>
       <div class="scorecard-settings-body">
-        <div class="scorecard-standard-note">고정 투자표 · 이익 창출력 & 저평가 여부 & 지속 가능성 35점 · 주주환원 의지 40점 · 미래 성장 잠재력 & 기업 경쟁력 25점 · 총 100점</div>
-        <div class="scorecard-thresholds">
-          <label>A 등급 최소 점수<input id="sc-th-a" type="number" min="0" max="100" onchange="updateScorecardThreshold('A',this.value)"></label>
-          <label>B 등급 최소 점수<input id="sc-th-b" type="number" min="0" max="100" onchange="updateScorecardThreshold('B',this.value)"></label>
-          <label>C 등급 최소 점수<input id="sc-th-c" type="number" min="0" max="100" onchange="updateScorecardThreshold('C',this.value)"></label>
+        <div class="scorecard-standard-note">고정 투자표 · 이익 창출력/저평가/지속 가능성 35점 · 주주환원 의지 40점 · 미래 성장/경쟁력 25점 · 사업의 질 30점 · 총 130점</div>
+        <div style="font-size:11px;line-height:1.8;color:var(--text);">
+          <div><strong>A</strong> · 110–130점 + 사업의 질 25/30 이상 + 치명적 위험 없음</div>
+          <div><strong>B</strong> · 95–109점 + 사업의 질 21/30 이상 + 중대한 구조적 결함 제한적</div>
+          <div><strong>C</strong> · 80–94점 + 사업의 질 16/30 이상 + 가격 또는 사업 개선 확인 필요</div>
+          <div><strong>D</strong> · 79점 이하 또는 사업의 질 16/30 미만</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px;">
-          <button class="scorecard-btn" onclick="resetScorecardThresholds()">등급 기준 기본값 복원</button>
-          <span style="color:var(--muted);font-size:10px;font-family:var(--mono);">기본값 A 80 · B 70 · C 50 · D는 50점 미만</span>
-        </div>
+        <div class="report-source-note" style="margin-top:10px;">사업의 질은 총점과 별도의 게이트로 작동합니다. 구조적 위험 조건은 A/B/C 상한을 제한하며, 치명적 위험이 있으면 총점과 무관하게 D로 판정합니다.</div>
       </div>
     </section>
   </div>
@@ -1869,20 +1867,21 @@
 
 <!-- MODAL: Scorecard Grade Guide -->
 <div class="modal-overlay" id="scorecard-grade-guide-modal" onclick="if(event.target===this)closeScorecardGradeGuide()">
-  <div class="modal" style="width:680px;max-width:94vw;">
-    <h3 style="margin-bottom:8px;">장기투자 등급 기준</h3>
-    <div style="color:var(--muted);font-size:11px;line-height:1.65;margin-bottom:14px;">100점 투자표 점검 완료 후 아래 기준으로 자동 등급과 기본 투자 행동을 분류합니다.</div>
+  <div class="modal" style="width:860px;max-width:96vw;">
+    <h3 style="margin-bottom:8px;">장기투자 130점 ABCD 등급 기준</h3>
+    <div style="color:var(--muted);font-size:11px;line-height:1.65;margin-bottom:14px;">총점만으로 등급을 정하지 않습니다. 사업의 질 최소점수와 구조적 위험 조건을 함께 충족해야 합니다.</div>
     <div style="overflow-x:auto;">
       <table class="grade-guide-table">
-        <thead><tr><th>점수 구간</th><th>등급</th><th>기본 행동</th></tr></thead>
+        <thead><tr><th>등급</th><th>총점 기준</th><th>사업의 질 최소점수</th><th>추가 조건</th><th>판정</th></tr></thead>
         <tbody>
-          <tr><td>80점 이상</td><td><span class="grade-badge grade-A">A</span></td><td>장기투자 적합 신규 매수</td></tr>
-          <tr><td>70–80점 미만</td><td><span class="grade-badge grade-B">B</span></td><td>매수 고려</td></tr>
-          <tr><td>50–70점 미만</td><td><span class="grade-badge grade-C">C</span></td><td>유지 (신규 매수 금지)</td></tr>
-          <tr><td>50점 미만</td><td><span class="grade-badge grade-D">D</span></td><td>판매</td></tr>
+          <tr><td><span class="grade-badge grade-A">A</span></td><td>110–130점</td><td>25 / 30 이상</td><td>치명적 위험 없음</td><td>최우량 장기투자 후보</td></tr>
+          <tr><td><span class="grade-badge grade-B">B</span></td><td>95–109점</td><td>21 / 30 이상</td><td>중대한 구조적 결함 제한적</td><td>우량 장기투자 후보</td></tr>
+          <tr><td><span class="grade-badge grade-C">C</span></td><td>80–94점</td><td>16 / 30 이상</td><td>가격 또는 사업 개선 확인 필요</td><td>관찰 · 조건부 투자 후보</td></tr>
+          <tr><td><span class="grade-badge grade-D">D</span></td><td>79점 이하</td><td>또는 16 / 30 미만</td><td>—</td><td>장기 핵심투자 제외</td></tr>
         </tbody>
       </table>
     </div>
+    <div class="report-source-note" style="margin-top:12px;">강제 게이트: 사업의 질 16점 미만 또는 치명적 위험 있음 → D. 사업의 질 16–20점 또는 ‘가격/사업 개선 필요’ → 최대 C. 사업의 질 21–24점 또는 ‘구조적 결함 제한적’ → 최대 B.</div>
     <div class="modal-actions"><button class="modal-confirm" onclick="closeScorecardGradeGuide()">확인</button></div>
   </div>
 </div>
@@ -3828,14 +3827,15 @@ function switchTabByName(name) {
 
 
 // ════════════════════════════════
-// STOCK SCORECARD — 100-point investment table
+// STOCK SCORECARD — 130-point investment table
 // ════════════════════════════════
 
 function getInvestmentScorecardSectors() {
   return [
-    { id:'profit', name:'이익 창출력 & 저평가 여부 & 지속 가능성', maxScore:35 },
+    { id:'profit', name:'이익 창출력 · 저평가 여부 · 지속 가능성', maxScore:35 },
     { id:'shareholder', name:'주주환원 의지', maxScore:40 },
-    { id:'growth', name:'미래 성장 잠재력 & 기업 경쟁력', maxScore:25 }
+    { id:'growth', name:'미래 성장 잠재력 · 기업 경쟁력', maxScore:25 },
+    { id:'business', name:'사업의 질', maxScore:30 }
   ];
 }
 
@@ -3843,57 +3843,80 @@ function getInvestmentScorecardCriteria() {
   return [
     { id:'sc_per', sector:'profit', name:'PER', maxScore:20, options:[
       {id:'per_lt5', label:'< 5', score:20}, {id:'per_lt8', label:'< 8', score:15},
-      {id:'per_lt10', label:'< 10', score:10}, {id:'per_gt10', label:'> 10', score:5}
+      {id:'per_lt10', label:'< 10', score:10}, {id:'per_gt10', label:'≥ 10', score:5}
     ]},
     { id:'sc_pbr', sector:'profit', name:'PBR', maxScore:5, options:[
       {id:'pbr_lt03', label:'< 0.3', score:5}, {id:'pbr_lt06', label:'< 0.6', score:4},
-      {id:'pbr_lt10', label:'< 1.0', score:3}, {id:'pbr_gt10', label:'> 1.0', score:0}
+      {id:'pbr_lt10', label:'< 1.0', score:3}, {id:'pbr_gt10', label:'≥ 1.0', score:0}
     ]},
-    { id:'sc_profit_sustainability', sector:'profit', name:'이익이 지속 가능한가 (정성적 판단)', maxScore:5, options:[
-      {id:'sustainable', label:'대체로 지속 가능', score:5},
-      {id:'unstable', label:'불안정한 이익 창출력', score:0}
+    { id:'sc_profit_sustainability', sector:'profit', name:'이익이 지속 가능한가', maxScore:5, options:[
+      {id:'sustainable', label:'대체로 지속 가능', score:5}, {id:'unstable', label:'불안정한 이익 창출력', score:0}
     ]},
-    { id:'sc_duplicate_listing', sector:'profit', name:'중복 상장 여부 (자회사·손자회사 상장 여부)', maxScore:5, options:[
+    { id:'sc_duplicate_listing', sector:'profit', name:'중복 상장 여부', maxScore:5, options:[
       {id:'duplicate', label:'중복 상장', score:0}, {id:'standalone', label:'단독 성장', score:5}
     ]},
 
     { id:'sc_dividend_yield', sector:'shareholder', name:'배당수익률', maxScore:10, options:[
       {id:'yield_gt7', label:'> 7%', score:10}, {id:'yield_gt5', label:'> 5%', score:7},
-      {id:'yield_gt3', label:'> 3%', score:5}, {id:'yield_below', label:'기준 미달 / 해당 없음', score:0, helper:'원표에서 3% 이하 점수가 비어 있어 완결용 0점 선택지로 처리'}
+      {id:'yield_gt3', label:'> 3%', score:5}, {id:'yield_below', label:'≤ 3%', score:0}
     ]},
-    { id:'sc_quarterly_dividend', sector:'shareholder', name:'분기 배당을 실시하고 있는가', maxScore:5, options:[
+    { id:'sc_quarterly_dividend', sector:'shareholder', name:'분기 배당 실시 여부', maxScore:5, options:[
       {id:'quarterly_yes', label:'예', score:5}, {id:'quarterly_no', label:'아니요', score:0}
     ]},
-    { id:'sc_dividend_growth_years', sector:'shareholder', name:'배당 연속 인상 연수 (배당 동결 시 연속 인정, 인상 인정 X)', maxScore:5, options:[
+    { id:'sc_dividend_growth_years', sector:'shareholder', name:'배당 연속 인상 연수', maxScore:5, options:[
       {id:'div10', label:'10년 이상', score:5}, {id:'div5', label:'5년 이상', score:4},
       {id:'div3', label:'3년 이상', score:3}, {id:'div_none', label:'해당 없음', score:0}
     ]},
-    { id:'sc_buyback_cancel', sector:'shareholder', name:'정기적 자사주 매입 및 소각 여부 (최소 연 1회 이상)', maxScore:7, options:[
+    { id:'sc_buyback_cancel', sector:'shareholder', name:'정기적 자사주 매입 및 소각 여부', maxScore:7, options:[
       {id:'buyback_yes', label:'예', score:7}, {id:'buyback_no', label:'아니요', score:0}
     ]},
-    { id:'sc_annual_cancel_ratio', sector:'shareholder', name:'연간 소각 비율 (총주식수 대비)', maxScore:8, options:[
+    { id:'sc_annual_cancel_ratio', sector:'shareholder', name:'연간 소각 비율 / 순주식수 감소율', maxScore:8, options:[
       {id:'cancel_gt2', label:'> 2%', score:8}, {id:'cancel_gt15', label:'> 1.5%', score:5},
-      {id:'cancel_gt05', label:'> 0.5%', score:3}, {id:'cancel_lt05', label:'< 0.5%', score:0}
+      {id:'cancel_gt05', label:'> 0.5%', score:3}, {id:'cancel_lt05', label:'≤ 0.5%', score:0}
     ]},
     { id:'sc_treasury_ratio', sector:'shareholder', name:'자사주 보유 비율', maxScore:5, options:[
       {id:'treasury_none', label:'없음', score:5}, {id:'treasury_lt2', label:'< 2%', score:4},
-      {id:'treasury_lt5', label:'< 5%', score:2}, {id:'treasury_other', label:'5% 이상 / 기타', score:0, helper:'원표에서 5% 이상 점수가 비어 있어 완결용 0점 선택지로 처리'}
+      {id:'treasury_lt5', label:'< 5%', score:2}, {id:'treasury_other', label:'≥ 5%', score:0}
     ]},
 
-    { id:'sc_growth_potential', sector:'growth', name:'미래 성장 잠재력 (정성적 판단)', maxScore:10, options:[
+    { id:'sc_growth_potential', sector:'growth', name:'미래 성장 잠재력', maxScore:10, options:[
       {id:'growth_very_high', label:'매우 높다', score:10}, {id:'growth_high', label:'높다', score:7},
       {id:'growth_normal', label:'보통', score:5}, {id:'growth_low', label:'낮다', score:3}
     ]},
-    { id:'sc_management', sector:'growth', name:'기업 경영 (정성적 판단)', maxScore:10, options:[
+    { id:'sc_management', sector:'growth', name:'기업 경영', maxScore:10, options:[
       {id:'mgmt_excellent', label:'우수한 경영자', score:10}, {id:'mgmt_professional', label:'전문 경영자', score:5},
-      {id:'mgmt_poor_owner', label:'저조한 실적 오너 경영', score:0}
+      {id:'mgmt_poor_owner', label:'저조한 실적의 오너 경영', score:0}
     ]},
-    { id:'sc_global_brand', sector:'growth', name:'세계적 브랜드 보유 여부', maxScore:5, options:[
+    { id:'sc_global_brand', sector:'growth', name:'세계적 브랜드 / 글로벌 경쟁력', maxScore:5, options:[
       {id:'brand_yes', label:'있다', score:5}, {id:'brand_no', label:'없다', score:0}
+    ]},
+
+    { id:'sc_pricing_power', sector:'business', name:'가격 결정력', maxScore:5, options:[
+      {id:'pricing_very_strong', label:'매우 강함', score:5}, {id:'pricing_strong', label:'강함', score:4},
+      {id:'pricing_normal', label:'보통', score:3}, {id:'pricing_weak', label:'약함', score:1}, {id:'pricing_none', label:'없음', score:0}
+    ]},
+    { id:'sc_moat', sector:'business', name:'경쟁우위 · Moat', maxScore:5, options:[
+      {id:'moat_very_strong', label:'매우 강하며 10년 이상 유지 가능', score:5}, {id:'moat_strong', label:'강함', score:4},
+      {id:'moat_some', label:'일부 존재', score:3}, {id:'moat_weak', label:'약함', score:1}, {id:'moat_none', label:'없음', score:0}
+    ]},
+    { id:'sc_revenue_recurrence', sector:'business', name:'매출 · 수요 반복성', maxScore:5, options:[
+      {id:'repeat_very_high', label:'매우 높은 반복매출 / 필수수요', score:5}, {id:'repeat_high', label:'높음', score:4},
+      {id:'repeat_normal', label:'보통', score:3}, {id:'repeat_low', label:'낮음', score:1}, {id:'repeat_oneoff', label:'일회성 중심', score:0}
+    ]},
+    { id:'sc_roic', sector:'business', name:'자본수익성', maxScore:5, options:[
+      {id:'roic_gt20', label:'정상화 ROIC > 20%', score:5}, {id:'roic_gt15', label:'> 15%', score:4},
+      {id:'roic_gt10', label:'> 10%', score:3}, {id:'roic_gt7', label:'> 7%', score:1}, {id:'roic_below_cost', label:'자본비용 이하', score:0}
+    ]},
+    { id:'sc_cash_conversion', sector:'business', name:'현금전환력 · 자본집약도', maxScore:5, options:[
+      {id:'cash_very_good', label:'매우 우수', score:5}, {id:'cash_good', label:'우수', score:4},
+      {id:'cash_normal', label:'보통', score:3}, {id:'cash_low', label:'낮음', score:1}, {id:'cash_very_low', label:'매우 낮음', score:0}
+    ]},
+    { id:'sc_shock_resilience', sector:'business', name:'경기 · 외부충격 내성', maxScore:5, options:[
+      {id:'resilience_very_strong', label:'매우 강함', score:5}, {id:'resilience_strong', label:'강함', score:4},
+      {id:'resilience_profitable', label:'경기민감하나 흑자 유지', score:3}, {id:'resilience_sensitive', label:'매우 민감', score:1}, {id:'resilience_funding_risk', label:'적자 · 자금조달 위험', score:0}
     ]}
   ];
 }
-
 
 function scorecardTickerKey(value) {
   return String(value || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -3919,7 +3942,8 @@ function mergeScorecardCandidateData(target, source) {
       ((sourceCalc.completed || 0) === (targetCalc.completed || 0) && String(source.updatedAt || '') > String(target.updatedAt || ''))) {
     target.scores = JSON.parse(JSON.stringify(source.scores || {}));
     target.notes = JSON.parse(JSON.stringify(source.notes || {}));
-    target.manualGrade = source.manualGrade || '';
+    target.manualGrade = '';
+    target.structuralCondition = source.structuralCondition || target.structuralCondition || '';
     target.decision = source.decision || target.decision || '관찰';
     target.finalNote = source.finalNote || target.finalNote || '';
     target.updatedAt = source.updatedAt || target.updatedAt || '';
@@ -3933,6 +3957,7 @@ function mergeScorecardCandidateData(target, source) {
     if (seen.has(key)) return false;
     seen.add(key); return true;
   }).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||''))).slice(0,120);
+  if (!target.structuralCondition && source.structuralCondition) target.structuralCondition = source.structuralCondition;
   if (!target.legacyEvaluation && source.legacyEvaluation) target.legacyEvaluation = source.legacyEvaluation;
   return target;
 }
@@ -3985,7 +4010,7 @@ function reconcileScorecardWithPositions(sc) {
 }
 
 function scorecardActionForGrade(grade) {
-  return ({A:'장기투자 적합 신규 매수', B:'매수 고려', C:'유지 (신규 매수 금지)', D:'판매'})[grade] || '평가 완료 후 분류';
+  return ({A:'최우량 장기투자 후보', B:'우량 장기투자 후보', C:'관찰 · 조건부 투자 후보', D:'장기 핵심투자 제외'})[grade] || '평가 완료 후 분류';
 }
 
 function openScorecardGradeGuide() { document.getElementById('scorecard-grade-guide-modal')?.classList.add('open'); }
@@ -3993,9 +4018,10 @@ function closeScorecardGradeGuide() { document.getElementById('scorecard-grade-g
 
 function makeDefaultScorecardState() {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     criteria: getInvestmentScorecardCriteria(),
-    thresholds: { A:80, B:70, C:50 },
+    thresholds: { A:110, B:95, C:80 },
+    businessQualityMinimum: { A:25, B:21, C:16 },
     candidates: [],
     activeId: '',
     settingsOpen: false,
@@ -4009,17 +4035,6 @@ function normalizeScorecardState(source) {
   const base = makeDefaultScorecardState();
   const src = source && typeof source === 'object' ? source : {};
   const oldSchema = Number(src.schemaVersion || 1);
-  const thresholds = {
-    A: Math.max(0, Math.min(100, Number(src.thresholds?.A ?? base.thresholds.A))),
-    B: Math.max(0, Math.min(100, Number(src.thresholds?.B ?? base.thresholds.B))),
-    C: Math.max(0, Math.min(100, Number(src.thresholds?.C ?? base.thresholds.C)))
-  };
-  if (oldSchema < 3 && Number(src.thresholds?.A ?? 85) === 85 && Number(src.thresholds?.B ?? 70) === 70 && Number(src.thresholds?.C ?? 55) === 55) {
-    thresholds.A = 80; thresholds.B = 70; thresholds.C = 50;
-  }
-  if (thresholds.B > thresholds.A) thresholds.B = thresholds.A;
-  if (thresholds.C > thresholds.B) thresholds.C = thresholds.B;
-
   const candidates = Array.isArray(src.candidates) ? src.candidates.map((c,idx)=>{
     const oldScores = c.scores && typeof c.scores === 'object' ? c.scores : {};
     const oldNotes = c.notes && typeof c.notes === 'object' ? c.notes : {};
@@ -4030,11 +4045,12 @@ function normalizeScorecardState(source) {
       exchange:String(c.exchange || ''),
       scores:oldSchema >= 2 ? oldScores : {},
       notes:oldSchema >= 2 ? oldNotes : {},
+      structuralCondition:['','none','limited','improvement','fatal'].includes(c.structuralCondition) ? c.structuralCondition : '',
       legacyEvaluation: oldSchema < 2 && (Object.keys(oldScores).length || Object.keys(oldNotes).length)
         ? { scores:oldScores, notes:oldNotes, criteria:Array.isArray(src.criteria)?src.criteria:[], migratedAt:new Date().toISOString() }
         : (c.legacyEvaluation || null),
       decision:String(c.decision || '관찰'),
-      manualGrade:['','A','B','C','D'].includes(c.manualGrade) ? c.manualGrade : '',
+      manualGrade:'',
       finalNote:String(c.finalNote || ''),
       createdAt:String(c.createdAt || ''),
       updatedAt:String(c.updatedAt || ''),
@@ -4044,21 +4060,22 @@ function normalizeScorecardState(source) {
   }) : [];
 
   return {
-    schemaVersion:3,
+    schemaVersion:4,
     criteria:getInvestmentScorecardCriteria(),
-    thresholds,
+    thresholds:{A:110,B:95,C:80},
+    businessQualityMinimum:{A:25,B:21,C:16},
     candidates,
     activeId:String(src.activeId || candidates[0]?.id || ''),
     settingsOpen:!!src.settingsOpen,
     historyGradeFilter:['ALL','A','B','C','D'].includes(src.historyGradeFilter) ? src.historyGradeFilter : 'ALL',
     historyEdit:src.historyEdit && typeof src.historyEdit === 'object' ? { candidateId:String(src.historyEdit.candidateId||''), reviewId:String(src.historyEdit.reviewId||'') } : null,
-    legacyCriteria: oldSchema < 2 && Array.isArray(src.criteria) ? src.criteria : (src.legacyCriteria || null)
+    legacyCriteria: oldSchema < 4 && Array.isArray(src.criteria) ? src.criteria : (src.legacyCriteria || null)
   };
 }
 
 function getScorecardState() {
   if (!state.scorecard) state.scorecard = makeDefaultScorecardState();
-  if (Number(state.scorecard.schemaVersion || 0) !== 3 || !Array.isArray(state.scorecard.candidates) || !Array.isArray(state.scorecard.criteria)) {
+  if (Number(state.scorecard.schemaVersion || 0) !== 4 || !Array.isArray(state.scorecard.candidates) || !Array.isArray(state.scorecard.criteria)) {
     state.scorecard = normalizeScorecardState(state.scorecard);
   }
   reconcileScorecardWithPositions(state.scorecard);
@@ -4081,6 +4098,19 @@ function getScorecardOption(criterion, optionId) {
   return (criterion?.options || []).find(o=>o.id===optionId) || null;
 }
 
+function scorecardStructuralConditionLabel(value) {
+  return ({none:'치명적 위험 없음', limited:'중대한 구조적 결함 제한적', improvement:'가격 또는 사업 개선 확인 필요', fatal:'치명적 위험 있음'})[value] || '추가 조건 미평가';
+}
+
+function scorecardGradeCapByCondition(value) {
+  return ({none:'A', limited:'B', improvement:'C', fatal:'D'})[value] || '—';
+}
+
+function scorecardMinGrade(a, b) {
+  const rank={A:4,B:3,C:2,D:1,'—':0};
+  return (rank[a]||0) <= (rank[b]||0) ? a : b;
+}
+
 function getCandidateScore(candidate) {
   const sc = getScorecardState();
   const criteria = sc.criteria || [];
@@ -4099,10 +4129,39 @@ function getCandidateScore(candidate) {
       completed += 1;
     }
   });
-  const t = sc.thresholds;
-  const provisional = score >= t.A ? 'A' : score >= t.B ? 'B' : score >= t.C ? 'C' : 'D';
-  const autoGrade = completed === criteria.length && criteria.length > 0 ? provisional : '—';
-  return { score, autoGrade, finalGrade:candidate?.manualGrade || autoGrade, completed, total:criteria.length, sectorTotals };
+
+  const businessScore = Number(sectorTotals.business?.score || 0);
+  const condition = candidate?.structuralCondition || '';
+  const allCriteriaDone = completed === criteria.length && criteria.length > 0;
+  const conditionDone = !!condition;
+  let autoGrade = '—';
+  let gradeReason = conditionDone ? '' : '구조적 위험 조건 미평가';
+
+  if (allCriteriaDone && conditionDone) {
+    if (condition === 'fatal' || score <= 79 || businessScore < 16) {
+      autoGrade = 'D';
+      if (condition === 'fatal') gradeReason = '치명적 위험 있음 → D 강제 판정';
+      else if (businessScore < 16) gradeReason = `사업의 질 ${businessScore}/30 < 16 → D 강제 판정`;
+      else gradeReason = '총점 79점 이하 → D';
+    } else {
+      let byScore = score >= 110 ? 'A' : score >= 95 ? 'B' : score >= 80 ? 'C' : 'D';
+      let qualityCap = businessScore >= 25 ? 'A' : businessScore >= 21 ? 'B' : businessScore >= 16 ? 'C' : 'D';
+      const conditionCap = scorecardGradeCapByCondition(condition);
+      autoGrade = scorecardMinGrade(scorecardMinGrade(byScore, qualityCap), conditionCap);
+      const reasons=[];
+      if (autoGrade !== byScore) {
+        if (scorecardGradeRank(qualityCap) < scorecardGradeRank(byScore)) reasons.push(`사업의 질 ${businessScore}/30으로 ${qualityCap} 상한`);
+        if (scorecardGradeRank(conditionCap) < scorecardGradeRank(byScore)) reasons.push(`${scorecardStructuralConditionLabel(condition)} → ${conditionCap} 상한`);
+      }
+      gradeReason = reasons.length ? reasons.join(' · ') : `${score}점 · 사업의 질 ${businessScore}/30 · ${scorecardStructuralConditionLabel(condition)}`;
+    }
+  }
+
+  return {
+    score, autoGrade, finalGrade:autoGrade, completed, total:criteria.length, sectorTotals,
+    businessScore, structuralCondition:condition, conditionCompleted:conditionDone,
+    fullyEvaluated:allCriteriaDone && conditionDone, gradeReason
+  };
 }
 
 function scorecardGradeClass(grade) { return ['A','B','C','D'].includes(grade) ? 'grade-'+grade : 'grade-NA'; }
@@ -4117,7 +4176,7 @@ function addScorecardCandidate() {
   if (existing) { sc.activeId=existing.id; reconcileScorecardWithPositions(sc); saveState(); renderScorecard(); toast('이미 등록된 티커입니다 · 기존 기록으로 이동'); return; }
   const held = findHeldPositionByTicker(ticker);
   const id='watch_'+ticker.toLowerCase().replace(/[^a-z0-9가-힣]+/g,'_')+'_'+Date.now().toString(36);
-  sc.candidates.push({id,ticker,name:held?.name||name||ticker,exchange:String(held?.exchange||exchange||'').toUpperCase(),linkedPositionId:held?.id||'',scores:{},notes:{},decision:held?'보유':'관찰',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]});
+  sc.candidates.push({id,ticker,name:held?.name||name||ticker,exchange:String(held?.exchange||exchange||'').toUpperCase(),linkedPositionId:held?.id||'',scores:{},notes:{},structuralCondition:'',decision:held?'보유':'관찰',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]});
   sc.activeId=id;
   ['sc-add-ticker','sc-add-name','sc-add-exchange'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
   saveState(); renderScorecard(); toast('✓ '+ticker+' 점검 종목 추가');
@@ -4136,7 +4195,7 @@ function importHeldPositionsToScorecard() {
       if (!existing.decision || existing.decision==='관찰') existing.decision='보유';
       linked++; return;
     }
-    sc.candidates.push({id:'watch_'+ticker.toLowerCase()+'_'+Date.now().toString(36)+'_'+added,ticker,name:p.name||ticker,exchange,linkedPositionId:p.id||'',scores:{},notes:{},decision:'보유',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]}); added++;
+    sc.candidates.push({id:'watch_'+ticker.toLowerCase()+'_'+Date.now().toString(36)+'_'+added,ticker,name:p.name||ticker,exchange,linkedPositionId:p.id||'',scores:{},notes:{},structuralCondition:'',decision:'보유',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]}); added++;
   });
   reconcileScorecardWithPositions(sc);
   if (!sc.activeId && sc.candidates[0]) sc.activeId=sc.candidates[0].id;
@@ -4155,6 +4214,12 @@ function removeScorecardCandidate(id) {
 function updateScorecardCandidateField(id, field, value) {
   const c=getScorecardCandidate(id); if(!c) return;
   c[field]=value; c.updatedAt=new Date().toISOString(); saveState(); renderScorecardSummary(); renderScorecardCandidates();
+}
+
+function updateScorecardStructuralCondition(id, value) {
+  const c=getScorecardCandidate(id); if(!c) return;
+  c.structuralCondition=value; c.updatedAt=new Date().toISOString(); saveState(); renderScorecardMain(); renderScorecardSummary(); renderScorecardCandidates();
+  const calc=getCandidateScore(c); if(calc.fullyEvaluated) openScorecardGradeGuide();
 }
 
 
@@ -4189,7 +4254,7 @@ function updateScorecardScore(id, criterionId, optionId, rerender=false) {
   saveState();
   if (rerender) renderScorecardMain();
   renderScorecardSummary(); renderScorecardCandidates();
-  if (before.completed < before.total && after.completed === after.total) openScorecardGradeGuide();
+  if (!before.fullyEvaluated && after.fullyEvaluated) openScorecardGradeGuide();
 }
 
 function updateScorecardNote(id, criterionId, value) {
@@ -4200,13 +4265,13 @@ function updateScorecardNote(id, criterionId, value) {
 function saveScorecardReview(id) {
   const c=getScorecardCandidate(id); if(!c)return;
   const calc=getCandidateScore(c);
-  if (calc.completed !== calc.total) { toast('⚠ 모든 평가 항목을 선택한 뒤 기록을 저장하세요'); return; }
+  if (!calc.fullyEvaluated) { toast('⚠ 19개 평가 항목과 구조적 위험 조건을 모두 선택한 뒤 저장하세요'); return; }
   if(!c.history)c.history=[];
   const sc=getScorecardState();
   const editing=sc.historyEdit && sc.historyEdit.candidateId===id ? sc.historyEdit : null;
   const payload={
-    schemaVersion:3, id:editing?.reviewId || ('review_'+Date.now().toString(36)), savedAt:new Date().toISOString(), score:Number(calc.score.toFixed(2)), autoGrade:calc.autoGrade, finalGrade:calc.finalGrade,
-    manualGrade:c.manualGrade||'', decision:c.decision||'관찰', finalNote:c.finalNote||'',
+    schemaVersion:4, id:editing?.reviewId || ('review_'+Date.now().toString(36)), savedAt:new Date().toISOString(), score:Number(calc.score.toFixed(2)), autoGrade:calc.autoGrade, finalGrade:calc.finalGrade,
+    manualGrade:'', structuralCondition:c.structuralCondition||'', businessQualityScore:calc.businessScore, gradeReason:calc.gradeReason||'', decision:c.decision||'관찰', finalNote:c.finalNote||'',
     scores:JSON.parse(JSON.stringify(c.scores||{})), notes:JSON.parse(JSON.stringify(c.notes||{})),
     criteria:JSON.parse(JSON.stringify(getScorecardState().criteria||[])), sectorTotals:JSON.parse(JSON.stringify(calc.sectorTotals||{}))
   };
@@ -4225,15 +4290,15 @@ function saveScorecardReview(id) {
 
 function restoreScorecardReview(id, reviewId) {
   const c=getScorecardCandidate(id); const h=c?.history?.find(x=>String(x.id)===String(reviewId)); if(!c||!h)return;
-  if (Number(h.schemaVersion||1) < 2) { toast('이 기록은 이전 0~5점 평가표 기록이라 현재 100점 투자표로 복원할 수 없습니다'); return; }
+  if (Number(h.schemaVersion||1) < 4) { toast('이 기록은 이전 100점 이하 평가표 기록이라 현재 130점 투자표로 복원할 수 없습니다'); return; }
   if(!confirm('이 과거 기록의 투자표 선택·메모·등급·결론을 현재 평가로 불러올까요?'))return;
-  c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=h.manualGrade||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||''; c.updatedAt=new Date().toISOString(); saveState(); renderScorecard();
+  c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=''; c.structuralCondition=h.structuralCondition||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||''; c.updatedAt=new Date().toISOString(); saveState(); renderScorecard();
 }
 
 function editScorecardHistory(candidateId, reviewId) {
   const c=getScorecardCandidate(candidateId); const h=c?.history?.find(x=>String(x.id)===String(reviewId)); if(!c||!h)return;
-  if(Number(h.schemaVersion||1)<2){ toast('이전 평가표 기록은 현재 100점표로 수정할 수 없습니다'); return; }
-  c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=h.manualGrade||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||'';
+  if(Number(h.schemaVersion||1)<4){ toast('이전 평가표 기록은 현재 130점표로 수정할 수 없습니다'); return; }
+  c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=''; c.structuralCondition=h.structuralCondition||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||'';
   const sc=getScorecardState(); sc.activeId=candidateId; sc.historyEdit={candidateId,reviewId}; saveState(); switchTabByName('scorecard'); renderScorecard();
 }
 
@@ -4253,14 +4318,14 @@ function deleteScorecardHistory(candidateId, reviewId) {
 function renderScorecardSummary() {
   const el=document.getElementById('scorecard-summary'); if(!el)return;
   const sc=getScorecardState(); const counts={A:0,B:0,C:0,D:0}; let sum=0, rated=0;
-  sc.candidates.forEach(c=>{const x=getCandidateScore(c); if(['A','B','C','D'].includes(x.finalGrade)) counts[x.finalGrade]++; if(x.completed===x.total){sum+=x.score;rated++;}});
+  sc.candidates.forEach(c=>{const x=getCandidateScore(c); if(['A','B','C','D'].includes(x.finalGrade)) counts[x.finalGrade]++; if(x.fullyEvaluated){sum+=x.score;rated++;}});
   const avg=rated?sum/rated:0;
   el.innerHTML=`
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">점검 종목</div><div class="scorecard-summary-value">${sc.candidates.length}</div></div>
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">A 등급</div><div class="scorecard-summary-value" style="color:var(--accent)">${counts.A}</div></div>
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">B 등급</div><div class="scorecard-summary-value" style="color:var(--accent2)">${counts.B}</div></div>
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">C / D</div><div class="scorecard-summary-value" style="color:var(--warn)">${counts.C} / <span style="color:var(--danger)">${counts.D}</span></div></div>
-    <div class="scorecard-summary-card"><div class="scorecard-summary-label">평가 완료 평균</div><div class="scorecard-summary-value">${rated?avg.toFixed(1):'—'}</div></div>`;
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">평가 완료 평균</div><div class="scorecard-summary-value">${rated?avg.toFixed(1)+' / 130':'—'}</div></div>`;
 }
 
 function renderScorecardCandidates() {
@@ -4290,36 +4355,39 @@ function renderInvestmentCriterion(c, cr) {
 function renderScorecardMain() {
   const body=document.getElementById('scorecard-main-body'); const title=document.getElementById('scorecard-active-title'); const sub=document.getElementById('scorecard-active-sub'); if(!body||!title||!sub)return;
   const c=getScorecardActiveCandidate(); const sc=getScorecardState();
-  if(!c){title.textContent='종목을 선택하세요';sub.textContent='100점 투자표를 작성하면 총점과 등급이 자동 계산됩니다.';body.innerHTML='<div class="scorecard-empty">왼쪽에서 종목을 추가하거나 선택하세요.</div>';return;}
+  if(!c){title.textContent='종목을 선택하세요';sub.textContent='130점 투자표를 작성하면 총점·사업의 질·구조적 위험 조건을 함께 반영해 등급이 자동 계산됩니다.';body.innerHTML='<div class="scorecard-empty">왼쪽에서 종목을 추가하거나 선택하세요.</div>';return;}
   const calc=getCandidateScore(c); title.innerHTML=escapeHtml(c.ticker)+' · '+escapeHtml(c.name||c.ticker)+(c.linkedPositionId?'<span class="scorecard-linked-badge">보유종목 연계</span>':''); sub.textContent=(c.exchange||'거래소 미지정')+' · 마지막 수정 '+(c.updatedAt?new Date(c.updatedAt).toLocaleString('ko-KR'):'기록 없음');
   const sectorCards=getInvestmentScorecardSectors().map(sec=>{const x=calc.sectorTotals[sec.id]||{score:0,maxScore:sec.maxScore,completed:0,total:0};return `<div class="scorecard-sector-mini"><span>${escapeHtml(sec.name)}</span><strong>${x.score} / ${sec.maxScore}</strong></div>`;}).join('');
   const sectorsHtml=getInvestmentScorecardSectors().map(sec=>{
     const rows=sc.criteria.filter(cr=>cr.sector===sec.id);
     const x=calc.sectorTotals[sec.id]||{score:0,maxScore:sec.maxScore,completed:0,total:rows.length};
-    return `<section class="scorecard-sector"><div class="scorecard-sector-head"><div><div class="scorecard-sector-title">${escapeHtml(sec.name)}</div><div class="scorecard-sector-sub">${x.completed}/${x.total} 항목 평가 완료 · 섹터 총점 ${sec.maxScore}점</div></div><div class="scorecard-sector-score">${x.score} / ${sec.maxScore}</div></div><div class="scorecard-sector-body">${rows.map(cr=>renderInvestmentCriterion(c,cr)).join('')}</div></section>`;
+    const businessNote=sec.id==='business'?`<div class="report-source-note" style="margin:0 12px 12px;">사업의 질 게이트 · 25점 이상 A 가능 · 21점 이상 B 가능 · 16점 이상 C 가능 · 16점 미만 D 강제</div>`:'';
+    return `<section class="scorecard-sector"><div class="scorecard-sector-head"><div><div class="scorecard-sector-title">${escapeHtml(sec.name)}</div><div class="scorecard-sector-sub">${x.completed}/${x.total} 항목 평가 완료 · 섹터 총점 ${sec.maxScore}점</div></div><div class="scorecard-sector-score">${x.score} / ${sec.maxScore}</div></div><div class="scorecard-sector-body">${rows.map(cr=>renderInvestmentCriterion(c,cr)).join('')}</div>${businessNote}</section>`;
   }).join('');
-  const legacyNote=c.legacyEvaluation?'<div class="scorecard-standard-note">이 종목에는 v4의 이전 0~5점 평가 기록이 보존되어 있습니다. 새 100점 투자표는 초기화된 상태로 시작하며, 기존 과거 Snapshot은 히스토리에서 그대로 확인할 수 있습니다.</div>':'';
+  const legacyNote=c.legacyEvaluation?'<div class="scorecard-standard-note">이 종목에는 이전 평가표 기록이 보존되어 있습니다. 새 130점 평가표는 기존 공통 항목 선택을 유지하되 사업의 질 6개 항목과 구조적 위험 조건을 추가로 평가해야 새 등급이 확정됩니다.</div>':'';
   body.innerHTML=`
     <div class="scorecard-overview">
-      <div class="scorecard-overview-card"><div class="scorecard-overview-label">총점</div><div id="sc-live-score" class="scorecard-overview-value">${calc.score.toFixed(0)}/100</div></div>
-      <div class="scorecard-overview-card"><div class="scorecard-overview-label">최종 등급</div><div style="margin-top:5px"><span id="sc-live-grade" class="grade-badge ${scorecardGradeClass(calc.finalGrade)}">${calc.finalGrade}</span></div></div>
-      <div class="scorecard-overview-card"><div class="scorecard-overview-label">자동 등급</div><div class="scorecard-overview-value">${calc.autoGrade}</div><div style="margin-top:4px;color:var(--muted);font-size:9px;line-height:1.45">${escapeHtml(scorecardActionForGrade(calc.autoGrade))}</div></div>
-      <div class="scorecard-overview-card"><div class="scorecard-overview-label">작성 진행</div><div id="sc-live-progress" class="scorecard-overview-value">${calc.completed}/${calc.total} 항목</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">총점</div><div id="sc-live-score" class="scorecard-overview-value">${calc.score.toFixed(0)}/130</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">사업의 질</div><div class="scorecard-overview-value" style="color:${calc.businessScore<16&&calc.completed===calc.total?'var(--danger)':calc.businessScore>=25?'var(--accent)':'var(--warn)'}">${calc.businessScore}/30</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">자동 등급</div><div style="margin-top:5px"><span id="sc-live-grade" class="grade-badge ${scorecardGradeClass(calc.autoGrade)}">${calc.autoGrade}</span></div><div style="margin-top:4px;color:var(--muted);font-size:9px;line-height:1.45">${escapeHtml(scorecardActionForGrade(calc.autoGrade))}</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">구조적 조건</div><div class="scorecard-overview-value" style="font-size:12px;line-height:1.4">${escapeHtml(scorecardStructuralConditionLabel(c.structuralCondition))}</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">작성 진행</div><div id="sc-live-progress" class="scorecard-overview-value">${calc.completed}/${calc.total} 항목${calc.conditionCompleted?' + 조건':' + 조건 미평가'}</div></div>
     </div>
-    <div class="scorecard-total-bar"><div id="sc-live-fill" class="scorecard-total-fill" style="width:${Math.max(0,Math.min(100,calc.score))}%"></div></div>
+    <div class="scorecard-total-bar"><div id="sc-live-fill" class="scorecard-total-fill" style="width:${Math.max(0,Math.min(100,calc.score/130*100))}%"></div></div>
     <div class="scorecard-sector-mini-grid">${sectorCards}</div>
     ${legacyNote}
-    <div class="scorecard-standard-note">고정 투자표 <span class="scorecard-fixed-badge">100 POINT STANDARD</span><br>각 항목에서 네 기준에 해당하는 선택지를 고르면 점수가 자동 합산됩니다. <button class="scorecard-btn" style="margin-left:6px;padding:5px 8px" onclick="openScorecardGradeGuide()">A/B/C/D 기준 보기</button></div>
+    <div class="scorecard-standard-note">고정 투자표 <span class="scorecard-fixed-badge">130 POINT STANDARD</span><br>19개 항목 + 사업의 질 게이트 + 구조적 위험 조건을 모두 반영합니다. <button class="scorecard-btn" style="margin-left:6px;padding:5px 8px" onclick="openScorecardGradeGuide()">A/B/C/D 기준 보기</button></div>
     <div class="scorecard-grade-row">
-      <div class="scorecard-inline-field"><label>최종 등급</label><select class="scorecard-select" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','manualGrade',this.value); renderScorecardMain();"><option value="" ${!c.manualGrade?'selected':''}>자동 (${calc.autoGrade==='—'?'평가 완료 후 산정':calc.autoGrade})</option>${['A','B','C','D'].map(g=>`<option value="${g}" ${c.manualGrade===g?'selected':''}>${g} · 수동 지정</option>`).join('')}</select></div>
+      <div class="scorecard-inline-field"><label>구조적 위험 / 추가 조건</label><select class="scorecard-select" onchange="updateScorecardStructuralCondition('${escapeAttr(c.id)}',this.value)"><option value="" ${!c.structuralCondition?'selected':''}>추가 조건 선택</option><option value="none" ${c.structuralCondition==='none'?'selected':''}>치명적 위험 없음 · A까지 가능</option><option value="limited" ${c.structuralCondition==='limited'?'selected':''}>중대한 구조적 결함 제한적 · 최대 B</option><option value="improvement" ${c.structuralCondition==='improvement'?'selected':''}>가격 또는 사업 개선 확인 필요 · 최대 C</option><option value="fatal" ${c.structuralCondition==='fatal'?'selected':''}>치명적 위험 있음 · D 강제</option></select></div>
       <div class="scorecard-inline-field"><label>현재 투자 결론</label><select class="scorecard-select" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','decision',this.value)">${['매수 후보','추가 조사','관찰','보유','추가매수 검토','보류','제외'].map(v=>`<option ${c.decision===v?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
+    ${calc.gradeReason?`<div class="report-source-note" style="margin-bottom:14px;"><strong>등급 판정 근거</strong> · ${escapeHtml(calc.gradeReason)}</div>`:''}
     ${sectorsHtml}
     <div class="scorecard-footer-grid">
       <div class="scorecard-inline-field"><label>티커</label><input class="scorecard-field" value="${escapeAttr(c.ticker||'')}" style="text-transform:uppercase" onchange="updateScorecardTicker('${escapeAttr(c.id)}',this.value)"></div>
       <div class="scorecard-inline-field"><label>종목명</label><input class="scorecard-field" value="${escapeAttr(c.name||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','name',this.value)"></div>
       <div class="scorecard-inline-field"><label>거래소</label><input class="scorecard-field" value="${escapeAttr(c.exchange||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','exchange',this.value.toUpperCase())"></div>
-      <div class="scorecard-inline-field full"><label>종합 판단 / 투자 기록</label><textarea class="scorecard-note" style="min-height:100px" placeholder="왜 이 점수와 등급이 나왔는지, 투자 전 확인할 조건과 다음 점검 포인트를 기록하세요." oninput="updateScorecardCandidateField('${escapeAttr(c.id)}','finalNote',this.value)">${escapeHtml(c.finalNote||'')}</textarea></div>
+      <div class="scorecard-inline-field full"><label>종합 판단 / 투자 기록</label><textarea class="scorecard-note" style="min-height:100px" placeholder="왜 이 점수와 등급이 나왔는지, 사업의 질이 유지/개선/악화되는지, 다음 점검 포인트를 기록하세요." oninput="updateScorecardCandidateField('${escapeAttr(c.id)}','finalNote',this.value)">${escapeHtml(c.finalNote||'')}</textarea></div>
     </div>
     ${sc.historyEdit && sc.historyEdit.candidateId===c.id ? `<div class="score-edit-banner"><span>과거 점검 기록 수정 중 · 저장하면 기존 기록을 덮어씁니다.</span><button class="scorecard-btn" onclick="cancelScorecardHistoryEdit()">수정 취소</button></div>` : ''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="scorecard-btn primary" onclick="saveScorecardReview('${escapeAttr(c.id)}')">${sc.historyEdit && sc.historyEdit.candidateId===c.id ? '과거 기록 수정 저장' : '점검 기록 저장'}</button><button class="scorecard-btn" onclick="switchTabByName('score-history')">등급 기록 보관함</button><button class="scorecard-btn" onclick="removeScorecardCandidate('${escapeAttr(c.id)}')" style="color:var(--danger);border-color:rgba(255,107,107,.25)">종목 삭제</button></div>
@@ -4330,19 +4398,12 @@ function toggleScorecardSettings() { const sc=getScorecardState(); sc.settingsOp
 
 function renderScorecardSettings() {
   const box=document.getElementById('scorecard-settings'); if(!box)return; const sc=getScorecardState(); box.classList.toggle('open',sc.settingsOpen);
-  const a=document.getElementById('sc-th-a'),b=document.getElementById('sc-th-b'),c=document.getElementById('sc-th-c');if(a)a.value=sc.thresholds.A;if(b)b.value=sc.thresholds.B;if(c)c.value=sc.thresholds.C;
+
 }
 
-function updateScorecardThreshold(grade,value) {
-  const sc=getScorecardState(); sc.thresholds[grade]=Math.max(0,Math.min(100,Number(value)||0));
-  if(sc.thresholds.B>sc.thresholds.A)sc.thresholds.B=sc.thresholds.A;
-  if(sc.thresholds.C>sc.thresholds.B)sc.thresholds.C=sc.thresholds.B;
-  saveState(); renderScorecard();
-}
+function updateScorecardThreshold(grade,value) { toast('130점 ABCD 기준은 고정 정책입니다.'); }
 
-function resetScorecardThresholds() {
-  const sc=getScorecardState(); sc.thresholds={A:80,B:70,C:50}; saveState(); renderScorecard(); renderScorecardHistory(); toast('✓ 등급 기준 기본값 복원');
-}
+function resetScorecardThresholds() { toast('130점 ABCD 기준은 고정 정책입니다.'); }
 
 
 function getAllScorecardHistoryRecords() {
@@ -4364,20 +4425,20 @@ function renderScorecardHistory() {
   all.forEach(r=>{const g=r.review.finalGrade||r.review.autoGrade||'—'; if(counts[g]!==undefined)counts[g]++;});
   summary.innerHTML=`
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">전체 기록</div><div class="scorecard-summary-value">${all.length}</div></div>
-    <div class="scorecard-summary-card"><div class="scorecard-summary-label">A · 신규 매수</div><div class="scorecard-summary-value" style="color:var(--accent)">${counts.A}</div></div>
-    <div class="scorecard-summary-card"><div class="scorecard-summary-label">B · 매수 고려</div><div class="scorecard-summary-value" style="color:var(--accent2)">${counts.B}</div></div>
-    <div class="scorecard-summary-card"><div class="scorecard-summary-label">C · 유지</div><div class="scorecard-summary-value" style="color:var(--warn)">${counts.C}</div></div>
-    <div class="scorecard-summary-card"><div class="scorecard-summary-label">D · 판매</div><div class="scorecard-summary-value" style="color:var(--danger)">${counts.D}</div></div>`;
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">A · 최우량</div><div class="scorecard-summary-value" style="color:var(--accent)">${counts.A}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">B · 우량</div><div class="scorecard-summary-value" style="color:var(--accent2)">${counts.B}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">C · 관찰</div><div class="scorecard-summary-value" style="color:var(--warn)">${counts.C}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">D · 제외</div><div class="scorecard-summary-value" style="color:var(--danger)">${counts.D}</div></div>`;
   document.querySelectorAll('.grade-filter-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.grade===sc.historyGradeFilter));
   const filtered=sc.historyGradeFilter==='ALL'?all:all.filter(r=>(r.review.finalGrade||r.review.autoGrade)===sc.historyGradeFilter);
   if(!filtered.length){grid.innerHTML='<div class="score-history-empty">선택한 등급에 저장된 점검 기록이 없습니다.<br>스코어카드에서 점검을 완료한 뒤 <strong>점검 기록 저장</strong>을 누르면 이곳에 등급별로 보관됩니다.</div>';return;}
   grid.innerHTML=filtered.map(({candidateId,ticker,name,exchange,linkedPositionId,review})=>{
-    const grade=review.finalGrade||review.autoGrade||'—'; const legacy=Number(review.schemaVersion||1)<2;
+    const grade=review.finalGrade||review.autoGrade||'—'; const legacy=Number(review.schemaVersion||1)<4; const maxScore=Number(review.schemaVersion||1)>=4?130:100;
     return `<article class="score-history-card">
       <div class="score-history-card-head"><div><div class="score-history-card-ticker">${escapeHtml(ticker)}${linkedPositionId?'<span class="scorecard-linked-badge">보유종목</span>':''}</div><div class="score-history-card-name">${escapeHtml(name)}${exchange?' · '+escapeHtml(exchange):''}</div></div><span class="grade-badge ${scorecardGradeClass(grade)}">${escapeHtml(grade)}</span></div>
       <div class="score-history-card-body">
-        <div class="score-history-meta"><div class="score-history-meta-box"><span>점검일</span><strong>${escapeHtml(new Date(review.savedAt).toLocaleDateString('ko-KR'))}</strong></div><div class="score-history-meta-box"><span>점수</span><strong>${Number(review.score||0).toFixed(0)} / 100</strong></div><div class="score-history-meta-box"><span>분류</span><strong>${escapeHtml(scorecardActionForGrade(grade))}</strong></div></div>
-        <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">투자 결론 · ${escapeHtml(review.decision||'—')}${review.editedAt?' · 수정됨':''}</div>
+        <div class="score-history-meta"><div class="score-history-meta-box"><span>점검일</span><strong>${escapeHtml(new Date(review.savedAt).toLocaleDateString('ko-KR'))}</strong></div><div class="score-history-meta-box"><span>점수</span><strong>${Number(review.score||0).toFixed(0)} / ${maxScore}</strong></div><div class="score-history-meta-box"><span>분류</span><strong>${escapeHtml(legacy?'이전 기준 · '+grade:scorecardActionForGrade(grade))}</strong></div></div>
+        ${legacy?'':`<div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">사업의 질 · ${Number(review.businessQualityScore ?? review.sectorTotals?.business?.score ?? 0).toFixed(0)}/30 · ${escapeHtml(scorecardStructuralConditionLabel(review.structuralCondition||''))}</div>`}<div style="font-size:10px;color:var(--muted);font-family:var(--mono)">투자 결론 · ${escapeHtml(review.decision||'—')}${review.editedAt?' · 수정됨':''}</div>
         <div class="score-history-note">${escapeHtml(review.finalNote||'기록 없음')}</div>
         <div class="score-history-actions">${legacy?'<button disabled title="이전 평가표 기록">이전 기록</button>':`<button onclick="editScorecardHistory('${escapeAttr(candidateId)}','${escapeAttr(review.id)}')">수정</button><button onclick="restoreScorecardReview('${escapeAttr(candidateId)}','${escapeAttr(review.id)}')">현재표로 복사</button>`}<button class="danger" onclick="deleteScorecardHistory('${escapeAttr(candidateId)}','${escapeAttr(review.id)}')">삭제</button></div>
       </div>
@@ -4509,6 +4570,7 @@ function scorecardSnapshotFromReview(review) {
     finalNote:review.finalNote || '',
     savedAt:review.savedAt || '',
     sectorTotals:JSON.parse(JSON.stringify(review.sectorTotals || {})),
+    businessQualityScore:Number(review.businessQualityScore ?? review.sectorTotals?.business?.score ?? 0), structuralCondition:review.structuralCondition||'', gradeReason:review.gradeReason||'',
     source:'저장된 점검 기록'
   };
 }
@@ -4518,20 +4580,20 @@ function getReportScorecardSignal(pos) {
   const ticker = scorecardTickerKey(pos.ticker);
   const candidate = sc.candidates.find(c => scorecardTickerKey(c.ticker) === ticker) || null;
   if (!candidate) {
-    return { available:false, completed:false, score:null, grade:'—', policy:'스코어카드 미등록', delta:null, gradeChange:0, previous:null, sectorTotals:{}, sectorChanges:[], deterioration:false, sharpDeterioration:false, improvement:false };
+    return { available:false, completed:false, score:null, grade:'—', policy:'스코어카드 미등록', delta:null, gradeChange:0, previous:null, sectorTotals:{}, sectorChanges:[], businessQualityScore:null, structuralCondition:'', deterioration:false, sharpDeterioration:false, improvement:false };
   }
 
   const calc = getCandidateScore(candidate);
-  const history = (candidate.history || []).filter(h => Number(h.schemaVersion || 1) >= 2)
+  const history = (candidate.history || []).filter(h => Number(h.schemaVersion || 1) >= 4)
     .slice().sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
 
   let current = null;
   let previous = null;
-  if (calc.completed === calc.total && calc.total > 0) {
+  if (calc.fullyEvaluated) {
     current = {
       score:Number(calc.score || 0), grade:calc.finalGrade || calc.autoGrade || '—', autoGrade:calc.autoGrade || '—',
       decision:candidate.decision || '', finalNote:candidate.finalNote || '', savedAt:candidate.updatedAt || '',
-      sectorTotals:JSON.parse(JSON.stringify(calc.sectorTotals || {})), source:'현재 스코어카드'
+      sectorTotals:JSON.parse(JSON.stringify(calc.sectorTotals || {})), businessQualityScore:calc.businessScore, structuralCondition:candidate.structuralCondition||'', gradeReason:calc.gradeReason||'', source:'현재 스코어카드'
     };
     const latest = history[0] || null;
     const currentSectorSig = JSON.stringify(Object.fromEntries(Object.entries(current.sectorTotals||{}).map(([k,v])=>[k,Number(v?.score||0)])));
@@ -4544,7 +4606,7 @@ function getReportScorecardSignal(pos) {
   }
 
   if (!current) {
-    return { available:true, completed:false, score:null, grade:'—', policy:'평가 미완료', delta:null, gradeChange:0, previous:null, sectorTotals:{}, sectorChanges:[], deterioration:false, sharpDeterioration:false, improvement:false, candidateId:candidate.id };
+    return { available:true, completed:false, score:null, grade:'—', policy:'평가 미완료', delta:null, gradeChange:0, previous:null, sectorTotals:{}, sectorChanges:[], businessQualityScore:null, structuralCondition:candidate.structuralCondition||'', deterioration:false, sharpDeterioration:false, improvement:false, candidateId:candidate.id };
   }
 
   const delta = previous ? current.score - previous.score : null;
@@ -4562,9 +4624,11 @@ function getReportScorecardSignal(pos) {
     score:current.score, grade:current.grade, autoGrade:current.autoGrade,
     policy:scorecardActionForGrade(current.grade), decision:current.decision, finalNote:current.finalNote,
     source:current.source, savedAt:current.savedAt, previous,
-    delta, gradeChange, sectorTotals:current.sectorTotals || {}, sectorChanges,
-    deterioration:(delta !== null && delta <= -5) || gradeChange < 0,
-    sharpDeterioration:(delta !== null && delta <= -10) || gradeChange <= -2,
+    delta, gradeChange, sectorTotals:current.sectorTotals || {}, sectorChanges, businessQualityScore:Number(current.businessQualityScore ?? current.sectorTotals?.business?.score ?? 0), structuralCondition:current.structuralCondition||'', gradeReason:current.gradeReason||'',
+    businessQualityDelta: previous ? Number(current.businessQualityScore ?? current.sectorTotals?.business?.score ?? 0) - Number(previous.businessQualityScore ?? previous.sectorTotals?.business?.score ?? 0) : null,
+    businessQualityCritical:Number(current.businessQualityScore ?? current.sectorTotals?.business?.score ?? 0) < 16,
+    deterioration:(delta !== null && delta <= -5) || gradeChange < 0 || (previous && Number(current.businessQualityScore ?? 0)-Number(previous.businessQualityScore ?? 0) <= -3),
+    sharpDeterioration:(delta !== null && delta <= -10) || gradeChange <= -2 || Number(current.businessQualityScore ?? 0) < 16,
     improvement:(delta !== null && delta >= 5) || gradeChange > 0
   };
 }
@@ -4612,11 +4676,15 @@ function getLongtermPortfolioSnapshot(monthKey) {
     // MAIN AXIS 2 — Scorecard
     if (scorecard.completed) {
       reasons.push(`MAIN · 종목 스코어카드 ${scorecard.score.toFixed(0)}점 · ${scorecard.grade}등급 · ${scorecard.policy}`);
+      reasons.push(`MAIN · 사업의 질 ${Number(scorecard.businessQualityScore||0).toFixed(0)}/30 · ${scorecard.structuralCondition?scorecardStructuralConditionLabel(scorecard.structuralCondition):'구조적 조건 기록 없음'}`);
       if (scorecard.delta !== null) {
         const sign = scorecard.delta > 0 ? '+' : '';
         reasons.push(`MAIN · 직전 스코어카드 대비 ${sign}${scorecard.delta.toFixed(1)}점${scorecard.gradeChange < 0 ? ' · 등급 하향' : scorecard.gradeChange > 0 ? ' · 등급 상향' : ''}`);
       } else reasons.push('MAIN · 비교 가능한 이전 스코어카드 점검 기록이 아직 없습니다.');
       scorecard.sectorChanges.filter(x=>x.delta!==null && Math.abs(x.delta)>=3).forEach(x=>reasons.push(`스코어카드 변화 · ${x.name} ${x.delta>0?'+':''}${x.delta.toFixed(0)}점`));
+      const businessChange=scorecard.sectorChanges.find(x=>x.id==='business');
+      if (businessChange?.delta !== null && businessChange?.delta <= -3) reasons.push(`MAIN · 사업의 질 악화 경보 · 직전 대비 ${businessChange.delta.toFixed(0)}점`);
+      if (Number(scorecard.businessQualityScore||0) < 16) reasons.push('MAIN · 사업의 질 16/30 미만 · 장기 핵심투자 제외 게이트 발동');
     } else {
       reasons.push(`MAIN · 종목 스코어카드 ${scorecard.available ? '평가 미완료' : '미등록'} — 신규/추가매수 판단 신뢰도가 낮습니다.`);
     }
@@ -4625,14 +4693,14 @@ function getLongtermPortfolioSnapshot(monthKey) {
     if (checklist.thesisBroken) {
       action = '투자 이유 붕괴 · 전량 매도 검토'; actionClass = 'exit';
     } else if (scorecard.completed && scorecard.grade === 'D') {
-      action = '판매 검토'; actionClass = 'exit';
-      reasons.push('스코어카드 D등급은 운용 기준상 판매 구간입니다.');
+      action = '장기 핵심투자 제외 · 매도/축소 검토'; actionClass = 'exit';
+      reasons.push('스코어카드 D등급은 장기 핵심투자 제외 구간입니다.');
     } else if (thesisState.score < 0 && scorecard.completed && (scorecard.grade === 'C' || scorecard.sharpDeterioration)) {
       action = '리밸런싱 매도 검토'; actionClass = 'rebalance';
       reasons.push('Thesis 약화와 스코어카드 저평가/급락이 동시에 나타나 비중 축소 검토를 우선합니다.');
     } else if (scorecard.completed && scorecard.grade === 'C') {
-      action = '비중 유지 · 신규매수 금지'; actionClass = 'hold';
-      reasons.push('스코어카드 C등급은 운용 기준상 유지 구간이며 신규 매수는 금지합니다.');
+      action = '관찰 · 조건부 투자 / 신규매수 보류'; actionClass = 'hold';
+      reasons.push('스코어카드 C등급은 가격 또는 사업 개선 확인이 필요한 관찰 구간입니다.');
     } else if (thesisState.score < 0) {
       action = '비중 유지 · 추가매수 보류'; actionClass = 'hold';
       reasons.push('스코어카드가 A/B여도 Thesis가 약화되어 추가매수보다 Thesis 재점검을 우선합니다.');
@@ -4642,7 +4710,7 @@ function getLongtermPortfolioSnapshot(monthKey) {
     } else if (scorecard.completed && scorecard.grade === 'A') {
       if (targetWeight <= 0 || gap >= 2) {
         action = '추가 매수 검토'; actionClass = 'add';
-        reasons.push('스코어카드 A등급 + Thesis 비붕괴 상태입니다. 가격/추세는 진입 타이밍을 보조합니다.');
+        reasons.push('스코어카드 A등급 · 최우량 장기투자 후보 + Thesis 비붕괴 상태입니다. 가격/추세는 진입 타이밍을 보조합니다.');
       } else {
         action = '비중 유지'; actionClass = 'hold';
         reasons.push('기업 질은 A등급이지만 현재 비중이 목표 수준에 가까워 추가매수보다 비중 유지를 우선합니다.');
@@ -4650,7 +4718,7 @@ function getLongtermPortfolioSnapshot(monthKey) {
     } else if (scorecard.completed && scorecard.grade === 'B') {
       if (targetWeight <= 0 || gap >= 2) {
         action = '매수 고려'; actionClass = 'add';
-        reasons.push('스코어카드 B등급 + Thesis 비붕괴 상태로 매수 고려 구간입니다. 가격/추세·리스크로 실행 시점을 조절합니다.');
+        reasons.push('스코어카드 B등급 · 우량 장기투자 후보 + Thesis 비붕괴 상태로 매수를 고려합니다. 가격/추세·리스크로 실행 시점을 조절합니다.');
       } else {
         action = '비중 유지 · 매수 관찰'; actionClass = 'hold';
         reasons.push('스코어카드 B등급이지만 현재 비중이 목표 수준에 가까워 관찰을 우선합니다.');
@@ -4770,10 +4838,11 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
         <div class="report-card-sub">기업의 질과 투자 이유를 먼저 판단하고, 가격은 ‘좋은 기업을 언제/얼마나 살지’ 결정하는 보조축으로 사용합니다.</div>
         <div style="font-size:12px;line-height:1.8;color:var(--text);">
           <div>1. <strong>핵심 Thesis 1~2개</strong> 붕괴 → <strong style="color:var(--danger)">전량 매도 검토</strong></div>
-          <div>2. <strong>Scorecard D</strong> → <strong style="color:var(--danger)">판매 검토</strong></div>
-          <div>3. <strong>Scorecard C</strong> → <strong style="color:var(--warn)">유지 · 신규매수 금지</strong></div>
-          <div>4. <strong>Scorecard B</strong> + Thesis 유지 → <strong style="color:var(--accent2)">매수 고려</strong></div>
-          <div>5. <strong>Scorecard A</strong> + Thesis 유지 → <strong style="color:var(--accent)">신규/추가매수 우선 후보</strong></div>
+          <div>2. <strong>사업의 질 &lt; 16/30 또는 치명적 위험</strong> → <strong style="color:var(--danger)">D · 장기 핵심투자 제외</strong></div>
+          <div>3. <strong>Scorecard D</strong> → <strong style="color:var(--danger)">매도/축소 검토</strong></div>
+          <div>4. <strong>Scorecard C</strong> → <strong style="color:var(--warn)">관찰 · 조건부 투자 / 신규매수 보류</strong></div>
+          <div>5. <strong>Scorecard B</strong> + Thesis 유지 → <strong style="color:var(--accent2)">우량 후보 · 매수 고려</strong></div>
+          <div>6. <strong>Scorecard A</strong> + Thesis 유지 → <strong style="color:var(--accent)">최우량 후보 · 신규/추가매수 우선</strong></div>
           <div>6. 점수 하락·등급 하향은 이전 점검 대비 변화로 별도 경보</div>
           <div>7. 가격·추세·리스크·추가매수·시나리오·목표비중은 실행 타이밍/비중 조절용 보조 신호</div>
         </div>
@@ -4805,8 +4874,8 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
               <div class="report-core-grid">
                 <div class="report-core-card scorecard">
                   <div class="report-core-label">종목 Scorecard</div>
-                  <div class="report-core-value">${scorecard.completed?`${Number(scorecard.score).toFixed(0)}/100 · ${escapeHtml(scorecard.grade)}등급`:'평가 미완료'}</div>
-                  <div class="report-core-sub">${escapeHtml(scorecard.policy||'스코어카드 점검 필요')}</div>
+                  <div class="report-core-value">${scorecard.completed?`${Number(scorecard.score).toFixed(0)}/130 · ${escapeHtml(scorecard.grade)}등급`:'평가 미완료'}</div>
+                  <div class="report-core-sub">${escapeHtml(scorecard.policy||'스코어카드 점검 필요')}</div><div class="report-core-sub" style="color:${Number(scorecard.businessQualityScore||0)<16?'var(--danger)':Number(scorecard.businessQualityScore||0)>=25?'var(--accent)':'var(--warn)'}">사업의 질 · ${scorecard.completed?Number(scorecard.businessQualityScore||0).toFixed(0)+'/30':'—'} · ${escapeHtml(scorecard.structuralCondition?scorecardStructuralConditionLabel(scorecard.structuralCondition):'조건 미평가')}</div>
                   <div class="report-core-sub report-score-delta ${deltaClass}">직전 점검 대비 · ${escapeHtml(deltaText)}</div>
                   ${sectors?`<div class="report-core-sub">${sectors}</div>`:''}
                 </div>
