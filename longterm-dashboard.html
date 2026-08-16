@@ -1643,7 +1643,7 @@
       <div class="multi-chart-header">
         <div>
           <div class="multi-chart-title">보유 기업 차트 동시 보기</div>
-          <div class="multi-chart-note">장기투자 후보/보유 기업을 최대 5개까지 한 화면에서 동시에 비교합니다.</div>
+          <div class="multi-chart-note">장기투자 후보/보유 기업을 최대 10개까지 한 화면에서 동시에 비교합니다.</div>
         </div>
         <button class="tv-small-btn" onclick="renderMultiCharts(true)">차트 새로고침</button>
       </div>
@@ -2160,7 +2160,7 @@ function setPerfView(view) {
 
 // 자산별 팔레트
 const PALETTE = ['#7DF9AA','#4FC3F7','#FFB347','#A78BFA','#FF8FAB','#F9E87D'];
-const MAX_POSITIONS = 5;
+const MAX_POSITIONS = 10;
 
 function renderPositions() {
   const grid = document.getElementById('positions-grid');
@@ -2516,7 +2516,7 @@ function renderMultiCharts(forceRefresh=false) {
 
   const positions = (state.positions || []).slice(0, MAX_POSITIONS);
   if (positions.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1; padding:18px; color:var(--muted); font-size:13px; text-align:center;">보유 종목을 추가하면 최대 5개 차트를 동시에 볼 수 있습니다.</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1; padding:18px; color:var(--muted); font-size:13px; text-align:center;">보유 종목을 추가하면 최대 10개 차트를 동시에 볼 수 있습니다.</div>`;
     return;
   }
 
@@ -2597,7 +2597,7 @@ function confirmAddPosition() {
   const pos = { id: existingId || createPositionId(ticker), ticker, name, exchange, avgPrice: avg, qty, currentPrice: price, targetWeight, currency: 'USD', status: 'active' };
   if (editIdx >= 0) state.positions[editIdx] = pos;
   else if (state.positions.length < MAX_POSITIONS) state.positions.push(pos);
-  else { toast('⚠ 최대 5개 종목까지만 등록할 수 있습니다'); return; }
+  else { toast('⚠ 최대 10개 종목까지만 등록할 수 있습니다'); return; }
   reconcileScorecardWithPositions(getScorecardState()); saveState(); renderPositions(); renderChecklist(); renderScenarios(); renderScorecard(); renderScorecardHistory(); closeModal();
 }
 
@@ -2712,7 +2712,7 @@ const DEFAULT_CHECKLISTS = {
   ],
   risk: [
     { id:'risk_1', text: '-30% 손절선 현재가와 비교 — 손절 트리거 레벨 재확인', tip: '평균 매수가 × 0.7 = 손절선. 포지션 탭에서 자동 계산.' },
-    { id:'risk_2', text: '보유 종목 간 상관관계 점검 — 한 방향으로 쏠림 없는가', tip: '장기 계좌는 최대 5개까지 집중. 상관계수 높으면 리스크 중첩.' },
+    { id:'risk_2', text: '보유 종목 간 상관관계 점검 — 한 방향으로 쏠림 없는가', tip: '장기 계좌는 최대 10개까지 관리. 상관계수 높으면 리스크 중첩.' },
     { id:'risk_3', text: '매크로 환경 점검 — 금리 방향, 달러 강도, 유동성 흐름', tip: '장기 추세에만 영향. 월 1회로 충분.' },
     { id:'risk_4', text: '환율 리스크 — USD/KRW 변동이 실질 수익률에 미치는 영향', tip: '미국주식 보유 시 환율 10% 변동 = 수익률 10%pt 영향.' },
     { id:'risk_5', text: '규제/정책 리스크 — 업계 규제 변화 뉴스 모니터링', tip: '크립토, 원자력, AI 등 규제 변화에 민감한 섹터 주의.' },
