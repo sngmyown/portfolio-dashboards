@@ -1285,6 +1285,42 @@
   .scorecard-thresholds { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
   .scorecard-thresholds label { color:var(--muted); font-size:9px; font-family:var(--mono); }
   .scorecard-thresholds input { margin-top:5px; width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; color:var(--text); padding:7px 8px; font-family:var(--mono); }
+
+  .scorecard-policy-btn { display:inline-flex; align-items:center; gap:6px; }
+  .scorecard-linked-badge { display:inline-flex; align-items:center; gap:5px; margin-left:7px; padding:2px 7px; border-radius:999px; border:1px solid rgba(125,249,170,.28); background:rgba(125,249,170,.07); color:var(--accent); font-size:9px; font-family:var(--mono); vertical-align:middle; }
+  .score-history-toolbar { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+  .score-history-title { font-size:22px; font-weight:800; }
+  .score-history-sub { margin-top:5px; color:var(--muted); font-size:12px; line-height:1.7; }
+  .grade-filter-tabs { display:flex; gap:7px; flex-wrap:wrap; }
+  .grade-filter-btn { min-width:62px; padding:8px 12px; border-radius:9px; border:1px solid var(--border2); background:var(--surface); color:var(--muted); font-family:var(--mono); font-size:11px; font-weight:700; cursor:pointer; }
+  .grade-filter-btn.active { color:var(--text); background:var(--surface2); box-shadow:inset 0 0 0 1px rgba(255,255,255,.04); }
+  .grade-filter-btn[data-grade="A"].active { color:var(--accent); border-color:rgba(125,249,170,.4); }
+  .grade-filter-btn[data-grade="B"].active { color:var(--accent2); border-color:rgba(79,195,247,.4); }
+  .grade-filter-btn[data-grade="C"].active { color:var(--warn); border-color:rgba(255,179,71,.42); }
+  .grade-filter-btn[data-grade="D"].active { color:var(--danger); border-color:rgba(255,107,107,.42); }
+  .score-history-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:12px; }
+  .score-history-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .score-history-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:13px 15px; border-bottom:1px solid var(--border); background:var(--surface2); }
+  .score-history-card-ticker { font-size:15px; font-weight:800; font-family:var(--mono); }
+  .score-history-card-name { margin-top:2px; color:var(--muted); font-size:10px; }
+  .score-history-card-body { padding:13px 15px; display:flex; flex-direction:column; gap:10px; }
+  .score-history-meta { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+  .score-history-meta-box { background:rgba(255,255,255,.018); border:1px solid var(--border); border-radius:8px; padding:8px 9px; }
+  .score-history-meta-box span { display:block; color:var(--muted); font-size:8.5px; font-family:var(--mono); text-transform:uppercase; }
+  .score-history-meta-box strong { display:block; margin-top:3px; font-size:12px; font-family:var(--mono); }
+  .score-history-note { white-space:pre-wrap; color:var(--text); font-size:11.5px; line-height:1.65; min-height:38px; }
+  .score-history-actions { display:flex; gap:7px; flex-wrap:wrap; }
+  .score-history-actions button { flex:1; min-width:76px; padding:7px 9px; border-radius:7px; border:1px solid var(--border2); background:var(--surface2); color:var(--muted); font-size:10px; font-family:var(--mono); cursor:pointer; }
+  .score-history-actions button:hover { color:var(--accent); border-color:rgba(125,249,170,.3); }
+  .score-history-actions button.danger:hover { color:var(--danger); border-color:rgba(255,107,107,.35); }
+  .score-history-empty { grid-column:1/-1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:34px 20px; text-align:center; color:var(--muted); font-size:12px; line-height:1.8; }
+  .score-edit-banner { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; padding:10px 12px; border:1px solid rgba(255,179,71,.35); background:rgba(255,179,71,.07); border-radius:9px; color:var(--warn); font-size:11px; font-family:var(--mono); }
+  .grade-guide-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .grade-guide-table th,.grade-guide-table td { padding:10px 9px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+  .grade-guide-table th { color:var(--muted); font-family:var(--mono); font-size:9px; text-transform:uppercase; }
+  .grade-guide-table td:first-child { font-family:var(--mono); font-weight:700; white-space:nowrap; }
+  .grade-guide-table td:nth-child(2) { width:52px; text-align:center; }
+
   @media (max-width:1000px) {
     .scorecard-summary { grid-template-columns:repeat(3,1fr); }
     .scorecard-layout { grid-template-columns:1fr; }
@@ -1337,6 +1373,7 @@
     <button class="tab" onclick="switchTab('checklist')">월간 체크리스트</button>
     <button class="tab" onclick="switchTab('scenario')">시나리오 메모</button>
     <button class="tab" onclick="switchTab('scorecard')">종목 스코어카드</button>
+    <button class="tab" onclick="switchTab('score-history')">등급 기록</button>
     <button class="tab" onclick="switchTab('report')">월간 리포트</button>
   </div>
 
@@ -1631,6 +1668,7 @@
       </div>
       <div class="scorecard-actions">
         <button class="scorecard-btn" onclick="importHeldPositionsToScorecard()">보유 종목 불러오기</button>
+        <button class="scorecard-btn scorecard-policy-btn" onclick="openScorecardGradeGuide()">등급 기준 보기</button>
         <button class="scorecard-btn" onclick="toggleScorecardSettings()">등급 기준 설정</button>
       </div>
     </div>
@@ -1666,10 +1704,34 @@
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px;">
           <button class="scorecard-btn" onclick="resetScorecardThresholds()">등급 기준 기본값 복원</button>
-          <span style="color:var(--muted);font-size:10px;font-family:var(--mono);">기본값 A 85 · B 70 · C 55 · D는 C 미만</span>
+          <span style="color:var(--muted);font-size:10px;font-family:var(--mono);">기본값 A 80 · B 70 · C 50 · D는 50점 미만</span>
         </div>
       </div>
     </section>
+  </div>
+
+
+  <!-- ════ TAB: SCORECARD GRADE HISTORY ════ -->
+  <div id="tab-score-history" class="tab-content">
+    <div class="score-history-toolbar">
+      <div>
+        <div class="score-history-title">종목 등급 기록 보관함</div>
+        <div class="score-history-sub">저장한 점검 기록을 최종 A/B/C/D 등급별로 분리해 관리합니다. 기록을 현재 스코어카드로 불러와 수정하거나 개별 삭제할 수 있습니다.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="scorecard-btn" onclick="openScorecardGradeGuide()">등급 기준 보기</button>
+        <button class="scorecard-btn" onclick="switchTabByName('scorecard')">스코어카드로 이동</button>
+      </div>
+    </div>
+    <div id="score-history-summary" class="scorecard-summary"></div>
+    <div class="grade-filter-tabs" style="margin-bottom:14px;">
+      <button class="grade-filter-btn active" data-grade="ALL" onclick="setScoreHistoryGrade('ALL')">전체</button>
+      <button class="grade-filter-btn" data-grade="A" onclick="setScoreHistoryGrade('A')">A</button>
+      <button class="grade-filter-btn" data-grade="B" onclick="setScoreHistoryGrade('B')">B</button>
+      <button class="grade-filter-btn" data-grade="C" onclick="setScoreHistoryGrade('C')">C</button>
+      <button class="grade-filter-btn" data-grade="D" onclick="setScoreHistoryGrade('D')">D</button>
+    </div>
+    <div id="score-history-grid" class="score-history-grid"></div>
   </div>
 
   <!-- ════ TAB: MONTHLY REPORT ════ -->
@@ -1698,6 +1760,27 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+
+<!-- MODAL: Scorecard Grade Guide -->
+<div class="modal-overlay" id="scorecard-grade-guide-modal" onclick="if(event.target===this)closeScorecardGradeGuide()">
+  <div class="modal" style="width:680px;max-width:94vw;">
+    <h3 style="margin-bottom:8px;">장기투자 등급 기준</h3>
+    <div style="color:var(--muted);font-size:11px;line-height:1.65;margin-bottom:14px;">100점 투자표 점검 완료 후 아래 기준으로 자동 등급과 기본 투자 행동을 분류합니다.</div>
+    <div style="overflow-x:auto;">
+      <table class="grade-guide-table">
+        <thead><tr><th>점수 구간</th><th>등급</th><th>기본 행동</th></tr></thead>
+        <tbody>
+          <tr><td>80점 이상</td><td><span class="grade-badge grade-A">A</span></td><td>장기투자 적합 신규 매수</td></tr>
+          <tr><td>70–80점 미만</td><td><span class="grade-badge grade-B">B</span></td><td>매수 고려</td></tr>
+          <tr><td>50–70점 미만</td><td><span class="grade-badge grade-C">C</span></td><td>유지 (신규 매수 금지)</td></tr>
+          <tr><td>50점 미만</td><td><span class="grade-badge grade-D">D</span></td><td>판매</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-actions"><button class="modal-confirm" onclick="closeScorecardGradeGuide()">확인</button></div>
+  </div>
+</div>
 
 <!-- MODAL: Add Position -->
 <div class="modal-overlay" id="add-modal">
@@ -1923,6 +2006,7 @@ function switchTab(name) {
   if (name === 'checklist') renderChecklist();
   if (name === 'scenario') renderScenarios();
   if (name === 'scorecard') renderScorecard();
+  if (name === 'score-history') renderScorecardHistory();
   if (name === 'report') renderMonthlyReport();
 }
 
@@ -1978,12 +2062,17 @@ function renderPositions() {
     const pnlSign = pct >= 0 ? '+' : '';
     const tvSymbol = encodeURIComponent((pos.exchange || 'NASDAQ') + ':' + pos.ticker);
     const color = PALETTE[idx % PALETTE.length];
+    const scoreCandidate = getScorecardState().candidates.find(c => scorecardTickerKey(c.ticker) === scorecardTickerKey(pos.ticker));
+    const scoreResult = scoreCandidate ? getCandidateScore(scoreCandidate) : null;
 
     grid.innerHTML += `
       <div class="position-card active-pos" style="border-top:3px solid ${color};">
         <div class="pos-header">
           <div class="pos-ticker">${pos.ticker}</div>
-          <div class="pos-status status-active">활성</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+            ${scoreResult && ['A','B','C','D'].includes(scoreResult.finalGrade) ? `<span class="grade-badge ${scorecardGradeClass(scoreResult.finalGrade)}" title="종목 스코어카드 자동 연계">${scoreResult.finalGrade} · ${scoreResult.score.toFixed(0)}점</span>` : ''}
+            <div class="pos-status status-active">활성</div>
+          </div>
         </div>
         <div class="pos-body">
           <div class="pos-name">${pos.name} <span style="font-size:10px; color:var(--muted);">${pos.exchange || ''}</span></div>
@@ -2384,14 +2473,14 @@ function confirmAddPosition() {
   if (editIdx >= 0) state.positions[editIdx] = pos;
   else if (state.positions.length < MAX_POSITIONS) state.positions.push(pos);
   else { toast('⚠ 최대 5개 종목까지만 등록할 수 있습니다'); return; }
-  saveState(); renderPositions(); renderChecklist(); renderScenarios(); closeModal();
+  reconcileScorecardWithPositions(getScorecardState()); saveState(); renderPositions(); renderChecklist(); renderScenarios(); renderScorecard(); renderScorecardHistory(); closeModal();
 }
 
 function removePosition(idx) {
   if (!confirm('종목을 삭제할까요?')) return;
   const removed = state.positions.splice(idx, 1)[0];
   if (removed?.id && state.activeChecklistStockId === removed.id) state.activeChecklistStockId = '';
-  saveState(); renderPositions(); renderChecklist(); renderScenarios();
+  reconcileScorecardWithPositions(getScorecardState()); saveState(); renderPositions(); renderChecklist(); renderScenarios(); renderScorecard(); renderScorecardHistory();
 }
 
 // ════════════════════════════════
@@ -3597,6 +3686,7 @@ function switchTabByName(name) {
   if (name === 'checklist') renderChecklist();
   if (name === 'scenario') renderScenarios();
   if (name === 'scorecard') renderScorecard();
+  if (name === 'score-history') renderScorecardHistory();
   if (name === 'report') renderMonthlyReport();
 }
 
@@ -3668,14 +3758,113 @@ function getInvestmentScorecardCriteria() {
   ];
 }
 
+
+function scorecardTickerKey(value) {
+  return String(value || '').trim().toUpperCase().replace(/\s+/g, '');
+}
+
+function findHeldPositionByTicker(ticker) {
+  const key = scorecardTickerKey(ticker);
+  if (!key) return null;
+  return (state.positions || []).find(pos => scorecardTickerKey(pos.ticker) === key) || null;
+}
+
+function makeScorecardReviewId(candidateId, review, index=0) {
+  if (review && review.id) return String(review.id);
+  const raw = String(review?.savedAt || '') || String(index);
+  return 'review_' + String(candidateId || 'candidate').replace(/[^a-z0-9가-힣_-]+/gi,'_') + '_' + raw.replace(/[^0-9a-z]+/gi,'').slice(0,24) + '_' + index;
+}
+
+function mergeScorecardCandidateData(target, source) {
+  if (!target || !source || target === source) return target;
+  const targetCalc = getCandidateScoreUnsafe(target);
+  const sourceCalc = getCandidateScoreUnsafe(source);
+  if ((sourceCalc.completed || 0) > (targetCalc.completed || 0) ||
+      ((sourceCalc.completed || 0) === (targetCalc.completed || 0) && String(source.updatedAt || '') > String(target.updatedAt || ''))) {
+    target.scores = JSON.parse(JSON.stringify(source.scores || {}));
+    target.notes = JSON.parse(JSON.stringify(source.notes || {}));
+    target.manualGrade = source.manualGrade || '';
+    target.decision = source.decision || target.decision || '관찰';
+    target.finalNote = source.finalNote || target.finalNote || '';
+    target.updatedAt = source.updatedAt || target.updatedAt || '';
+  }
+  const combined = [...(target.history || []), ...(source.history || [])];
+  const seen = new Set();
+  target.history = combined.filter((h,idx) => {
+    const id = makeScorecardReviewId(target.id, h, idx);
+    h.id = h.id || id;
+    const key = String(h.id);
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  }).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||''))).slice(0,120);
+  if (!target.legacyEvaluation && source.legacyEvaluation) target.legacyEvaluation = source.legacyEvaluation;
+  return target;
+}
+
+function getCandidateScoreUnsafe(candidate) {
+  const criteria = getInvestmentScorecardCriteria();
+  let score = 0, completed = 0;
+  criteria.forEach(cr => {
+    const selected = (cr.options || []).find(o => o.id === candidate?.scores?.[cr.id]);
+    if (selected) { score += Number(selected.score || 0); completed += 1; }
+  });
+  return {score, completed, total:criteria.length};
+}
+
+function reconcileScorecardWithPositions(sc) {
+  if (!sc || !Array.isArray(sc.candidates)) return sc;
+  const byTicker = new Map();
+  const idRedirect = new Map();
+  const merged = [];
+
+  sc.candidates.forEach(candidate => {
+    candidate.ticker = scorecardTickerKey(candidate.ticker);
+    const held = findHeldPositionByTicker(candidate.ticker);
+    if (held) {
+      candidate.linkedPositionId = held.id || '';
+      candidate.name = held.name || candidate.name || candidate.ticker;
+      candidate.exchange = String(held.exchange || candidate.exchange || '').toUpperCase();
+    } else {
+      candidate.linkedPositionId = '';
+    }
+
+    const key = scorecardTickerKey(candidate.ticker);
+    if (!key) { merged.push(candidate); return; }
+    if (!byTicker.has(key)) {
+      byTicker.set(key, candidate);
+      merged.push(candidate);
+      return;
+    }
+    const primary = byTicker.get(key);
+    mergeScorecardCandidateData(primary, candidate);
+    idRedirect.set(candidate.id, primary.id);
+  });
+
+  if (idRedirect.has(sc.activeId)) sc.activeId = idRedirect.get(sc.activeId);
+  if (sc.historyEdit?.candidateId && idRedirect.has(sc.historyEdit.candidateId)) {
+    sc.historyEdit.candidateId = idRedirect.get(sc.historyEdit.candidateId);
+  }
+  sc.candidates = merged;
+  return sc;
+}
+
+function scorecardActionForGrade(grade) {
+  return ({A:'장기투자 적합 신규 매수', B:'매수 고려', C:'유지 (신규 매수 금지)', D:'판매'})[grade] || '평가 완료 후 분류';
+}
+
+function openScorecardGradeGuide() { document.getElementById('scorecard-grade-guide-modal')?.classList.add('open'); }
+function closeScorecardGradeGuide() { document.getElementById('scorecard-grade-guide-modal')?.classList.remove('open'); }
+
 function makeDefaultScorecardState() {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     criteria: getInvestmentScorecardCriteria(),
-    thresholds: { A:85, B:70, C:55 },
+    thresholds: { A:80, B:70, C:50 },
     candidates: [],
     activeId: '',
     settingsOpen: false,
+    historyGradeFilter: 'ALL',
+    historyEdit: null,
     legacyCriteria: null
   };
 }
@@ -3689,6 +3878,9 @@ function normalizeScorecardState(source) {
     B: Math.max(0, Math.min(100, Number(src.thresholds?.B ?? base.thresholds.B))),
     C: Math.max(0, Math.min(100, Number(src.thresholds?.C ?? base.thresholds.C)))
   };
+  if (oldSchema < 3 && Number(src.thresholds?.A ?? 85) === 85 && Number(src.thresholds?.B ?? 70) === 70 && Number(src.thresholds?.C ?? 55) === 55) {
+    thresholds.A = 80; thresholds.B = 70; thresholds.C = 50;
+  }
   if (thresholds.B > thresholds.A) thresholds.B = thresholds.A;
   if (thresholds.C > thresholds.B) thresholds.C = thresholds.B;
 
@@ -3710,24 +3902,30 @@ function normalizeScorecardState(source) {
       finalNote:String(c.finalNote || ''),
       createdAt:String(c.createdAt || ''),
       updatedAt:String(c.updatedAt || ''),
-      history:Array.isArray(c.history) ? c.history : []
+      linkedPositionId:String(c.linkedPositionId || ''),
+      history:Array.isArray(c.history) ? c.history.map((h,hIdx)=>({ ...h, id: makeScorecardReviewId(c.id || ('watch_'+idx), h, hIdx) })) : []
     };
   }) : [];
 
   return {
-    schemaVersion:2,
+    schemaVersion:3,
     criteria:getInvestmentScorecardCriteria(),
     thresholds,
     candidates,
     activeId:String(src.activeId || candidates[0]?.id || ''),
     settingsOpen:!!src.settingsOpen,
+    historyGradeFilter:['ALL','A','B','C','D'].includes(src.historyGradeFilter) ? src.historyGradeFilter : 'ALL',
+    historyEdit:src.historyEdit && typeof src.historyEdit === 'object' ? { candidateId:String(src.historyEdit.candidateId||''), reviewId:String(src.historyEdit.reviewId||'') } : null,
     legacyCriteria: oldSchema < 2 && Array.isArray(src.criteria) ? src.criteria : (src.legacyCriteria || null)
   };
 }
 
 function getScorecardState() {
   if (!state.scorecard) state.scorecard = makeDefaultScorecardState();
-  state.scorecard = normalizeScorecardState(state.scorecard);
+  if (Number(state.scorecard.schemaVersion || 0) !== 3 || !Array.isArray(state.scorecard.candidates) || !Array.isArray(state.scorecard.criteria)) {
+    state.scorecard = normalizeScorecardState(state.scorecard);
+  }
+  reconcileScorecardWithPositions(state.scorecard);
   return state.scorecard;
 }
 
@@ -3779,24 +3977,35 @@ function addScorecardCandidate() {
   const exchange = document.getElementById('sc-add-exchange')?.value.trim().toUpperCase();
   if (!ticker) { toast('⚠ 티커를 입력하세요'); return; }
   const sc = getScorecardState();
-  const existing = sc.candidates.find(c=>c.ticker===ticker && String(c.exchange||'').toUpperCase()===exchange);
-  if (existing) { sc.activeId=existing.id; saveState(); renderScorecard(); toast('이미 등록된 종목입니다'); return; }
+  const existing = sc.candidates.find(c=>scorecardTickerKey(c.ticker)===ticker);
+  if (existing) { sc.activeId=existing.id; reconcileScorecardWithPositions(sc); saveState(); renderScorecard(); toast('이미 등록된 티커입니다 · 기존 기록으로 이동'); return; }
+  const held = findHeldPositionByTicker(ticker);
   const id='watch_'+ticker.toLowerCase().replace(/[^a-z0-9가-힣]+/g,'_')+'_'+Date.now().toString(36);
-  sc.candidates.push({id,ticker,name:name||ticker,exchange,scores:{},notes:{},decision:'관찰',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]});
+  sc.candidates.push({id,ticker,name:held?.name||name||ticker,exchange:String(held?.exchange||exchange||'').toUpperCase(),linkedPositionId:held?.id||'',scores:{},notes:{},decision:held?'보유':'관찰',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]});
   sc.activeId=id;
   ['sc-add-ticker','sc-add-name','sc-add-exchange'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
   saveState(); renderScorecard(); toast('✓ '+ticker+' 점검 종목 추가');
 }
 
 function importHeldPositionsToScorecard() {
-  const sc=getScorecardState(); let added=0;
+  const sc=getScorecardState(); let added=0, linked=0;
   (state.positions||[]).forEach(p=>{
-    const ticker=String(p.ticker||'').toUpperCase(); const exchange=String(p.exchange||'').toUpperCase();
-    if (!ticker || sc.candidates.some(c=>c.ticker===ticker && String(c.exchange||'').toUpperCase()===exchange)) return;
-    sc.candidates.push({id:'watch_'+ticker.toLowerCase()+'_'+Date.now().toString(36)+'_'+added,ticker,name:p.name||ticker,exchange,scores:{},notes:{},decision:'보유',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]}); added++;
+    const ticker=scorecardTickerKey(p.ticker); const exchange=String(p.exchange||'').toUpperCase();
+    if (!ticker) return;
+    const existing=sc.candidates.find(c=>scorecardTickerKey(c.ticker)===ticker);
+    if (existing) {
+      existing.linkedPositionId=p.id||'';
+      existing.name=p.name||existing.name||ticker;
+      existing.exchange=exchange||existing.exchange||'';
+      if (!existing.decision || existing.decision==='관찰') existing.decision='보유';
+      linked++; return;
+    }
+    sc.candidates.push({id:'watch_'+ticker.toLowerCase()+'_'+Date.now().toString(36)+'_'+added,ticker,name:p.name||ticker,exchange,linkedPositionId:p.id||'',scores:{},notes:{},decision:'보유',manualGrade:'',finalNote:'',createdAt:new Date().toISOString(),updatedAt:'',history:[]}); added++;
   });
+  reconcileScorecardWithPositions(sc);
   if (!sc.activeId && sc.candidates[0]) sc.activeId=sc.candidates[0].id;
-  saveState(); renderScorecard(); toast(added ? '✓ 보유 종목 '+added+'개 추가' : '추가할 새 보유 종목이 없습니다');
+  saveState(); renderScorecard();
+  toast(added ? '✓ 보유 종목 '+added+'개 추가 · '+linked+'개 티커 연계' : (linked ? '✓ 기존 스코어카드 '+linked+'개를 보유종목과 티커 연계' : '추가할 새 보유 종목이 없습니다'));
 }
 
 function selectScorecardCandidate(id) { const sc=getScorecardState(); sc.activeId=id; saveState(); renderScorecard(); }
@@ -3812,13 +4021,39 @@ function updateScorecardCandidateField(id, field, value) {
   c[field]=value; c.updatedAt=new Date().toISOString(); saveState(); renderScorecardSummary(); renderScorecardCandidates();
 }
 
+
+function updateScorecardTicker(id, value) {
+  const c=getScorecardCandidate(id); if(!c)return;
+  const ticker=scorecardTickerKey(value);
+  if(!ticker){ toast('⚠ 티커는 비워둘 수 없습니다'); renderScorecardMain(); return; }
+  const sc=getScorecardState();
+  const duplicate=sc.candidates.find(x=>x.id!==id && scorecardTickerKey(x.ticker)===ticker);
+  if(duplicate){
+    if(!confirm(ticker+' 스코어카드가 이미 있습니다. 현재 기록을 해당 티커 기록과 병합할까요?')) { renderScorecardMain(); return; }
+    mergeScorecardCandidateData(duplicate,c);
+    sc.candidates=sc.candidates.filter(x=>x.id!==id);
+    sc.activeId=duplicate.id;
+  } else {
+    c.ticker=ticker;
+    const held=findHeldPositionByTicker(ticker);
+    c.linkedPositionId=held?.id||'';
+    if(held){ c.name=held.name||ticker; c.exchange=String(held.exchange||'').toUpperCase(); }
+    c.updatedAt=new Date().toISOString();
+  }
+  reconcileScorecardWithPositions(sc); saveState(); renderScorecard();
+}
+
 function updateScorecardScore(id, criterionId, optionId, rerender=false) {
   const c=getScorecardCandidate(id); if(!c) return;
+  const before=getCandidateScore(c);
   if(!c.scores)c.scores={};
   c.scores[criterionId]=optionId || '';
-  c.updatedAt=new Date().toISOString(); saveState();
+  c.updatedAt=new Date().toISOString();
+  const after=getCandidateScore(c);
+  saveState();
   if (rerender) renderScorecardMain();
   renderScorecardSummary(); renderScorecardCandidates();
+  if (before.completed < before.total && after.completed === after.total) openScorecardGradeGuide();
 }
 
 function updateScorecardNote(id, criterionId, value) {
@@ -3831,21 +4066,53 @@ function saveScorecardReview(id) {
   const calc=getCandidateScore(c);
   if (calc.completed !== calc.total) { toast('⚠ 모든 평가 항목을 선택한 뒤 기록을 저장하세요'); return; }
   if(!c.history)c.history=[];
-  c.history.unshift({
-    schemaVersion:2, savedAt:new Date().toISOString(), score:Number(calc.score.toFixed(2)), autoGrade:calc.autoGrade, finalGrade:calc.finalGrade,
+  const sc=getScorecardState();
+  const editing=sc.historyEdit && sc.historyEdit.candidateId===id ? sc.historyEdit : null;
+  const payload={
+    schemaVersion:3, id:editing?.reviewId || ('review_'+Date.now().toString(36)), savedAt:new Date().toISOString(), score:Number(calc.score.toFixed(2)), autoGrade:calc.autoGrade, finalGrade:calc.finalGrade,
     manualGrade:c.manualGrade||'', decision:c.decision||'관찰', finalNote:c.finalNote||'',
     scores:JSON.parse(JSON.stringify(c.scores||{})), notes:JSON.parse(JSON.stringify(c.notes||{})),
     criteria:JSON.parse(JSON.stringify(getScorecardState().criteria||[])), sectorTotals:JSON.parse(JSON.stringify(calc.sectorTotals||{}))
-  });
-  c.history=c.history.slice(0,60); c.updatedAt=new Date().toISOString(); saveState(); renderScorecard(); toast('✓ '+c.ticker+' 점검 기록 저장');
+  };
+  if(editing){
+    const idx=c.history.findIndex(h=>String(h.id)===String(editing.reviewId));
+    if(idx>=0){ payload.savedAt=c.history[idx].savedAt||payload.savedAt; payload.editedAt=new Date().toISOString(); c.history[idx]=payload; }
+    else c.history.unshift(payload);
+    sc.historyEdit=null;
+    toast('✓ '+c.ticker+' 과거 점검 기록 수정 완료');
+  } else {
+    c.history.unshift(payload);
+    toast('✓ '+c.ticker+' 점검 기록 저장');
+  }
+  c.history=c.history.sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||''))).slice(0,120); c.updatedAt=new Date().toISOString(); saveState(); renderScorecard(); renderScorecardHistory();
 }
 
-function restoreScorecardReview(id, index) {
-  const c=getScorecardCandidate(id); const h=c?.history?.[index]; if(!c||!h)return;
+function restoreScorecardReview(id, reviewId) {
+  const c=getScorecardCandidate(id); const h=c?.history?.find(x=>String(x.id)===String(reviewId)); if(!c||!h)return;
   if (Number(h.schemaVersion||1) < 2) { toast('이 기록은 이전 0~5점 평가표 기록이라 현재 100점 투자표로 복원할 수 없습니다'); return; }
   if(!confirm('이 과거 기록의 투자표 선택·메모·등급·결론을 현재 평가로 불러올까요?'))return;
   c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=h.manualGrade||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||''; c.updatedAt=new Date().toISOString(); saveState(); renderScorecard();
 }
+
+function editScorecardHistory(candidateId, reviewId) {
+  const c=getScorecardCandidate(candidateId); const h=c?.history?.find(x=>String(x.id)===String(reviewId)); if(!c||!h)return;
+  if(Number(h.schemaVersion||1)<2){ toast('이전 평가표 기록은 현재 100점표로 수정할 수 없습니다'); return; }
+  c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=h.manualGrade||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||'';
+  const sc=getScorecardState(); sc.activeId=candidateId; sc.historyEdit={candidateId,reviewId}; saveState(); switchTabByName('scorecard'); renderScorecard();
+}
+
+function cancelScorecardHistoryEdit() {
+  const sc=getScorecardState(); sc.historyEdit=null; saveState(); renderScorecard();
+}
+
+function deleteScorecardHistory(candidateId, reviewId) {
+  const c=getScorecardCandidate(candidateId); const h=c?.history?.find(x=>String(x.id)===String(reviewId)); if(!c||!h)return;
+  if(!confirm(c.ticker+' · '+new Date(h.savedAt).toLocaleDateString('ko-KR')+' 점검 기록을 삭제할까요?'))return;
+  c.history=c.history.filter(x=>String(x.id)!==String(reviewId));
+  const sc=getScorecardState(); if(sc.historyEdit?.reviewId===reviewId)sc.historyEdit=null;
+  saveState(); renderScorecardHistory(); renderScorecard(); toast('✓ 점검 기록 삭제');
+}
+
 
 function renderScorecardSummary() {
   const el=document.getElementById('scorecard-summary'); if(!el)return;
@@ -3888,7 +4155,7 @@ function renderScorecardMain() {
   const body=document.getElementById('scorecard-main-body'); const title=document.getElementById('scorecard-active-title'); const sub=document.getElementById('scorecard-active-sub'); if(!body||!title||!sub)return;
   const c=getScorecardActiveCandidate(); const sc=getScorecardState();
   if(!c){title.textContent='종목을 선택하세요';sub.textContent='100점 투자표를 작성하면 총점과 등급이 자동 계산됩니다.';body.innerHTML='<div class="scorecard-empty">왼쪽에서 종목을 추가하거나 선택하세요.</div>';return;}
-  const calc=getCandidateScore(c); title.textContent=c.ticker+' · '+(c.name||c.ticker); sub.textContent=(c.exchange||'거래소 미지정')+' · 마지막 수정 '+(c.updatedAt?new Date(c.updatedAt).toLocaleString('ko-KR'):'기록 없음');
+  const calc=getCandidateScore(c); title.innerHTML=escapeHtml(c.ticker)+' · '+escapeHtml(c.name||c.ticker)+(c.linkedPositionId?'<span class="scorecard-linked-badge">보유종목 연계</span>':''); sub.textContent=(c.exchange||'거래소 미지정')+' · 마지막 수정 '+(c.updatedAt?new Date(c.updatedAt).toLocaleString('ko-KR'):'기록 없음');
   const sectorCards=getInvestmentScorecardSectors().map(sec=>{const x=calc.sectorTotals[sec.id]||{score:0,maxScore:sec.maxScore,completed:0,total:0};return `<div class="scorecard-sector-mini"><span>${escapeHtml(sec.name)}</span><strong>${x.score} / ${sec.maxScore}</strong></div>`;}).join('');
   const sectorsHtml=getInvestmentScorecardSectors().map(sec=>{
     const rows=sc.criteria.filter(cr=>cr.sector===sec.id);
@@ -3900,25 +4167,27 @@ function renderScorecardMain() {
     <div class="scorecard-overview">
       <div class="scorecard-overview-card"><div class="scorecard-overview-label">총점</div><div id="sc-live-score" class="scorecard-overview-value">${calc.score.toFixed(0)}/100</div></div>
       <div class="scorecard-overview-card"><div class="scorecard-overview-label">최종 등급</div><div style="margin-top:5px"><span id="sc-live-grade" class="grade-badge ${scorecardGradeClass(calc.finalGrade)}">${calc.finalGrade}</span></div></div>
-      <div class="scorecard-overview-card"><div class="scorecard-overview-label">자동 등급</div><div class="scorecard-overview-value">${calc.autoGrade}</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">자동 등급</div><div class="scorecard-overview-value">${calc.autoGrade}</div><div style="margin-top:4px;color:var(--muted);font-size:9px;line-height:1.45">${escapeHtml(scorecardActionForGrade(calc.autoGrade))}</div></div>
       <div class="scorecard-overview-card"><div class="scorecard-overview-label">작성 진행</div><div id="sc-live-progress" class="scorecard-overview-value">${calc.completed}/${calc.total} 항목</div></div>
     </div>
     <div class="scorecard-total-bar"><div id="sc-live-fill" class="scorecard-total-fill" style="width:${Math.max(0,Math.min(100,calc.score))}%"></div></div>
     <div class="scorecard-sector-mini-grid">${sectorCards}</div>
     ${legacyNote}
-    <div class="scorecard-standard-note">고정 투자표 <span class="scorecard-fixed-badge">100 POINT STANDARD</span><br>각 항목에서 네 기준에 해당하는 선택지를 고르면 점수가 자동 합산됩니다. 표에 0점 구간이 비어 있던 배당수익률 3% 이하와 자사주 보유 5% 이상은 완결용 0점 선택지를 추가했습니다.</div>
+    <div class="scorecard-standard-note">고정 투자표 <span class="scorecard-fixed-badge">100 POINT STANDARD</span><br>각 항목에서 네 기준에 해당하는 선택지를 고르면 점수가 자동 합산됩니다. <button class="scorecard-btn" style="margin-left:6px;padding:5px 8px" onclick="openScorecardGradeGuide()">A/B/C/D 기준 보기</button></div>
     <div class="scorecard-grade-row">
       <div class="scorecard-inline-field"><label>최종 등급</label><select class="scorecard-select" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','manualGrade',this.value); renderScorecardMain();"><option value="" ${!c.manualGrade?'selected':''}>자동 (${calc.autoGrade==='—'?'평가 완료 후 산정':calc.autoGrade})</option>${['A','B','C','D'].map(g=>`<option value="${g}" ${c.manualGrade===g?'selected':''}>${g} · 수동 지정</option>`).join('')}</select></div>
       <div class="scorecard-inline-field"><label>현재 투자 결론</label><select class="scorecard-select" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','decision',this.value)">${['매수 후보','추가 조사','관찰','보유','추가매수 검토','보류','제외'].map(v=>`<option ${c.decision===v?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
     ${sectorsHtml}
     <div class="scorecard-footer-grid">
-      <div class="scorecard-inline-field"><label>티커 / 종목명</label><input class="scorecard-field" value="${escapeAttr(c.name||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','name',this.value)"></div>
+      <div class="scorecard-inline-field"><label>티커</label><input class="scorecard-field" value="${escapeAttr(c.ticker||'')}" style="text-transform:uppercase" onchange="updateScorecardTicker('${escapeAttr(c.id)}',this.value)"></div>
+      <div class="scorecard-inline-field"><label>종목명</label><input class="scorecard-field" value="${escapeAttr(c.name||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','name',this.value)"></div>
       <div class="scorecard-inline-field"><label>거래소</label><input class="scorecard-field" value="${escapeAttr(c.exchange||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','exchange',this.value.toUpperCase())"></div>
       <div class="scorecard-inline-field full"><label>종합 판단 / 투자 기록</label><textarea class="scorecard-note" style="min-height:100px" placeholder="왜 이 점수와 등급이 나왔는지, 투자 전 확인할 조건과 다음 점검 포인트를 기록하세요." oninput="updateScorecardCandidateField('${escapeAttr(c.id)}','finalNote',this.value)">${escapeHtml(c.finalNote||'')}</textarea></div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="scorecard-btn primary" onclick="saveScorecardReview('${escapeAttr(c.id)}')">점검 기록 저장</button><button class="scorecard-btn" onclick="removeScorecardCandidate('${escapeAttr(c.id)}')" style="color:var(--danger);border-color:rgba(255,107,107,.25)">종목 삭제</button></div>
-    <div class="scorecard-history"><div class="scorecard-history-title">과거 점검 기록</div><div class="scorecard-history-list">${c.history?.length?c.history.map((h,i)=>`<button class="scorecard-history-row" onclick="restoreScorecardReview('${escapeAttr(c.id)}',${i})" title="${Number(h.schemaVersion||1)>=2?'이 기록을 현재 투자표로 불러오기':'이전 평가표 기록 · 조회만 가능'}"><span class="date">${escapeHtml(new Date(h.savedAt).toLocaleDateString('ko-KR'))}</span><span class="score">${Number(h.score||0).toFixed(0)}</span><span class="grade-badge ${scorecardGradeClass(h.finalGrade||h.autoGrade)}" style="min-width:30px;height:26px;font-size:11px">${escapeHtml(h.finalGrade||h.autoGrade||'—')}</span><span style="text-align:left;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Number(h.schemaVersion||1)>=2?'100점표':'v4 구평가표'} · ${escapeHtml(h.decision||'')} · ${escapeHtml(h.finalNote||'기록 없음')}</span></button>`).join(''):'<div style="color:var(--muted);font-size:11px">저장된 과거 점검이 없습니다.</div>'}</div></div>`;
+    ${sc.historyEdit && sc.historyEdit.candidateId===c.id ? `<div class="score-edit-banner"><span>과거 점검 기록 수정 중 · 저장하면 기존 기록을 덮어씁니다.</span><button class="scorecard-btn" onclick="cancelScorecardHistoryEdit()">수정 취소</button></div>` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="scorecard-btn primary" onclick="saveScorecardReview('${escapeAttr(c.id)}')">${sc.historyEdit && sc.historyEdit.candidateId===c.id ? '과거 기록 수정 저장' : '점검 기록 저장'}</button><button class="scorecard-btn" onclick="switchTabByName('score-history')">등급 기록 보관함</button><button class="scorecard-btn" onclick="removeScorecardCandidate('${escapeAttr(c.id)}')" style="color:var(--danger);border-color:rgba(255,107,107,.25)">종목 삭제</button></div>
+`;
 }
 
 function toggleScorecardSettings() { const sc=getScorecardState(); sc.settingsOpen=!sc.settingsOpen; saveState(); renderScorecardSettings(); }
@@ -3936,7 +4205,48 @@ function updateScorecardThreshold(grade,value) {
 }
 
 function resetScorecardThresholds() {
-  const sc=getScorecardState(); sc.thresholds={A:85,B:70,C:55}; saveState(); renderScorecard(); toast('✓ 등급 기준 기본값 복원');
+  const sc=getScorecardState(); sc.thresholds={A:80,B:70,C:50}; saveState(); renderScorecard(); renderScorecardHistory(); toast('✓ 등급 기준 기본값 복원');
+}
+
+
+function getAllScorecardHistoryRecords() {
+  const sc=getScorecardState();
+  const records=[];
+  sc.candidates.forEach(c=>{
+    (c.history||[]).forEach((h,idx)=>records.push({ candidateId:c.id, ticker:c.ticker, name:c.name||c.ticker, exchange:c.exchange||'', linkedPositionId:c.linkedPositionId||'', review:{...h,id:makeScorecardReviewId(c.id,h,idx)} }));
+  });
+  return records.sort((a,b)=>String(b.review.savedAt||'').localeCompare(String(a.review.savedAt||'')));
+}
+
+function setScoreHistoryGrade(grade) {
+  const sc=getScorecardState(); sc.historyGradeFilter=['ALL','A','B','C','D'].includes(grade)?grade:'ALL'; saveState(); renderScorecardHistory();
+}
+
+function renderScorecardHistory() {
+  const grid=document.getElementById('score-history-grid'); const summary=document.getElementById('score-history-summary'); if(!grid||!summary)return;
+  const sc=getScorecardState(); const all=getAllScorecardHistoryRecords(); const counts={A:0,B:0,C:0,D:0};
+  all.forEach(r=>{const g=r.review.finalGrade||r.review.autoGrade||'—'; if(counts[g]!==undefined)counts[g]++;});
+  summary.innerHTML=`
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">전체 기록</div><div class="scorecard-summary-value">${all.length}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">A · 신규 매수</div><div class="scorecard-summary-value" style="color:var(--accent)">${counts.A}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">B · 매수 고려</div><div class="scorecard-summary-value" style="color:var(--accent2)">${counts.B}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">C · 유지</div><div class="scorecard-summary-value" style="color:var(--warn)">${counts.C}</div></div>
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">D · 판매</div><div class="scorecard-summary-value" style="color:var(--danger)">${counts.D}</div></div>`;
+  document.querySelectorAll('.grade-filter-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.grade===sc.historyGradeFilter));
+  const filtered=sc.historyGradeFilter==='ALL'?all:all.filter(r=>(r.review.finalGrade||r.review.autoGrade)===sc.historyGradeFilter);
+  if(!filtered.length){grid.innerHTML='<div class="score-history-empty">선택한 등급에 저장된 점검 기록이 없습니다.<br>스코어카드에서 점검을 완료한 뒤 <strong>점검 기록 저장</strong>을 누르면 이곳에 등급별로 보관됩니다.</div>';return;}
+  grid.innerHTML=filtered.map(({candidateId,ticker,name,exchange,linkedPositionId,review})=>{
+    const grade=review.finalGrade||review.autoGrade||'—'; const legacy=Number(review.schemaVersion||1)<2;
+    return `<article class="score-history-card">
+      <div class="score-history-card-head"><div><div class="score-history-card-ticker">${escapeHtml(ticker)}${linkedPositionId?'<span class="scorecard-linked-badge">보유종목</span>':''}</div><div class="score-history-card-name">${escapeHtml(name)}${exchange?' · '+escapeHtml(exchange):''}</div></div><span class="grade-badge ${scorecardGradeClass(grade)}">${escapeHtml(grade)}</span></div>
+      <div class="score-history-card-body">
+        <div class="score-history-meta"><div class="score-history-meta-box"><span>점검일</span><strong>${escapeHtml(new Date(review.savedAt).toLocaleDateString('ko-KR'))}</strong></div><div class="score-history-meta-box"><span>점수</span><strong>${Number(review.score||0).toFixed(0)} / 100</strong></div><div class="score-history-meta-box"><span>분류</span><strong>${escapeHtml(scorecardActionForGrade(grade))}</strong></div></div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">투자 결론 · ${escapeHtml(review.decision||'—')}${review.editedAt?' · 수정됨':''}</div>
+        <div class="score-history-note">${escapeHtml(review.finalNote||'기록 없음')}</div>
+        <div class="score-history-actions">${legacy?'<button disabled title="이전 평가표 기록">이전 기록</button>':`<button onclick="editScorecardHistory('${escapeAttr(candidateId)}','${escapeAttr(review.id)}')">수정</button><button onclick="restoreScorecardReview('${escapeAttr(candidateId)}','${escapeAttr(review.id)}')">현재표로 복사</button>`}<button class="danger" onclick="deleteScorecardHistory('${escapeAttr(candidateId)}','${escapeAttr(review.id)}')">삭제</button></div>
+      </div>
+    </article>`;
+  }).join('');
 }
 
 function renderScorecard() { if(!document.getElementById('tab-scorecard'))return;getScorecardState();renderScorecardSummary();renderScorecardCandidates();renderScorecardMain();renderScorecardSettings(); }
@@ -4271,6 +4581,7 @@ if (typeof state.checklistEditMode !== 'boolean') state.checklistEditMode = fals
 // ════════════════════════════════
 renderPositions();
 renderScorecard();
+renderScorecardHistory();
 renderMonthlyReport();
 computeNextCheck();
 </script>
