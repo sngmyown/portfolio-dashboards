@@ -1105,7 +1105,7 @@
   .report-btn:hover { border-color:rgba(125,249,170,.35); color:var(--accent); }
   .report-btn.primary { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
   .report-btn.primary:hover { color:#000; opacity:.9; }
-  .report-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+  .report-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:16px; }
   .report-summary-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
   .report-summary-label { font-size:10px; color:var(--muted); font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; }
   .report-summary-value { font-size:20px; font-weight:800; font-family:var(--mono); }
@@ -1142,6 +1142,21 @@
   .report-signal.bad { color:var(--danger); background:rgba(255,107,107,.05); }
   .report-signal.neutral { color:var(--warn); background:rgba(255,179,71,.08); border-color:rgba(255,179,71,.28); }
   .report-signal.meta { color:var(--muted); background:rgba(255,255,255,.02); }
+  .report-main-axis { margin-bottom:12px; border:1px solid rgba(125,249,170,.16); background:rgba(125,249,170,.025); border-radius:11px; padding:12px; }
+  .report-main-axis-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:9px; }
+  .report-main-axis-title { font-size:10px; color:var(--accent); font-family:var(--mono); font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+  .report-main-axis-note { font-size:9px; color:var(--muted); font-family:var(--mono); }
+  .report-core-grid { display:grid; grid-template-columns:1.05fr 1fr 1fr; gap:8px; }
+  .report-core-card { border:1px solid var(--border); border-radius:9px; padding:10px; background:var(--surface2); min-width:0; }
+  .report-core-card.scorecard { border-color:rgba(125,249,170,.24); background:rgba(125,249,170,.045); }
+  .report-core-label { color:var(--muted); font-size:9px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .report-core-value { font-size:14px; font-family:var(--mono); font-weight:800; line-height:1.5; }
+  .report-core-sub { margin-top:5px; color:var(--muted); font-size:9.5px; line-height:1.55; font-family:var(--mono); }
+  .report-thesis-answer { margin-top:6px; font-size:11px; line-height:1.65; white-space:pre-wrap; color:var(--text); }
+  .report-secondary-title { margin:2px 0 7px; color:var(--muted); font-size:9px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+  .report-score-delta.up { color:var(--accent); }
+  .report-score-delta.down { color:var(--danger); }
+  .report-score-delta.flat { color:var(--muted); }
   .report-why { border-top:1px solid var(--border); padding-top:10px; }
   .report-why-title { font-size:10px; color:var(--muted); font-family:var(--mono); text-transform:uppercase; margin-bottom:6px; }
   .report-why ul { margin:0; padding-left:18px; color:var(--text); font-size:12px; line-height:1.75; }
@@ -1155,10 +1170,12 @@
 
   @media (max-width: 900px) {
     .report-summary-grid, .report-metrics, .report-signal-grid { grid-template-columns:1fr 1fr; }
+    .report-core-grid { grid-template-columns:1fr; }
     .report-grid { grid-template-columns:1fr; }
   }
   @media (max-width: 620px) {
     .report-summary-grid, .report-metrics, .report-signal-grid { grid-template-columns:1fr; }
+    .report-core-grid { grid-template-columns:1fr; }
     .report-allocation-wrap { flex-direction:column; align-items:flex-start; }
   }
 
@@ -1171,11 +1188,11 @@
     #tab-report .report-card, #tab-report .report-asset, #tab-report .report-summary-card {
       background:#fff !important; color:#111 !important; border:1px solid #d8d8d8 !important; box-shadow:none !important;
     }
-    #tab-report .report-metric, #tab-report .report-signal { background:#f7f7f7 !important; border-color:#ddd !important; }
+    #tab-report .report-metric, #tab-report .report-signal, #tab-report .report-core-card, #tab-report .report-main-axis { background:#f7f7f7 !important; border-color:#ddd !important; }
     #tab-report .report-card-sub, #tab-report .report-summary-label, #tab-report .report-metric-label,
-    #tab-report .report-source-note, #tab-report .report-asset-name, #tab-report .report-why-title { color:#666 !important; }
+    #tab-report .report-source-note, #tab-report .report-asset-name, #tab-report .report-why-title, #tab-report .report-core-label, #tab-report .report-core-sub, #tab-report .report-main-axis-note { color:#666 !important; }
     #tab-report .report-why ul, #tab-report .report-metric-value, #tab-report .report-summary-value,
-    #tab-report .report-asset-ticker { color:#111 !important; }
+    #tab-report .report-asset-ticker, #tab-report .report-core-value, #tab-report .report-thesis-answer { color:#111 !important; }
     #tab-report .report-action { border:1px solid #999 !important; background:#fff !important; color:#111 !important; }
   }
 
@@ -1739,7 +1756,7 @@
     <div class="report-toolbar">
       <div>
         <div class="report-toolbar-title">월간 투자 의사결정 리포트</div>
-        <div class="report-toolbar-note">포지션 · 목표비중 · 이번 달 체크리스트 답변 · 종목별 시나리오를 직접 읽어 결론을 생성합니다.</div>
+        <div class="report-toolbar-note">핵심 Thesis 1~2개 + 종목 스코어카드를 주 판단축으로 사용하고, 가격·추세·리스크·추가매수 신호는 보조적으로 반영합니다.</div>
       </div>
       <div class="report-toolbar-left">
         <select id="lt-report-view" class="report-select" onchange="renderMonthlyReport()"></select>
@@ -1753,7 +1770,7 @@
 
     <div class="report-history-card">
       <div class="report-card-title">저장된 월간 Snapshot</div>
-      <div class="report-card-sub">Snapshot은 당시 가격·비중·체크리스트 신호·시나리오·판단 결과를 고정 보관합니다.</div>
+      <div class="report-card-sub">Snapshot은 당시 Thesis · 스코어카드 점수/등급/변화 · 가격 · 비중 · 보조 신호 · 최종 판단을 고정 보관합니다.</div>
       <div id="lt-report-history" class="report-history-list"></div>
     </div>
   </div>
@@ -4344,6 +4361,103 @@ function getPreviousReportAsset(monthKey, ticker) {
   return null;
 }
 
+function getReportCoreTheses(pos, monthKey) {
+  const bucket = getStockChecklistBucketForMonth(pos.id, monthKey, false) || { answers:{} };
+  const lists = getStockChecklists(pos.id);
+  const thesisItems = lists.thesis || [];
+  const answered = thesisItems.map(item => {
+    const key = getCheckKey('thesis', item);
+    const answer = String(bucket.answers?.[key] || '').trim();
+    if (!answer) return null;
+    const signal = reportTextScore(answer);
+    return { question:item.text || '핵심 Thesis', answer, critical:!!item.critical, label:signal.label, cls:signal.cls, score:signal.score };
+  }).filter(Boolean);
+  // 앞으로 Thesis를 1~2개로 운용하는 구조에 맞춰 리포트에는 최대 2개만 주 판단축으로 표시한다.
+  return answered.slice(0, 2);
+}
+
+function scorecardGradeRank(grade) {
+  return ({A:4,B:3,C:2,D:1})[grade] || 0;
+}
+
+function scorecardSnapshotFromReview(review) {
+  if (!review) return null;
+  return {
+    score:Number(review.score || 0),
+    grade:review.finalGrade || review.autoGrade || '—',
+    autoGrade:review.autoGrade || '—',
+    decision:review.decision || '',
+    finalNote:review.finalNote || '',
+    savedAt:review.savedAt || '',
+    sectorTotals:JSON.parse(JSON.stringify(review.sectorTotals || {})),
+    source:'저장된 점검 기록'
+  };
+}
+
+function getReportScorecardSignal(pos) {
+  const sc = getScorecardState();
+  const ticker = scorecardTickerKey(pos.ticker);
+  const candidate = sc.candidates.find(c => scorecardTickerKey(c.ticker) === ticker) || null;
+  if (!candidate) {
+    return { available:false, completed:false, score:null, grade:'—', policy:'스코어카드 미등록', delta:null, gradeChange:0, previous:null, sectorTotals:{}, sectorChanges:[], deterioration:false, sharpDeterioration:false, improvement:false };
+  }
+
+  const calc = getCandidateScore(candidate);
+  const history = (candidate.history || []).filter(h => Number(h.schemaVersion || 1) >= 2)
+    .slice().sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
+
+  let current = null;
+  let previous = null;
+  if (calc.completed === calc.total && calc.total > 0) {
+    current = {
+      score:Number(calc.score || 0), grade:calc.finalGrade || calc.autoGrade || '—', autoGrade:calc.autoGrade || '—',
+      decision:candidate.decision || '', finalNote:candidate.finalNote || '', savedAt:candidate.updatedAt || '',
+      sectorTotals:JSON.parse(JSON.stringify(calc.sectorTotals || {})), source:'현재 스코어카드'
+    };
+    const latest = history[0] || null;
+    const currentSectorSig = JSON.stringify(Object.fromEntries(Object.entries(current.sectorTotals||{}).map(([k,v])=>[k,Number(v?.score||0)])));
+    const latestSectorSig = latest ? JSON.stringify(Object.fromEntries(Object.entries(latest.sectorTotals||{}).map(([k,v])=>[k,Number(v?.score||0)]))) : '';
+    const sameAsLatest = latest && Math.abs(Number(latest.score||0)-current.score) < 0.01 && (latest.finalGrade||latest.autoGrade||'—') === current.grade && currentSectorSig === latestSectorSig;
+    previous = scorecardSnapshotFromReview(sameAsLatest ? history[1] : latest);
+  } else if (history.length) {
+    current = scorecardSnapshotFromReview(history[0]);
+    previous = scorecardSnapshotFromReview(history[1]);
+  }
+
+  if (!current) {
+    return { available:true, completed:false, score:null, grade:'—', policy:'평가 미완료', delta:null, gradeChange:0, previous:null, sectorTotals:{}, sectorChanges:[], deterioration:false, sharpDeterioration:false, improvement:false, candidateId:candidate.id };
+  }
+
+  const delta = previous ? current.score - previous.score : null;
+  const gradeChange = previous ? scorecardGradeRank(current.grade) - scorecardGradeRank(previous.grade) : 0;
+  const sectorChanges = [];
+  const sectorDefs = getInvestmentScorecardSectors();
+  sectorDefs.forEach(sec => {
+    const now = Number(current.sectorTotals?.[sec.id]?.score || 0);
+    const old = previous ? Number(previous.sectorTotals?.[sec.id]?.score || 0) : null;
+    sectorChanges.push({ id:sec.id, name:sec.name, score:now, maxScore:sec.maxScore, delta:old===null?null:now-old });
+  });
+
+  return {
+    available:true, completed:true, candidateId:candidate.id,
+    score:current.score, grade:current.grade, autoGrade:current.autoGrade,
+    policy:scorecardActionForGrade(current.grade), decision:current.decision, finalNote:current.finalNote,
+    source:current.source, savedAt:current.savedAt, previous,
+    delta, gradeChange, sectorTotals:current.sectorTotals || {}, sectorChanges,
+    deterioration:(delta !== null && delta <= -5) || gradeChange < 0,
+    sharpDeterioration:(delta !== null && delta <= -10) || gradeChange <= -2,
+    improvement:(delta !== null && delta >= 5) || gradeChange > 0
+  };
+}
+
+function reportThesisState(checklist, coreTheses) {
+  if (checklist?.thesisBroken) return { label:'붕괴 경보', cls:'bad', score:-3 };
+  const score = (coreTheses || []).reduce((sum,t)=>sum+Number(t.score||0),0);
+  if (score > 0) return { label:'유효/긍정', cls:'good', score:1 };
+  if (score < 0) return { label:'약화/부정', cls:'bad', score:-1 };
+  return { label:(coreTheses||[]).length ? '중립/확인 필요' : '미작성', cls:'neutral', score:0 };
+}
+
 function getLongtermPortfolioSnapshot(monthKey) {
   ensurePositionIds();
   const positions = (state.positions || []).slice(0, MAX_POSITIONS);
@@ -4360,48 +4474,96 @@ function getLongtermPortfolioSnapshot(monthKey) {
     const previousPrice = prev ? Number(prev.asset.currentPrice || 0) : null;
     const priceChange = previousPrice && previousPrice > 0 ? (Number(pos.currentPrice || 0) - previousPrice) / previousPrice * 100 : null;
     const checklist = getReportChecklistSignals(pos, monthKey);
+    const coreTheses = getReportCoreTheses(pos, monthKey);
+    const thesisState = reportThesisState(checklist, coreTheses);
     const scenario = getReportScenarioSignal(pos);
-    const signalScore = checklist.totalScore + scenario.score;
+    const scorecard = getReportScorecardSignal(pos);
+    const secondaryScore = (checklist.categories.chart?.score || 0) + (checklist.categories.risk?.score || 0) + (checklist.categories.dca?.score || 0) + scenario.score;
 
     let action = '비중 유지';
     let actionClass = 'hold';
     const reasons = [];
 
-    if (priceChange !== null) reasons.push(`마지막 저장 Snapshot(${prev.month}) 대비 가격 ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%`);
-    else reasons.push('이전 Snapshot 가격이 없어 가격 변화율은 이번 저장부터 누적됩니다.');
+    // MAIN AXIS 1 — Thesis
+    if (checklist.thesisBroken) reasons.push('MAIN · 핵심 Thesis에서 붕괴/무효/손절 신호가 감지되었습니다.');
+    else if (thesisState.score < 0) reasons.push('MAIN · 핵심 Thesis 답변이 약화/부정 방향입니다.');
+    else if (thesisState.score > 0) reasons.push('MAIN · 핵심 Thesis가 유효/긍정 방향으로 유지되고 있습니다.');
+    else reasons.push('MAIN · 핵심 Thesis가 중립이거나 아직 충분히 작성되지 않았습니다.');
 
-    if (targetWeight > 0) reasons.push(`현재 비중 ${currentWeight.toFixed(1)}% / 목표 ${targetWeight.toFixed(1)}% (${gap >= 0 ? '부족 ' + gap.toFixed(1) : '초과 ' + Math.abs(gap).toFixed(1)}%p)`);
-    else reasons.push('목표 비중이 미설정되어 비중 기반 매수·매도 판단은 보수적으로 처리됩니다.');
+    // MAIN AXIS 2 — Scorecard
+    if (scorecard.completed) {
+      reasons.push(`MAIN · 종목 스코어카드 ${scorecard.score.toFixed(0)}점 · ${scorecard.grade}등급 · ${scorecard.policy}`);
+      if (scorecard.delta !== null) {
+        const sign = scorecard.delta > 0 ? '+' : '';
+        reasons.push(`MAIN · 직전 스코어카드 대비 ${sign}${scorecard.delta.toFixed(1)}점${scorecard.gradeChange < 0 ? ' · 등급 하향' : scorecard.gradeChange > 0 ? ' · 등급 상향' : ''}`);
+      } else reasons.push('MAIN · 비교 가능한 이전 스코어카드 점검 기록이 아직 없습니다.');
+      scorecard.sectorChanges.filter(x=>x.delta!==null && Math.abs(x.delta)>=3).forEach(x=>reasons.push(`스코어카드 변화 · ${x.name} ${x.delta>0?'+':''}${x.delta.toFixed(0)}점`));
+    } else {
+      reasons.push(`MAIN · 종목 스코어카드 ${scorecard.available ? '평가 미완료' : '미등록'} — 신규/추가매수 판단 신뢰도가 낮습니다.`);
+    }
 
+    // Main decision engine: Thesis + Scorecard first
     if (checklist.thesisBroken) {
       action = '투자 이유 붕괴 · 전량 매도 검토'; actionClass = 'exit';
-      reasons.push('월간 체크리스트의 핵심 Thesis/종합 판단에서 붕괴·무효·손절 신호가 감지되었습니다.');
-    } else if (scenario.score <= -2 || signalScore <= -4) {
+    } else if (scorecard.completed && scorecard.grade === 'D') {
+      action = '판매 검토'; actionClass = 'exit';
+      reasons.push('스코어카드 D등급은 운용 기준상 판매 구간입니다.');
+    } else if (thesisState.score < 0 && scorecard.completed && (scorecard.grade === 'C' || scorecard.sharpDeterioration)) {
       action = '리밸런싱 매도 검토'; actionClass = 'rebalance';
-      reasons.push('시나리오 또는 월간 체크리스트 신호가 강한 부정 구간입니다.');
+      reasons.push('Thesis 약화와 스코어카드 저평가/급락이 동시에 나타나 비중 축소 검토를 우선합니다.');
+    } else if (scorecard.completed && scorecard.grade === 'C') {
+      action = '비중 유지 · 신규매수 금지'; actionClass = 'hold';
+      reasons.push('스코어카드 C등급은 운용 기준상 유지 구간이며 신규 매수는 금지합니다.');
+    } else if (thesisState.score < 0) {
+      action = '비중 유지 · 추가매수 보류'; actionClass = 'hold';
+      reasons.push('스코어카드가 A/B여도 Thesis가 약화되어 추가매수보다 Thesis 재점검을 우선합니다.');
     } else if (targetWeight > 0 && currentWeight - targetWeight >= 3) {
       action = '리밸런싱 매도 검토'; actionClass = 'rebalance';
-      reasons.push('현재 비중이 목표 비중을 3%p 이상 초과합니다.');
-    } else if (signalScore <= -2) {
-      action = '비중 유지 · 추가매수 보류'; actionClass = 'hold';
-      reasons.push('체크리스트/시나리오의 부정 신호가 우세해 추가매수를 보류합니다.');
-    } else if (targetWeight > 0 && gap >= 2 && ((priceChange !== null && priceChange <= -5) || checklist.categories.dca?.score > 0) && signalScore >= 0) {
-      action = '추가 매수 검토'; actionClass = 'add';
-      reasons.push('목표 비중 미달 상태이며 가격 조정 또는 추가매수 체크리스트의 긍정 근거가 확인됩니다.');
-    } else {
-      reasons.push('투자 이유 붕괴나 명확한 리밸런싱/추가매수 트리거가 없어 현재 비중 유지를 우선합니다.');
+      reasons.push('보조 포트폴리오 규칙 · 현재 비중이 목표 비중을 3%p 이상 초과합니다.');
+    } else if (scorecard.completed && scorecard.grade === 'A') {
+      if (targetWeight <= 0 || gap >= 2) {
+        action = '추가 매수 검토'; actionClass = 'add';
+        reasons.push('스코어카드 A등급 + Thesis 비붕괴 상태입니다. 가격/추세는 진입 타이밍을 보조합니다.');
+      } else {
+        action = '비중 유지'; actionClass = 'hold';
+        reasons.push('기업 질은 A등급이지만 현재 비중이 목표 수준에 가까워 추가매수보다 비중 유지를 우선합니다.');
+      }
+    } else if (scorecard.completed && scorecard.grade === 'B') {
+      if (targetWeight <= 0 || gap >= 2) {
+        action = '매수 고려'; actionClass = 'add';
+        reasons.push('스코어카드 B등급 + Thesis 비붕괴 상태로 매수 고려 구간입니다. 가격/추세·리스크로 실행 시점을 조절합니다.');
+      } else {
+        action = '비중 유지 · 매수 관찰'; actionClass = 'hold';
+        reasons.push('스코어카드 B등급이지만 현재 비중이 목표 수준에 가까워 관찰을 우선합니다.');
+      }
+    } else if (!scorecard.completed) {
+      // Scorecard unavailable: conservative fallback only
+      if (secondaryScore <= -3 || scenario.score <= -2) {
+        action = '비중 유지 · 추가매수 보류'; actionClass = 'hold';
+        reasons.push('스코어카드가 완료되지 않아 보수적으로 운용하며, 보조 신호도 부정적입니다.');
+      } else {
+        action = '비중 유지 · 스코어카드 점검 필요'; actionClass = 'hold';
+        reasons.push('MAIN 판단축인 스코어카드를 완료하기 전에는 신규/추가매수를 확정하지 않습니다.');
+      }
     }
+
+    if (priceChange !== null) reasons.push(`보조 · 마지막 저장 Snapshot(${prev.month}) 대비 가격 ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%`);
+    else reasons.push('보조 · 이전 Snapshot 가격이 없어 가격 변화율은 이번 저장부터 누적됩니다.');
+    if (targetWeight > 0) reasons.push(`보조 · 현재 비중 ${currentWeight.toFixed(1)}% / 목표 ${targetWeight.toFixed(1)}% (${gap >= 0 ? '부족 ' + gap.toFixed(1) : '초과 ' + Math.abs(gap).toFixed(1)}%p)`);
+    else reasons.push('보조 · 목표 비중 미설정');
 
     return {
       id: pos.id, ticker: pos.ticker, name: pos.name || pos.ticker, exchange: pos.exchange || '',
       currentPrice: Number(pos.currentPrice || 0), previousPrice, previousMonth: prev?.month || '', priceChange,
       qty:Number(pos.qty || 0), value, currentWeight, targetWeight, weightGap:gap,
-      checklist, scenario:{ label:scenario.label, cls:scenario.cls, score:scenario.score }, signalScore,
+      checklist, coreTheses, thesisState,
+      scorecard,
+      scenario:{ label:scenario.label, cls:scenario.cls, score:scenario.score }, secondaryScore,
       action, actionClass, reasons, color:PALETTE[idx % PALETTE.length]
     };
   });
 
-  return { month:monthKey, createdAt:new Date().toISOString(), totalAccount, investedValue, cash, assets };
+  return { month:monthKey, createdAt:new Date().toISOString(), decisionModel:'THESIS_SCORECARD_FIRST_V1', totalAccount, investedValue, cash, assets };
 }
 
 function longtermReportMoney(n) {
@@ -4454,22 +4616,28 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
   const addCount=snapshot.assets.filter(a=>a.actionClass==='add').length;
   const rebalanceCount=snapshot.assets.filter(a=>a.actionClass==='rebalance').length;
   const exitCount=snapshot.assets.filter(a=>a.actionClass==='exit').length;
+  const scoreAB=snapshot.assets.filter(a=>['A','B'].includes(a.scorecard?.grade)).length;
+  const scoreCD=snapshot.assets.filter(a=>['C','D'].includes(a.scorecard?.grade)).length;
+  const scoreDrop=snapshot.assets.filter(a=>a.scorecard?.deterioration).length;
   root.innerHTML = `
     <div style="margin-bottom:14px;">
       <div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;">${isSaved?'SAVED SNAPSHOT':'LIVE MONTHLY REPORT'}</div>
       <div style="font-size:26px;font-weight:800;margin-top:3px;">${escapeHtml(getChecklistMonthLabel(snapshot.month))} 투자 리포트</div>
-      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;">${isSaved ? '저장 시점 ' + new Date(snapshot.createdAt).toLocaleString('ko-KR') : '현재 대시보드 상태를 실시간 분석'}</div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;">${isSaved ? '저장 시점 ' + new Date(snapshot.createdAt).toLocaleString('ko-KR') : '현재 대시보드 상태를 실시간 분석'} · MAIN = THESIS + SCORECARD</div>
     </div>
     <div class="report-summary-grid">
       <div class="report-summary-card"><div class="report-summary-label">계좌 총자산</div><div class="report-summary-value">${longtermReportMoney(snapshot.totalAccount)}</div></div>
       <div class="report-summary-card"><div class="report-summary-label">현금</div><div class="report-summary-value" style="color:var(--accent2)">${longtermReportMoney(snapshot.cash)}</div></div>
-      <div class="report-summary-card"><div class="report-summary-label">추가매수 후보</div><div class="report-summary-value" style="color:var(--accent)">${addCount}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">Scorecard A/B</div><div class="report-summary-value" style="color:var(--accent)">${scoreAB}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">Scorecard C/D</div><div class="report-summary-value" style="color:${scoreCD?'var(--warn)':'var(--text)'}">${scoreCD}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">Score 하락 경보</div><div class="report-summary-value" style="color:${scoreDrop?'var(--danger)':'var(--text)'}">${scoreDrop}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">매수/추가매수 후보</div><div class="report-summary-value" style="color:var(--accent)">${addCount}</div></div>
       <div class="report-summary-card"><div class="report-summary-label">매도/리밸런싱 경보</div><div class="report-summary-value" style="color:${exitCount?'var(--danger)':rebalanceCount?'var(--warn)':'var(--text)'}">${rebalanceCount + exitCount}</div></div>
     </div>
     <div class="report-grid">
       <div class="report-card">
         <div class="report-card-title">현재 자산 비중</div>
-        <div class="report-card-sub">현재가 × 보유수량 + 현금 기준. 목표비중은 각 포지션 편집에서 설정합니다.</div>
+        <div class="report-card-sub">현재가 × 보유수량 + 현금 기준. 목표비중은 포지션 편집에서 설정합니다.</div>
         <div class="report-allocation-wrap">
           <canvas id="lt-report-pie" width="200" height="200"></canvas>
           <div class="report-allocation-legend">
@@ -4479,43 +4647,71 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
         </div>
       </div>
       <div class="report-card">
-        <div class="report-card-title">리포트 해석 원칙</div>
-        <div class="report-card-sub">결론은 외부 의견이 아니라 현재 대시보드의 구조화된 데이터와 월간 기록을 규칙 기반으로 종합합니다.</div>
+        <div class="report-card-title">월간 의사결정 우선순위</div>
+        <div class="report-card-sub">기업의 질과 투자 이유를 먼저 판단하고, 가격은 ‘좋은 기업을 언제/얼마나 살지’ 결정하는 보조축으로 사용합니다.</div>
         <div style="font-size:12px;line-height:1.8;color:var(--text);">
-          <div>1. 핵심 Thesis 붕괴 신호 → <strong style="color:var(--danger)">전량 매도 검토</strong></div>
-          <div>2. 강한 부정 신호 / 목표비중 과대 → <strong style="color:var(--warn)">리밸런싱 매도 검토</strong></div>
-          <div>3. 목표비중 미달 + 가격 조정/추가매수 근거 + 신호 비붕괴 → <strong style="color:var(--accent)">추가 매수 검토</strong></div>
-          <div>4. 그 외 → <strong style="color:var(--accent2)">비중 유지</strong></div>
+          <div>1. <strong>핵심 Thesis 1~2개</strong> 붕괴 → <strong style="color:var(--danger)">전량 매도 검토</strong></div>
+          <div>2. <strong>Scorecard D</strong> → <strong style="color:var(--danger)">판매 검토</strong></div>
+          <div>3. <strong>Scorecard C</strong> → <strong style="color:var(--warn)">유지 · 신규매수 금지</strong></div>
+          <div>4. <strong>Scorecard B</strong> + Thesis 유지 → <strong style="color:var(--accent2)">매수 고려</strong></div>
+          <div>5. <strong>Scorecard A</strong> + Thesis 유지 → <strong style="color:var(--accent)">신규/추가매수 우선 후보</strong></div>
+          <div>6. 점수 하락·등급 하향은 이전 점검 대비 변화로 별도 경보</div>
+          <div>7. 가격·추세·리스크·추가매수·시나리오·목표비중은 실행 타이밍/비중 조절용 보조 신호</div>
         </div>
-        <div class="report-source-note">체크리스트의 체크 여부는 ‘완료 여부’로만 사용하며 긍정 신호로 간주하지 않습니다. 실제 신호는 각 문항의 답변과 종합 판단 텍스트, 시나리오 가격 범위에서 추출합니다.</div>
+        <div class="report-source-note">스코어카드가 미등록/미완료라면 신규·추가매수 결론을 보수적으로 제한합니다. 체크박스 완료 여부 자체는 긍정 신호로 사용하지 않습니다.</div>
       </div>
     </div>
     <div class="report-asset-list">
       ${snapshot.assets.map(a=>{
-        const cat=a.checklist.categories || {};
+        const cat=a.checklist?.categories || {};
+        const thesisState=a.thesisState || {label:a.checklist?.thesisBroken?'붕괴 경보':(cat.thesis?.label||'중립'),cls:a.checklist?.thesisBroken?'bad':(cat.thesis?.cls||'neutral')};
+        const coreTheses=Array.isArray(a.coreTheses)?a.coreTheses:[];
+        const scorecard=a.scorecard || {completed:false,available:false,grade:'—',score:null,delta:null,policy:'이전 Snapshot — 스코어카드 미포함',sectorChanges:[]};
+        const deltaClass=scorecard.delta===null?'flat':scorecard.delta>0?'up':scorecard.delta<0?'down':'flat';
+        const deltaText=scorecard.delta===null?'비교 기록 없음':`${scorecard.delta>0?'+':''}${Number(scorecard.delta).toFixed(1)}점${scorecard.gradeChange<0?' · 등급 하향':scorecard.gradeChange>0?' · 등급 상향':''}`;
+        const sectors=(scorecard.sectorChanges||[]).map(x=>`${escapeHtml(x.name)} ${Number(x.score||0).toFixed(0)}/${Number(x.maxScore||0).toFixed(0)}${x.delta===null?'':` (${x.delta>0?'+':''}${Number(x.delta).toFixed(0)})`}`).join(' · ');
+        const thesisCards=[0,1].map(i=>{
+          const t=coreTheses[i];
+          if(!t) return `<div class="report-core-card"><div class="report-core-label">핵심 Thesis ${i+1}</div><div class="report-core-value" style="color:var(--warn)">미작성</div><div class="report-core-sub">월간 체크리스트의 Thesis 답변을 작성하세요.</div></div>`;
+          return `<div class="report-core-card"><div class="report-core-label">핵심 Thesis ${i+1}</div><div class="report-core-value" style="color:${t.cls==='good'?'var(--accent)':t.cls==='bad'?'var(--danger)':'var(--warn)'}">${escapeHtml(t.label)}</div><div class="report-core-sub">${escapeHtml(t.question)}</div><div class="report-thesis-answer">${escapeHtml(t.answer)}</div></div>`;
+        }).join('');
         return `<article class="report-asset">
           <div class="report-asset-head">
             <div><div class="report-asset-ticker">${escapeHtml(a.ticker)}</div><div class="report-asset-name">${escapeHtml(a.name)} · ${escapeHtml(a.exchange||'')}</div></div>
             <span class="report-action ${a.actionClass}">${escapeHtml(a.action)}</span>
           </div>
           <div class="report-asset-body">
+            <div class="report-main-axis">
+              <div class="report-main-axis-head"><div class="report-main-axis-title">MAIN DECISION AXIS · THESIS + SCORECARD</div><div class="report-main-axis-note">가격 신호보다 우선</div></div>
+              <div class="report-core-grid">
+                <div class="report-core-card scorecard">
+                  <div class="report-core-label">종목 Scorecard</div>
+                  <div class="report-core-value">${scorecard.completed?`${Number(scorecard.score).toFixed(0)}/100 · ${escapeHtml(scorecard.grade)}등급`:'평가 미완료'}</div>
+                  <div class="report-core-sub">${escapeHtml(scorecard.policy||'스코어카드 점검 필요')}</div>
+                  <div class="report-core-sub report-score-delta ${deltaClass}">직전 점검 대비 · ${escapeHtml(deltaText)}</div>
+                  ${sectors?`<div class="report-core-sub">${sectors}</div>`:''}
+                </div>
+                ${thesisCards}
+              </div>
+            </div>
             <div class="report-metrics">
               <div class="report-metric"><div class="report-metric-label">현재가</div><div class="report-metric-value">${longtermReportMoney(a.currentPrice)}</div></div>
               <div class="report-metric"><div class="report-metric-label">마지막 Snapshot 대비</div><div class="report-metric-value" style="color:${a.priceChange===null?'var(--muted)':a.priceChange<0?'var(--danger)':'var(--accent)'}">${longtermReportPct(a.priceChange)}</div></div>
               <div class="report-metric"><div class="report-metric-label">현재 비중</div><div class="report-metric-value">${a.currentWeight.toFixed(1)}%</div></div>
               <div class="report-metric"><div class="report-metric-label">목표 비중</div><div class="report-metric-value">${a.targetWeight>0?a.targetWeight.toFixed(1)+'%':'미설정'}</div></div>
             </div>
+            <div class="report-secondary-title">SECONDARY SIGNALS · 실행 타이밍 / 포지션 조절</div>
             <div class="report-signal-grid">
               <div class="report-signal ${cat.chart?.cls||'neutral'}">가격/추세 · ${escapeHtml(cat.chart?.label||'중립')}</div>
-              <div class="report-signal ${cat.thesis?.cls||'neutral'}">Thesis · ${a.checklist.thesisBroken?'붕괴 경보':escapeHtml(cat.thesis?.label||'중립')}</div>
               <div class="report-signal ${cat.risk?.cls||'neutral'}">리스크 · ${escapeHtml(cat.risk?.label||'중립')}</div>
               <div class="report-signal ${cat.dca?.cls||'neutral'}">추가매수 · ${escapeHtml(cat.dca?.label||'중립')}</div>
+              <div class="report-signal ${a.scenario?.cls||'neutral'}">시나리오 · ${escapeHtml(a.scenario?.label||'미분류')}</div>
             </div>
             <div class="report-signal-grid" style="grid-template-columns:1fr 1fr;">
-              <div class="report-signal ${a.scenario.cls}">시나리오 가격 위치 · ${escapeHtml(a.scenario.label)}</div>
-              <div class="report-signal meta">월간 기록 · 답변 ${a.checklist.answerCount}개 / 체크 ${a.checklist.checkedCount}/${a.checklist.totalItems}</div>
+              <div class="report-signal ${thesisState.cls||'neutral'}">Thesis 종합 · ${escapeHtml(thesisState.label||'중립')}</div>
+              <div class="report-signal meta">월간 기록 · 답변 ${a.checklist?.answerCount||0}개 / 체크 ${a.checklist?.checkedCount||0}/${a.checklist?.totalItems||0}</div>
             </div>
-            <div class="report-why"><div class="report-why-title">WHY · 대시보드 근거</div><ul>${a.reasons.map(r=>`<li>${escapeHtml(r)}</li>`).join('')}</ul></div>
+            <div class="report-why"><div class="report-why-title">WHY · MAIN → SECONDARY 순서의 대시보드 근거</div><ul>${(a.reasons||[]).map(r=>`<li>${escapeHtml(r)}</li>`).join('')}</ul></div>
           </div>
         </article>`;
       }).join('')}
