@@ -1017,6 +1017,62 @@
   }
 
 
+
+
+  /* ── V5 INVESTMENT TABLE SCORECARD ── */
+  .scorecard-standard-note {
+    margin-bottom:14px; padding:11px 13px; border-radius:10px;
+    background:rgba(79,195,247,.055); border:1px solid rgba(79,195,247,.16);
+    color:var(--muted); font-size:10.5px; line-height:1.65; font-family:var(--mono);
+  }
+  .scorecard-sector {
+    border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    background:rgba(255,255,255,.01); margin-bottom:12px;
+  }
+  .scorecard-sector-head {
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-bottom:1px solid var(--border); background:var(--surface2);
+  }
+  .scorecard-sector-title { font-size:13px; font-weight:800; }
+  .scorecard-sector-sub { color:var(--muted); font-size:9.5px; font-family:var(--mono); margin-top:3px; }
+  .scorecard-sector-score {
+    flex-shrink:0; min-width:86px; text-align:center; padding:6px 9px; border-radius:8px;
+    background:rgba(125,249,170,.06); border:1px solid rgba(125,249,170,.15);
+    font-family:var(--mono); font-size:12px; font-weight:800; color:var(--accent);
+  }
+  .scorecard-sector-body { padding:10px 12px 12px; display:flex; flex-direction:column; gap:9px; }
+  .scorecard-invest-row {
+    display:grid; grid-template-columns:minmax(170px,.75fr) minmax(220px,1fr); gap:11px;
+    padding:11px; border:1px solid var(--border); border-radius:10px; background:rgba(255,255,255,.012);
+  }
+  .scorecard-invest-name { font-size:12px; font-weight:800; line-height:1.45; }
+  .scorecard-invest-max { margin-top:4px; color:var(--accent2); font-size:9.5px; font-family:var(--mono); }
+  .scorecard-invest-controls { min-width:0; }
+  .scorecard-choice {
+    width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:8px;
+    color:var(--text); padding:8px 9px; font-size:11px; font-family:var(--sans); outline:none;
+  }
+  .scorecard-choice:focus { border-color:rgba(125,249,170,.4); }
+  .scorecard-choice-help { margin-top:5px; color:var(--muted); font-size:9.5px; line-height:1.5; font-family:var(--mono); }
+  .scorecard-note.compact { min-height:58px; margin-top:7px; }
+  .scorecard-sector-mini-grid {
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:10px 0 14px;
+  }
+  .scorecard-sector-mini {
+    padding:9px 10px; border:1px solid var(--border); border-radius:9px; background:var(--surface2);
+  }
+  .scorecard-sector-mini span { display:block; color:var(--muted); font-size:8.5px; font-family:var(--mono); text-transform:uppercase; }
+  .scorecard-sector-mini strong { display:block; margin-top:4px; font-size:14px; font-family:var(--mono); }
+  .scorecard-fixed-badge {
+    display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:999px;
+    border:1px solid rgba(125,249,170,.2); background:rgba(125,249,170,.06);
+    color:var(--accent); font-size:9px; font-family:var(--mono); margin-left:6px;
+  }
+  @media (max-width:760px) {
+    .scorecard-invest-row { grid-template-columns:1fr; }
+    .scorecard-sector-mini-grid { grid-template-columns:1fr; }
+  }
+
   /* Responsive */
   @media (max-width: 900px) {
     header { align-items:flex-start; gap:14px; }
@@ -1571,11 +1627,11 @@
     <div class="scorecard-toolbar">
       <div>
         <div class="scorecard-title">장기투자 종목 스코어카드</div>
-        <div class="scorecard-sub">보유 여부와 관계없이 관심 종목을 등록하고, 네가 정한 평가표로 주기적으로 점수를 매긴 뒤 A/B/C/D 등급과 투자 결론을 기록합니다. 입력 중인 내용은 자동 저장되고, “점검 기록 저장”을 누르면 당시 평가가 히스토리로 고정됩니다.</div>
+        <div class="scorecard-sub">보유 여부와 관계없이 관심 종목을 등록하고, 이익 창출력·주주환원·미래 성장 잠재력의 100점 투자표로 평가합니다. 각 기준을 선택하면 점수가 자동 합산되고 A/B/C/D 등급과 투자 결론을 기록할 수 있습니다.</div>
       </div>
       <div class="scorecard-actions">
         <button class="scorecard-btn" onclick="importHeldPositionsToScorecard()">보유 종목 불러오기</button>
-        <button class="scorecard-btn" onclick="toggleScorecardSettings()">평가 기준 편집</button>
+        <button class="scorecard-btn" onclick="toggleScorecardSettings()">등급 기준 설정</button>
       </div>
     </div>
 
@@ -1600,16 +1656,18 @@
     </div>
 
     <section id="scorecard-settings" class="scorecard-settings">
-      <div class="scorecard-settings-head"><strong>평가표 설정</strong><span>항목명·설명·가중치를 자유롭게 바꿀 수 있습니다. 각 항목 점수는 0~5점입니다.</span></div>
+      <div class="scorecard-settings-head"><strong>등급 기준 설정</strong><span>투자 평가표의 13개 항목과 35/40/25점 섹터 배점은 고정됩니다. A/B/C/D 컷만 조정할 수 있습니다.</span></div>
       <div class="scorecard-settings-body">
-        <div id="scorecard-criteria-settings"></div>
-        <button class="scorecard-btn" onclick="addScorecardCriterion()">+ 평가 항목 추가</button>
+        <div class="scorecard-standard-note">고정 투자표 · 이익 창출력 & 저평가 여부 & 지속 가능성 35점 · 주주환원 의지 40점 · 미래 성장 잠재력 & 기업 경쟁력 25점 · 총 100점</div>
         <div class="scorecard-thresholds">
           <label>A 등급 최소 점수<input id="sc-th-a" type="number" min="0" max="100" onchange="updateScorecardThreshold('A',this.value)"></label>
           <label>B 등급 최소 점수<input id="sc-th-b" type="number" min="0" max="100" onchange="updateScorecardThreshold('B',this.value)"></label>
           <label>C 등급 최소 점수<input id="sc-th-c" type="number" min="0" max="100" onchange="updateScorecardThreshold('C',this.value)"></label>
         </div>
-        <div style="margin-top:10px;color:var(--muted);font-size:10px;line-height:1.6;font-family:var(--mono);">D 등급은 C 최소 점수 미만입니다. 최종 등급은 자동 등급을 사용하거나 종목별로 수동 A/B/C/D를 지정할 수 있습니다.</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px;">
+          <button class="scorecard-btn" onclick="resetScorecardThresholds()">등급 기준 기본값 복원</button>
+          <span style="color:var(--muted);font-size:10px;font-family:var(--mono);">기본값 A 85 · B 70 · C 55 · D는 C 미만</span>
+        </div>
       </div>
     </section>
   </div>
@@ -3544,35 +3602,88 @@ function switchTabByName(name) {
 
 
 // ════════════════════════════════
-// STOCK SCORECARD — periodic A/B/C/D screening
+// STOCK SCORECARD — 100-point investment table
 // ════════════════════════════════
+
+function getInvestmentScorecardSectors() {
+  return [
+    { id:'profit', name:'이익 창출력 & 저평가 여부 & 지속 가능성', maxScore:35 },
+    { id:'shareholder', name:'주주환원 의지', maxScore:40 },
+    { id:'growth', name:'미래 성장 잠재력 & 기업 경쟁력', maxScore:25 }
+  ];
+}
+
+function getInvestmentScorecardCriteria() {
+  return [
+    { id:'sc_per', sector:'profit', name:'PER', maxScore:20, options:[
+      {id:'per_lt5', label:'< 5', score:20}, {id:'per_lt8', label:'< 8', score:15},
+      {id:'per_lt10', label:'< 10', score:10}, {id:'per_gt10', label:'> 10', score:5}
+    ]},
+    { id:'sc_pbr', sector:'profit', name:'PBR', maxScore:5, options:[
+      {id:'pbr_lt03', label:'< 0.3', score:5}, {id:'pbr_lt06', label:'< 0.6', score:4},
+      {id:'pbr_lt10', label:'< 1.0', score:3}, {id:'pbr_gt10', label:'> 1.0', score:0}
+    ]},
+    { id:'sc_profit_sustainability', sector:'profit', name:'이익이 지속 가능한가 (정성적 판단)', maxScore:5, options:[
+      {id:'sustainable', label:'대체로 지속 가능', score:5},
+      {id:'unstable', label:'불안정한 이익 창출력', score:0}
+    ]},
+    { id:'sc_duplicate_listing', sector:'profit', name:'중복 상장 여부 (자회사·손자회사 상장 여부)', maxScore:5, options:[
+      {id:'duplicate', label:'중복 상장', score:0}, {id:'standalone', label:'단독 성장', score:5}
+    ]},
+
+    { id:'sc_dividend_yield', sector:'shareholder', name:'배당수익률', maxScore:10, options:[
+      {id:'yield_gt7', label:'> 7%', score:10}, {id:'yield_gt5', label:'> 5%', score:7},
+      {id:'yield_gt3', label:'> 3%', score:5}, {id:'yield_below', label:'기준 미달 / 해당 없음', score:0, helper:'원표에서 3% 이하 점수가 비어 있어 완결용 0점 선택지로 처리'}
+    ]},
+    { id:'sc_quarterly_dividend', sector:'shareholder', name:'분기 배당을 실시하고 있는가', maxScore:5, options:[
+      {id:'quarterly_yes', label:'예', score:5}, {id:'quarterly_no', label:'아니요', score:0}
+    ]},
+    { id:'sc_dividend_growth_years', sector:'shareholder', name:'배당 연속 인상 연수 (배당 동결 시 연속 인정, 인상 인정 X)', maxScore:5, options:[
+      {id:'div10', label:'10년 이상', score:5}, {id:'div5', label:'5년 이상', score:4},
+      {id:'div3', label:'3년 이상', score:3}, {id:'div_none', label:'해당 없음', score:0}
+    ]},
+    { id:'sc_buyback_cancel', sector:'shareholder', name:'정기적 자사주 매입 및 소각 여부 (최소 연 1회 이상)', maxScore:7, options:[
+      {id:'buyback_yes', label:'예', score:7}, {id:'buyback_no', label:'아니요', score:0}
+    ]},
+    { id:'sc_annual_cancel_ratio', sector:'shareholder', name:'연간 소각 비율 (총주식수 대비)', maxScore:8, options:[
+      {id:'cancel_gt2', label:'> 2%', score:8}, {id:'cancel_gt15', label:'> 1.5%', score:5},
+      {id:'cancel_gt05', label:'> 0.5%', score:3}, {id:'cancel_lt05', label:'< 0.5%', score:0}
+    ]},
+    { id:'sc_treasury_ratio', sector:'shareholder', name:'자사주 보유 비율', maxScore:5, options:[
+      {id:'treasury_none', label:'없음', score:5}, {id:'treasury_lt2', label:'< 2%', score:4},
+      {id:'treasury_lt5', label:'< 5%', score:2}, {id:'treasury_other', label:'5% 이상 / 기타', score:0, helper:'원표에서 5% 이상 점수가 비어 있어 완결용 0점 선택지로 처리'}
+    ]},
+
+    { id:'sc_growth_potential', sector:'growth', name:'미래 성장 잠재력 (정성적 판단)', maxScore:10, options:[
+      {id:'growth_very_high', label:'매우 높다', score:10}, {id:'growth_high', label:'높다', score:7},
+      {id:'growth_normal', label:'보통', score:5}, {id:'growth_low', label:'낮다', score:3}
+    ]},
+    { id:'sc_management', sector:'growth', name:'기업 경영 (정성적 판단)', maxScore:10, options:[
+      {id:'mgmt_excellent', label:'우수한 경영자', score:10}, {id:'mgmt_professional', label:'전문 경영자', score:5},
+      {id:'mgmt_poor_owner', label:'저조한 실적 오너 경영', score:0}
+    ]},
+    { id:'sc_global_brand', sector:'growth', name:'세계적 브랜드 보유 여부', maxScore:5, options:[
+      {id:'brand_yes', label:'있다', score:5}, {id:'brand_no', label:'없다', score:0}
+    ]}
+  ];
+}
 
 function makeDefaultScorecardState() {
   return {
-    criteria: [
-      { id:'sc_chart', name:'가격 & 추세', description:'장기 추세, 지지 구조, 드로우다운과 현재 가격 위치를 평가', weight:25 },
-      { id:'sc_thesis', name:'투자 Thesis', description:'핵심 투자 전제와 기업 내러티브가 여전히 유효한지 평가', weight:30 },
-      { id:'sc_risk', name:'리스크 & 손절 관리', description:'사업·정책·집중도·손실 가능성과 대응 가능성을 평가', weight:25 },
-      { id:'sc_dca', name:'추가매수 판단', description:'가격 매력도와 포지션 크기까지 포함해 추가 투자 적합성을 평가', weight:20 }
-    ],
+    schemaVersion: 2,
+    criteria: getInvestmentScorecardCriteria(),
     thresholds: { A:85, B:70, C:55 },
     candidates: [],
     activeId: '',
-    settingsOpen: false
+    settingsOpen: false,
+    legacyCriteria: null
   };
 }
 
 function normalizeScorecardState(source) {
   const base = makeDefaultScorecardState();
   const src = source && typeof source === 'object' ? source : {};
-  const criteria = Array.isArray(src.criteria) && src.criteria.length
-    ? src.criteria.map((c,idx)=>({
-        id:String(c.id || ('sc_custom_'+idx+'_'+Date.now().toString(36))),
-        name:String(c.name || '평가 항목'),
-        description:String(c.description || ''),
-        weight:Math.max(0, Number(c.weight ?? 1) || 0)
-      }))
-    : base.criteria;
+  const oldSchema = Number(src.schemaVersion || 1);
   const thresholds = {
     A: Math.max(0, Math.min(100, Number(src.thresholds?.A ?? base.thresholds.A))),
     B: Math.max(0, Math.min(100, Number(src.thresholds?.B ?? base.thresholds.B))),
@@ -3580,24 +3691,37 @@ function normalizeScorecardState(source) {
   };
   if (thresholds.B > thresholds.A) thresholds.B = thresholds.A;
   if (thresholds.C > thresholds.B) thresholds.C = thresholds.B;
-  const candidates = Array.isArray(src.candidates) ? src.candidates.map((c,idx)=>({
-    id:String(c.id || ('watch_'+Date.now().toString(36)+'_'+idx)),
-    ticker:String(c.ticker || '').toUpperCase(),
-    name:String(c.name || c.ticker || ''),
-    exchange:String(c.exchange || ''),
-    scores:c.scores && typeof c.scores === 'object' ? c.scores : {},
-    notes:c.notes && typeof c.notes === 'object' ? c.notes : {},
-    decision:String(c.decision || '관찰'),
-    manualGrade:['','A','B','C','D'].includes(c.manualGrade) ? c.manualGrade : '',
-    finalNote:String(c.finalNote || ''),
-    createdAt:String(c.createdAt || ''),
-    updatedAt:String(c.updatedAt || ''),
-    history:Array.isArray(c.history) ? c.history : []
-  })) : [];
+
+  const candidates = Array.isArray(src.candidates) ? src.candidates.map((c,idx)=>{
+    const oldScores = c.scores && typeof c.scores === 'object' ? c.scores : {};
+    const oldNotes = c.notes && typeof c.notes === 'object' ? c.notes : {};
+    return {
+      id:String(c.id || ('watch_'+Date.now().toString(36)+'_'+idx)),
+      ticker:String(c.ticker || '').toUpperCase(),
+      name:String(c.name || c.ticker || ''),
+      exchange:String(c.exchange || ''),
+      scores:oldSchema >= 2 ? oldScores : {},
+      notes:oldSchema >= 2 ? oldNotes : {},
+      legacyEvaluation: oldSchema < 2 && (Object.keys(oldScores).length || Object.keys(oldNotes).length)
+        ? { scores:oldScores, notes:oldNotes, criteria:Array.isArray(src.criteria)?src.criteria:[], migratedAt:new Date().toISOString() }
+        : (c.legacyEvaluation || null),
+      decision:String(c.decision || '관찰'),
+      manualGrade:['','A','B','C','D'].includes(c.manualGrade) ? c.manualGrade : '',
+      finalNote:String(c.finalNote || ''),
+      createdAt:String(c.createdAt || ''),
+      updatedAt:String(c.updatedAt || ''),
+      history:Array.isArray(c.history) ? c.history : []
+    };
+  }) : [];
+
   return {
-    criteria, thresholds, candidates,
+    schemaVersion:2,
+    criteria:getInvestmentScorecardCriteria(),
+    thresholds,
+    candidates,
     activeId:String(src.activeId || candidates[0]?.id || ''),
-    settingsOpen:!!src.settingsOpen
+    settingsOpen:!!src.settingsOpen,
+    legacyCriteria: oldSchema < 2 && Array.isArray(src.criteria) ? src.criteria : (src.legacyCriteria || null)
   };
 }
 
@@ -3619,27 +3743,32 @@ function getScorecardActiveCandidate() {
   return candidate;
 }
 
+function getScorecardOption(criterion, optionId) {
+  return (criterion?.options || []).find(o=>o.id===optionId) || null;
+}
+
 function getCandidateScore(candidate) {
   const sc = getScorecardState();
   const criteria = sc.criteria || [];
-  const totalWeight = criteria.reduce((sum,c)=>sum + Math.max(0,Number(c.weight)||0),0);
-  if (!candidate || !criteria.length || totalWeight <= 0) return {score:0,autoGrade:'—',finalGrade:candidate?.manualGrade || '—',completed:0,total:criteria.length};
-  let weighted = 0, completed = 0, completedWeight = 0;
-  criteria.forEach(c=>{
-    const raw = candidate.scores?.[c.id];
-    const value = raw === '' || raw === null || raw === undefined ? null : Math.max(0,Math.min(5,Number(raw)));
-    if (value !== null && Number.isFinite(value)) {
-      const weight = Math.max(0,Number(c.weight)||0);
-      weighted += (value/5) * weight;
-      completedWeight += weight;
+  const sectorTotals = {};
+  getInvestmentScorecardSectors().forEach(sec=>{ sectorTotals[sec.id] = {score:0,maxScore:sec.maxScore,completed:0,total:0}; });
+  let score = 0, completed = 0;
+  criteria.forEach(cr=>{
+    if (!sectorTotals[cr.sector]) sectorTotals[cr.sector] = {score:0,maxScore:0,completed:0,total:0};
+    sectorTotals[cr.sector].total += 1;
+    const selected = getScorecardOption(cr, candidate?.scores?.[cr.id]);
+    if (selected) {
+      const pts = Number(selected.score || 0);
+      score += pts;
+      sectorTotals[cr.sector].score += pts;
+      sectorTotals[cr.sector].completed += 1;
       completed += 1;
     }
   });
-  const score = completedWeight > 0 ? weighted / completedWeight * 100 : 0;
   const t = sc.thresholds;
   const provisional = score >= t.A ? 'A' : score >= t.B ? 'B' : score >= t.C ? 'C' : 'D';
   const autoGrade = completed === criteria.length && criteria.length > 0 ? provisional : '—';
-  return { score, autoGrade, finalGrade:candidate.manualGrade || autoGrade, completed, total:criteria.length };
+  return { score, autoGrade, finalGrade:candidate?.manualGrade || autoGrade, completed, total:criteria.length, sectorTotals };
 }
 
 function scorecardGradeClass(grade) { return ['A','B','C','D'].includes(grade) ? 'grade-'+grade : 'grade-NA'; }
@@ -3683,101 +3812,132 @@ function updateScorecardCandidateField(id, field, value) {
   c[field]=value; c.updatedAt=new Date().toISOString(); saveState(); renderScorecardSummary(); renderScorecardCandidates();
 }
 
-function updateScorecardScore(id, criterionId, value, rerender=false) {
+function updateScorecardScore(id, criterionId, optionId, rerender=false) {
   const c=getScorecardCandidate(id); if(!c) return;
   if(!c.scores)c.scores={};
-  const num=value===''?'' : Math.max(0,Math.min(5,Number(value)||0)); c.scores[criterionId]=num; c.updatedAt=new Date().toISOString(); saveState();
-  if(rerender) renderScorecardMain(); else {
-    const calc=getCandidateScore(c); const scoreEl=document.getElementById('sc-live-score'); const gradeEl=document.getElementById('sc-live-grade'); const fill=document.getElementById('sc-live-fill'); const progress=document.getElementById('sc-live-progress');
-    if(scoreEl)scoreEl.textContent=calc.score.toFixed(1)+'/100';
-    if(gradeEl){gradeEl.textContent=calc.finalGrade;gradeEl.className='grade-badge '+scorecardGradeClass(calc.finalGrade);}
-    if(fill)fill.style.width=Math.max(0,Math.min(100,calc.score))+'%';
-    if(progress)progress.textContent=calc.completed+'/'+calc.total+' 항목';
-    renderScorecardSummary(); renderScorecardCandidates();
-  }
+  c.scores[criterionId]=optionId || '';
+  c.updatedAt=new Date().toISOString(); saveState();
+  if (rerender) renderScorecardMain();
+  renderScorecardSummary(); renderScorecardCandidates();
 }
 
-function updateScorecardNote(id, criterionId, value) { const c=getScorecardCandidate(id); if(!c)return; if(!c.notes)c.notes={}; c.notes[criterionId]=value; c.updatedAt=new Date().toISOString(); saveState(); }
+function updateScorecardNote(id, criterionId, value) {
+  const c=getScorecardCandidate(id); if(!c)return;
+  if(!c.notes)c.notes={}; c.notes[criterionId]=value; c.updatedAt=new Date().toISOString(); saveState();
+}
 
 function saveScorecardReview(id) {
   const c=getScorecardCandidate(id); if(!c)return;
-  const calc=getCandidateScore(c); if(!c.history)c.history=[];
+  const calc=getCandidateScore(c);
+  if (calc.completed !== calc.total) { toast('⚠ 모든 평가 항목을 선택한 뒤 기록을 저장하세요'); return; }
+  if(!c.history)c.history=[];
   c.history.unshift({
-    savedAt:new Date().toISOString(), score:Number(calc.score.toFixed(2)), autoGrade:calc.autoGrade, finalGrade:calc.finalGrade,
+    schemaVersion:2, savedAt:new Date().toISOString(), score:Number(calc.score.toFixed(2)), autoGrade:calc.autoGrade, finalGrade:calc.finalGrade,
     manualGrade:c.manualGrade||'', decision:c.decision||'관찰', finalNote:c.finalNote||'',
     scores:JSON.parse(JSON.stringify(c.scores||{})), notes:JSON.parse(JSON.stringify(c.notes||{})),
-    criteria:JSON.parse(JSON.stringify(getScorecardState().criteria||[]))
+    criteria:JSON.parse(JSON.stringify(getScorecardState().criteria||[])), sectorTotals:JSON.parse(JSON.stringify(calc.sectorTotals||{}))
   });
   c.history=c.history.slice(0,60); c.updatedAt=new Date().toISOString(); saveState(); renderScorecard(); toast('✓ '+c.ticker+' 점검 기록 저장');
 }
 
 function restoreScorecardReview(id, index) {
   const c=getScorecardCandidate(id); const h=c?.history?.[index]; if(!c||!h)return;
-  if(!confirm('이 과거 기록의 점수·메모·등급·결론을 현재 평가로 불러올까요?'))return;
+  if (Number(h.schemaVersion||1) < 2) { toast('이 기록은 이전 0~5점 평가표 기록이라 현재 100점 투자표로 복원할 수 없습니다'); return; }
+  if(!confirm('이 과거 기록의 투자표 선택·메모·등급·결론을 현재 평가로 불러올까요?'))return;
   c.scores=JSON.parse(JSON.stringify(h.scores||{})); c.notes=JSON.parse(JSON.stringify(h.notes||{})); c.manualGrade=h.manualGrade||''; c.decision=h.decision||'관찰'; c.finalNote=h.finalNote||''; c.updatedAt=new Date().toISOString(); saveState(); renderScorecard();
 }
 
 function renderScorecardSummary() {
   const el=document.getElementById('scorecard-summary'); if(!el)return;
-  const sc=getScorecardState(); const counts={A:0,B:0,C:0,D:0}; let sum=0;
-  sc.candidates.forEach(c=>{const x=getCandidateScore(c);counts[x.finalGrade]=(counts[x.finalGrade]||0)+1;sum+=x.score;});
-  const avg=sc.candidates.length?sum/sc.candidates.length:0;
+  const sc=getScorecardState(); const counts={A:0,B:0,C:0,D:0}; let sum=0, rated=0;
+  sc.candidates.forEach(c=>{const x=getCandidateScore(c); if(['A','B','C','D'].includes(x.finalGrade)) counts[x.finalGrade]++; if(x.completed===x.total){sum+=x.score;rated++;}});
+  const avg=rated?sum/rated:0;
   el.innerHTML=`
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">점검 종목</div><div class="scorecard-summary-value">${sc.candidates.length}</div></div>
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">A 등급</div><div class="scorecard-summary-value" style="color:var(--accent)">${counts.A}</div></div>
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">B 등급</div><div class="scorecard-summary-value" style="color:var(--accent2)">${counts.B}</div></div>
     <div class="scorecard-summary-card"><div class="scorecard-summary-label">C / D</div><div class="scorecard-summary-value" style="color:var(--warn)">${counts.C} / <span style="color:var(--danger)">${counts.D}</span></div></div>
-    <div class="scorecard-summary-card"><div class="scorecard-summary-label">평균 점수</div><div class="scorecard-summary-value">${avg.toFixed(1)}</div></div>`;
+    <div class="scorecard-summary-card"><div class="scorecard-summary-label">평가 완료 평균</div><div class="scorecard-summary-value">${rated?avg.toFixed(1):'—'}</div></div>`;
 }
 
 function renderScorecardCandidates() {
   const el=document.getElementById('scorecard-candidates'); if(!el)return; const sc=getScorecardState();
   if(!sc.candidates.length){el.innerHTML='<div class="scorecard-empty">등록된 점검 종목이 없습니다.</div>';return;}
-  const sorted=[...sc.candidates].sort((a,b)=>getCandidateScore(b).score-getCandidateScore(a).score);
-  el.innerHTML=sorted.map(c=>{const x=getCandidateScore(c);return `<button class="scorecard-candidate ${c.id===sc.activeId?'active':''}" onclick="selectScorecardCandidate('${escapeAttr(c.id)}')"><div style="min-width:0"><div class="scorecard-candidate-ticker">${escapeHtml(c.ticker)}</div><div class="scorecard-candidate-name">${escapeHtml(c.name||c.ticker)}${c.exchange?' · '+escapeHtml(c.exchange):''} · ${x.score.toFixed(1)}점</div></div><span class="grade-badge ${scorecardGradeClass(x.finalGrade)}">${x.finalGrade}</span></button>`;}).join('');
+  const sorted=[...sc.candidates].sort((a,b)=>a.ticker.localeCompare(b.ticker));
+  el.innerHTML=sorted.map(c=>{const x=getCandidateScore(c);const scoreText=x.completed===x.total?x.score.toFixed(0)+'점':x.completed+'/'+x.total;return `<button class="scorecard-candidate ${c.id===sc.activeId?'active':''}" onclick="selectScorecardCandidate('${escapeAttr(c.id)}')"><div style="min-width:0"><div class="scorecard-candidate-ticker">${escapeHtml(c.ticker)}</div><div class="scorecard-candidate-name">${escapeHtml(c.name||c.ticker)}${c.exchange?' · '+escapeHtml(c.exchange):''} · ${scoreText}</div></div><span class="grade-badge ${scorecardGradeClass(x.finalGrade)}">${x.finalGrade}</span></button>`;}).join('');
+}
+
+function renderInvestmentCriterion(c, cr) {
+  const selectedId = c.scores?.[cr.id] || '';
+  const selected = getScorecardOption(cr, selectedId);
+  const helper = selected?.helper || '';
+  return `<div class="scorecard-invest-row">
+    <div><div class="scorecard-invest-name">${escapeHtml(cr.name)}</div><div class="scorecard-invest-max">항목 최대 ${Number(cr.maxScore||0)}점${selected?' · 현재 '+Number(selected.score||0)+'점':''}</div></div>
+    <div class="scorecard-invest-controls">
+      <select class="scorecard-choice" onchange="updateScorecardScore('${escapeAttr(c.id)}','${escapeAttr(cr.id)}',this.value,true)">
+        <option value="" ${!selectedId?'selected':''}>평가 기준 선택</option>
+        ${(cr.options||[]).map(o=>`<option value="${escapeAttr(o.id)}" ${selectedId===o.id?'selected':''}>${escapeHtml(o.label)} · ${Number(o.score||0)}점</option>`).join('')}
+      </select>
+      ${helper?`<div class="scorecard-choice-help">${escapeHtml(helper)}</div>`:''}
+      <textarea class="scorecard-note compact" placeholder="수치 출처, 판단 근거, 확인할 자료를 기록하세요." oninput="updateScorecardNote('${escapeAttr(c.id)}','${escapeAttr(cr.id)}',this.value)">${escapeHtml(c.notes?.[cr.id]||'')}</textarea>
+    </div>
+  </div>`;
 }
 
 function renderScorecardMain() {
   const body=document.getElementById('scorecard-main-body'); const title=document.getElementById('scorecard-active-title'); const sub=document.getElementById('scorecard-active-sub'); if(!body||!title||!sub)return;
   const c=getScorecardActiveCandidate(); const sc=getScorecardState();
-  if(!c){title.textContent='종목을 선택하세요';sub.textContent='평가표를 작성하면 총점과 등급이 자동 계산됩니다.';body.innerHTML='<div class="scorecard-empty">왼쪽에서 종목을 추가하거나 선택하세요.</div>';return;}
+  if(!c){title.textContent='종목을 선택하세요';sub.textContent='100점 투자표를 작성하면 총점과 등급이 자동 계산됩니다.';body.innerHTML='<div class="scorecard-empty">왼쪽에서 종목을 추가하거나 선택하세요.</div>';return;}
   const calc=getCandidateScore(c); title.textContent=c.ticker+' · '+(c.name||c.ticker); sub.textContent=(c.exchange||'거래소 미지정')+' · 마지막 수정 '+(c.updatedAt?new Date(c.updatedAt).toLocaleString('ko-KR'):'기록 없음');
+  const sectorCards=getInvestmentScorecardSectors().map(sec=>{const x=calc.sectorTotals[sec.id]||{score:0,maxScore:sec.maxScore,completed:0,total:0};return `<div class="scorecard-sector-mini"><span>${escapeHtml(sec.name)}</span><strong>${x.score} / ${sec.maxScore}</strong></div>`;}).join('');
+  const sectorsHtml=getInvestmentScorecardSectors().map(sec=>{
+    const rows=sc.criteria.filter(cr=>cr.sector===sec.id);
+    const x=calc.sectorTotals[sec.id]||{score:0,maxScore:sec.maxScore,completed:0,total:rows.length};
+    return `<section class="scorecard-sector"><div class="scorecard-sector-head"><div><div class="scorecard-sector-title">${escapeHtml(sec.name)}</div><div class="scorecard-sector-sub">${x.completed}/${x.total} 항목 평가 완료 · 섹터 총점 ${sec.maxScore}점</div></div><div class="scorecard-sector-score">${x.score} / ${sec.maxScore}</div></div><div class="scorecard-sector-body">${rows.map(cr=>renderInvestmentCriterion(c,cr)).join('')}</div></section>`;
+  }).join('');
+  const legacyNote=c.legacyEvaluation?'<div class="scorecard-standard-note">이 종목에는 v4의 이전 0~5점 평가 기록이 보존되어 있습니다. 새 100점 투자표는 초기화된 상태로 시작하며, 기존 과거 Snapshot은 히스토리에서 그대로 확인할 수 있습니다.</div>':'';
   body.innerHTML=`
     <div class="scorecard-overview">
-      <div class="scorecard-overview-card"><div class="scorecard-overview-label">총점</div><div id="sc-live-score" class="scorecard-overview-value">${calc.score.toFixed(1)}/100</div></div>
+      <div class="scorecard-overview-card"><div class="scorecard-overview-label">총점</div><div id="sc-live-score" class="scorecard-overview-value">${calc.score.toFixed(0)}/100</div></div>
       <div class="scorecard-overview-card"><div class="scorecard-overview-label">최종 등급</div><div style="margin-top:5px"><span id="sc-live-grade" class="grade-badge ${scorecardGradeClass(calc.finalGrade)}">${calc.finalGrade}</span></div></div>
       <div class="scorecard-overview-card"><div class="scorecard-overview-label">자동 등급</div><div class="scorecard-overview-value">${calc.autoGrade}</div></div>
       <div class="scorecard-overview-card"><div class="scorecard-overview-label">작성 진행</div><div id="sc-live-progress" class="scorecard-overview-value">${calc.completed}/${calc.total} 항목</div></div>
     </div>
     <div class="scorecard-total-bar"><div id="sc-live-fill" class="scorecard-total-fill" style="width:${Math.max(0,Math.min(100,calc.score))}%"></div></div>
+    <div class="scorecard-sector-mini-grid">${sectorCards}</div>
+    ${legacyNote}
+    <div class="scorecard-standard-note">고정 투자표 <span class="scorecard-fixed-badge">100 POINT STANDARD</span><br>각 항목에서 네 기준에 해당하는 선택지를 고르면 점수가 자동 합산됩니다. 표에 0점 구간이 비어 있던 배당수익률 3% 이하와 자사주 보유 5% 이상은 완결용 0점 선택지를 추가했습니다.</div>
     <div class="scorecard-grade-row">
       <div class="scorecard-inline-field"><label>최종 등급</label><select class="scorecard-select" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','manualGrade',this.value); renderScorecardMain();"><option value="" ${!c.manualGrade?'selected':''}>자동 (${calc.autoGrade==='—'?'평가 완료 후 산정':calc.autoGrade})</option>${['A','B','C','D'].map(g=>`<option value="${g}" ${c.manualGrade===g?'selected':''}>${g} · 수동 지정</option>`).join('')}</select></div>
       <div class="scorecard-inline-field"><label>현재 투자 결론</label><select class="scorecard-select" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','decision',this.value)">${['매수 후보','추가 조사','관찰','보유','추가매수 검토','보류','제외'].map(v=>`<option ${c.decision===v?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
-    <div class="scorecard-criteria-list">
-      ${sc.criteria.map(cr=>{const val=c.scores?.[cr.id];const n=(val===''||val===undefined||val===null)?'':Number(val);return `<div class="scorecard-criterion"><div class="scorecard-criterion-head"><div><div class="scorecard-criterion-name">${escapeHtml(cr.name)}</div><div class="scorecard-criterion-desc">${escapeHtml(cr.description||'')}</div></div><div class="scorecard-weight">가중치 ${Number(cr.weight||0).toFixed(0)}</div></div><div class="scorecard-score-row"><div class="scorecard-score-input"><input type="range" min="0" max="5" step="1" value="${n===''?0:n}" oninput="this.nextElementSibling.value=this.value;updateScorecardScore('${escapeAttr(c.id)}','${escapeAttr(cr.id)}',this.value)"><input class="scorecard-score-num" type="number" min="0" max="5" step="1" value="${n}" placeholder="-" onchange="updateScorecardScore('${escapeAttr(c.id)}','${escapeAttr(cr.id)}',this.value,true)"></div><textarea class="scorecard-note" placeholder="이 항목을 이렇게 평가한 근거를 기록하세요." oninput="updateScorecardNote('${escapeAttr(c.id)}','${escapeAttr(cr.id)}',this.value)">${escapeHtml(c.notes?.[cr.id]||'')}</textarea></div></div>`;}).join('')}
-    </div>
+    ${sectorsHtml}
     <div class="scorecard-footer-grid">
       <div class="scorecard-inline-field"><label>티커 / 종목명</label><input class="scorecard-field" value="${escapeAttr(c.name||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','name',this.value)"></div>
       <div class="scorecard-inline-field"><label>거래소</label><input class="scorecard-field" value="${escapeAttr(c.exchange||'')}" onchange="updateScorecardCandidateField('${escapeAttr(c.id)}','exchange',this.value.toUpperCase())"></div>
-      <div class="scorecard-inline-field full"><label>종합 판단 / 투자 기록</label><textarea class="scorecard-note" style="min-height:100px" placeholder="왜 이 등급을 줬는지, 매수한다면 무엇을 확인해야 하는지, 다음 점검 포인트를 기록하세요." oninput="updateScorecardCandidateField('${escapeAttr(c.id)}','finalNote',this.value)">${escapeHtml(c.finalNote||'')}</textarea></div>
+      <div class="scorecard-inline-field full"><label>종합 판단 / 투자 기록</label><textarea class="scorecard-note" style="min-height:100px" placeholder="왜 이 점수와 등급이 나왔는지, 투자 전 확인할 조건과 다음 점검 포인트를 기록하세요." oninput="updateScorecardCandidateField('${escapeAttr(c.id)}','finalNote',this.value)">${escapeHtml(c.finalNote||'')}</textarea></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="scorecard-btn primary" onclick="saveScorecardReview('${escapeAttr(c.id)}')">점검 기록 저장</button><button class="scorecard-btn" onclick="removeScorecardCandidate('${escapeAttr(c.id)}')" style="color:var(--danger);border-color:rgba(255,107,107,.25)">종목 삭제</button></div>
-    <div class="scorecard-history"><div class="scorecard-history-title">과거 점검 기록</div><div class="scorecard-history-list">${c.history?.length?c.history.map((h,i)=>`<button class="scorecard-history-row" onclick="restoreScorecardReview('${escapeAttr(c.id)}',${i})" title="이 기록을 현재 평가로 불러오기"><span class="date">${escapeHtml(new Date(h.savedAt).toLocaleDateString('ko-KR'))}</span><span class="score">${Number(h.score||0).toFixed(1)}</span><span class="grade-badge ${scorecardGradeClass(h.finalGrade||h.autoGrade)}" style="min-width:30px;height:26px;font-size:11px">${escapeHtml(h.finalGrade||h.autoGrade||'D')}</span><span style="text-align:left;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(h.decision||'')} · ${escapeHtml(h.finalNote||'기록 없음')}</span></button>`).join(''):'<div style="color:var(--muted);font-size:11px">저장된 과거 점검이 없습니다.</div>'}</div></div>`;
+    <div class="scorecard-history"><div class="scorecard-history-title">과거 점검 기록</div><div class="scorecard-history-list">${c.history?.length?c.history.map((h,i)=>`<button class="scorecard-history-row" onclick="restoreScorecardReview('${escapeAttr(c.id)}',${i})" title="${Number(h.schemaVersion||1)>=2?'이 기록을 현재 투자표로 불러오기':'이전 평가표 기록 · 조회만 가능'}"><span class="date">${escapeHtml(new Date(h.savedAt).toLocaleDateString('ko-KR'))}</span><span class="score">${Number(h.score||0).toFixed(0)}</span><span class="grade-badge ${scorecardGradeClass(h.finalGrade||h.autoGrade)}" style="min-width:30px;height:26px;font-size:11px">${escapeHtml(h.finalGrade||h.autoGrade||'—')}</span><span style="text-align:left;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Number(h.schemaVersion||1)>=2?'100점표':'v4 구평가표'} · ${escapeHtml(h.decision||'')} · ${escapeHtml(h.finalNote||'기록 없음')}</span></button>`).join(''):'<div style="color:var(--muted);font-size:11px">저장된 과거 점검이 없습니다.</div>'}</div></div>`;
 }
 
 function toggleScorecardSettings() { const sc=getScorecardState(); sc.settingsOpen=!sc.settingsOpen; saveState(); renderScorecardSettings(); }
 
 function renderScorecardSettings() {
-  const box=document.getElementById('scorecard-settings'); const list=document.getElementById('scorecard-criteria-settings'); if(!box||!list)return; const sc=getScorecardState(); box.classList.toggle('open',sc.settingsOpen);
-  list.innerHTML=sc.criteria.map((c,i)=>`<div class="scorecard-settings-row"><input value="${escapeAttr(c.name)}" onchange="updateScorecardCriterion(${i},'name',this.value)"><input value="${escapeAttr(c.description||'')}" onchange="updateScorecardCriterion(${i},'description',this.value)"><input type="number" min="0" value="${Number(c.weight||0)}" onchange="updateScorecardCriterion(${i},'weight',this.value)"><button onclick="removeScorecardCriterion(${i})">삭제</button></div>`).join('');
+  const box=document.getElementById('scorecard-settings'); if(!box)return; const sc=getScorecardState(); box.classList.toggle('open',sc.settingsOpen);
   const a=document.getElementById('sc-th-a'),b=document.getElementById('sc-th-b'),c=document.getElementById('sc-th-c');if(a)a.value=sc.thresholds.A;if(b)b.value=sc.thresholds.B;if(c)c.value=sc.thresholds.C;
 }
 
-function updateScorecardCriterion(index,field,value) { const sc=getScorecardState(); const c=sc.criteria[index];if(!c)return;c[field]=field==='weight'?Math.max(0,Number(value)||0):value;saveState();renderScorecard(); }
-function addScorecardCriterion() { const sc=getScorecardState();sc.criteria.push({id:'sc_custom_'+Date.now().toString(36),name:'새 평가 항목',description:'평가 기준을 입력하세요',weight:10});saveState();renderScorecard(); }
-function removeScorecardCriterion(index) { const sc=getScorecardState();if(sc.criteria.length<=1){toast('⚠ 평가 항목은 최소 1개가 필요합니다');return;}const removed=sc.criteria.splice(index,1)[0];sc.candidates.forEach(c=>{if(c.scores)delete c.scores[removed.id];if(c.notes)delete c.notes[removed.id];});saveState();renderScorecard(); }
-function updateScorecardThreshold(grade,value) { const sc=getScorecardState();sc.thresholds[grade]=Math.max(0,Math.min(100,Number(value)||0));if(sc.thresholds.B>sc.thresholds.A)sc.thresholds.B=sc.thresholds.A;if(sc.thresholds.C>sc.thresholds.B)sc.thresholds.C=sc.thresholds.B;saveState();renderScorecard(); }
+function updateScorecardThreshold(grade,value) {
+  const sc=getScorecardState(); sc.thresholds[grade]=Math.max(0,Math.min(100,Number(value)||0));
+  if(sc.thresholds.B>sc.thresholds.A)sc.thresholds.B=sc.thresholds.A;
+  if(sc.thresholds.C>sc.thresholds.B)sc.thresholds.C=sc.thresholds.B;
+  saveState(); renderScorecard();
+}
+
+function resetScorecardThresholds() {
+  const sc=getScorecardState(); sc.thresholds={A:85,B:70,C:55}; saveState(); renderScorecard(); toast('✓ 등급 기준 기본값 복원');
+}
 
 function renderScorecard() { if(!document.getElementById('tab-scorecard'))return;getScorecardState();renderScorecardSummary();renderScorecardCandidates();renderScorecardMain();renderScorecardSettings(); }
 
