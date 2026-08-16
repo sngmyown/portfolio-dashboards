@@ -1352,6 +1352,79 @@
     .scorecard-history-row { grid-template-columns:1fr 1fr; }
   }
 
+
+
+  /* ── V8: INVESTMENT PRINCIPLES + EXPANDED CHECKLIST EDITOR ── */
+  .principles-card {
+    background: linear-gradient(135deg, rgba(125,249,170,0.055), rgba(79,195,247,0.025));
+    border: 1px solid rgba(125,249,170,0.18);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .principles-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .principles-kicker {
+    font-size: 10px; color: var(--accent); font-family: var(--mono);
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px;
+  }
+  .principles-title { font-size: 15px; font-weight: 800; }
+  .principles-note { font-size: 11px; color: var(--muted); line-height: 1.6; margin-top: 4px; }
+  .principles-status { font-size: 10px; color: var(--muted); font-family: var(--mono); white-space: nowrap; }
+  .principles-body { padding: 14px 18px 16px; }
+  .principles-textarea {
+    width: 100%; min-height: 150px; resize: vertical;
+    background: rgba(10,10,15,.55); border: 1px solid var(--border2); border-radius: 10px;
+    color: var(--text); padding: 13px 14px; outline: none;
+    font-family: var(--sans); font-size: 13px; line-height: 1.8;
+  }
+  .principles-textarea:focus { border-color: rgba(125,249,170,.38); box-shadow: 0 0 0 3px rgba(125,249,170,.05); }
+
+  .check-answer-label-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .check-answer-label-row .check-answer-label { margin-bottom: 0; }
+  .check-expand-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px;
+    color: var(--muted); padding: 4px 8px; cursor: pointer;
+    font-family: var(--mono); font-size: 10px; white-space: nowrap;
+    transition: all .15s;
+  }
+  .check-expand-btn:hover { color: var(--accent); border-color: rgba(125,249,170,.35); background: rgba(125,249,170,.06); }
+
+  .answer-editor-modal {
+    width: min(920px, 94vw); max-width: 94vw; padding: 0; overflow: hidden;
+  }
+  .answer-editor-head {
+    padding: 18px 20px 15px; border-bottom: 1px solid var(--border); background: var(--surface2);
+  }
+  .answer-editor-kicker { font-size: 10px; color: var(--accent); font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .answer-editor-title { font-size: 17px; font-weight: 800; margin-top: 5px; line-height: 1.45; }
+  .answer-editor-tip { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+  .answer-editor-body { padding: 18px 20px; }
+  .answer-editor-textarea {
+    width: 100%; min-height: min(58vh, 560px); resize: vertical;
+    background: #0d0d14; border: 1px solid var(--border2); border-radius: 10px;
+    color: var(--text); padding: 16px 17px; outline: none;
+    font-family: var(--sans); font-size: 15px; line-height: 1.85;
+  }
+  .answer-editor-textarea:focus { border-color: rgba(125,249,170,.4); box-shadow: 0 0 0 3px rgba(125,249,170,.05); }
+  .answer-editor-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 20px 16px;
+  }
+  .answer-editor-save-status { color: var(--muted); font-size: 10px; font-family: var(--mono); }
+
+  @media (max-width: 760px) {
+    .principles-head { flex-direction: column; }
+    .answer-editor-textarea { min-height: 52vh; font-size: 14px; }
+  }
+
 </style>
 </head>
 <body>
@@ -1422,6 +1495,21 @@
         <div style="font-size:10px; color:var(--muted); font-family:var(--mono); margin-top:3px;">견딜 수 있는 금액 기준</div>
       </div>
     </div>
+
+    <!-- V8: MY INVESTMENT PRINCIPLES -->
+    <section class="principles-card" aria-labelledby="principles-title">
+      <div class="principles-head">
+        <div>
+          <div class="principles-kicker">MY LONG-TERM INVESTMENT PRINCIPLES</div>
+          <div class="principles-title" id="principles-title">장기투자 원칙</div>
+          <div class="principles-note">내가 반드시 지켜야 할 원칙을 직접 작성합니다. 입력 내용은 이 브라우저에 자동 저장되고 JSON 백업에도 포함됩니다.</div>
+        </div>
+        <div class="principles-status" id="principles-save-status">자동 저장</div>
+      </div>
+      <div class="principles-body">
+        <textarea id="investment-principles-text" class="principles-textarea" placeholder="예) 1. Thesis가 무너지면 가격과 무관하게 재평가한다.&#10;2. Scorecard 변화가 장기 의사결정의 핵심 기준이다.&#10;3. 가격은 기업의 질이 확인된 이후 진입 타이밍 판단에만 사용한다."></textarea>
+      </div>
+    </section>
 
     <!-- ② 현금 & 포트폴리오 비중 + 수익률 비교 -->
     <div style="display:grid; grid-template-columns:1fr 1.6fr; gap:16px; margin-bottom:20px;">
@@ -1799,6 +1887,24 @@
   </div>
 </div>
 
+<!-- V8: MODAL — EXPANDED CHECKLIST ANSWER EDITOR -->
+<div class="modal-overlay" id="check-answer-modal" onclick="if(event.target===this)closeChecklistAnswerModal()">
+  <div class="modal answer-editor-modal" role="dialog" aria-modal="true" aria-labelledby="check-answer-modal-title">
+    <div class="answer-editor-head">
+      <div class="answer-editor-kicker" id="check-answer-modal-stock">MONTHLY CHECKLIST</div>
+      <div class="answer-editor-title" id="check-answer-modal-title">내 답변 / 이번 달 판단 기록</div>
+      <div class="answer-editor-tip" id="check-answer-modal-tip"></div>
+    </div>
+    <div class="answer-editor-body">
+      <textarea id="check-answer-modal-textarea" class="answer-editor-textarea" placeholder="이번 달 판단, 근거, 변화, 다음 행동을 충분히 기록하세요."></textarea>
+    </div>
+    <div class="answer-editor-foot">
+      <div class="answer-editor-save-status" id="check-answer-modal-status">입력 즉시 자동 저장됩니다.</div>
+      <button class="modal-confirm" style="flex:0 0 auto; min-width:120px;" onclick="closeChecklistAnswerModal()">완료</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Add Position -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal">
@@ -1882,7 +1988,8 @@ function loadState() {
     chartType: 'candlestick',
     chartInterval: 'D',
     monthlyReports: {},
-    scorecard: makeDefaultScorecardState()
+    scorecard: makeDefaultScorecardState(),
+    investmentPrinciples: ''
   };
 }
 
@@ -1940,7 +2047,8 @@ function normalizeState(nextState) {
     lastFullCheck: nextState.lastFullCheck || '',
     monthlyChecklistMeta: nextState.monthlyChecklistMeta || {},
     monthlyReports: nextState.monthlyReports || {},
-    scorecard: normalizeScorecardState(nextState.scorecard)
+    scorecard: normalizeScorecardState(nextState.scorecard),
+    investmentPrinciples: typeof nextState.investmentPrinciples === 'string' ? nextState.investmentPrinciples : ''
   };
 }
 
@@ -3072,7 +3180,10 @@ function renderStockChecklistItem(stockId, cat, item) {
       </div>
 
       <div class="check-answer-wrap">
-        <div class="check-answer-label">내 답변 / 이번 달 판단 기록</div>
+        <div class="check-answer-label-row">
+          <div class="check-answer-label">내 답변 / 이번 달 판단 기록</div>
+          <button type="button" class="check-expand-btn" data-expand-answer="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}" title="큰 화면에서 작성">↗ 확대</button>
+        </div>
         <textarea
           class="check-answer-textarea"
           data-check-answer="${escapeAttr(stockId)}|${cat}|${escapeAttr(item.id)}"
@@ -3108,6 +3219,14 @@ function bindStockChecklistGridEvents() {
       if (status) {
         status.textContent = '저장됨 ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
       }
+    });
+  });
+
+  gridEl.querySelectorAll('[data-expand-answer]').forEach(button => {
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const [stockId, cat, itemId] = button.dataset.expandAnswer.split('|');
+      openChecklistAnswerModal(stockId, cat, itemId);
     });
   });
 
@@ -4755,6 +4874,89 @@ function printLongtermReport() {
 }
 
 // ════════════════════════════════
+// V8 · INVESTMENT PRINCIPLES
+// ════════════════════════════════
+function renderInvestmentPrinciples() {
+  const textarea = document.getElementById('investment-principles-text');
+  if (!textarea) return;
+  if (textarea.value !== (state.investmentPrinciples || '')) textarea.value = state.investmentPrinciples || '';
+  if (!textarea.dataset.bound) {
+    textarea.dataset.bound = '1';
+    textarea.addEventListener('input', () => {
+      state.investmentPrinciples = textarea.value;
+      saveState();
+      const status = document.getElementById('principles-save-status');
+      if (status) status.textContent = '저장됨 ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+    });
+  }
+}
+
+// ════════════════════════════════
+// V8 · EXPANDED MONTHLY CHECKLIST ANSWER EDITOR
+// ════════════════════════════════
+let expandedAnswerContext = null;
+
+function findChecklistItem(stockId, cat, itemId) {
+  const lists = getStockChecklists(stockId);
+  return (lists?.[cat] || []).find(item => String(item.id) === String(itemId)) || null;
+}
+
+function openChecklistAnswerModal(stockId, cat, itemId) {
+  const stock = getStockById(stockId);
+  const item = findChecklistItem(stockId, cat, itemId);
+  if (!item) return;
+  const bucket = getStockChecklistBucket(stockId);
+  const key = getCheckKey(cat, item);
+  expandedAnswerContext = { stockId, cat, itemId, key };
+
+  const modal = document.getElementById('check-answer-modal');
+  const textarea = document.getElementById('check-answer-modal-textarea');
+  const stockEl = document.getElementById('check-answer-modal-stock');
+  const titleEl = document.getElementById('check-answer-modal-title');
+  const tipEl = document.getElementById('check-answer-modal-tip');
+  const statusEl = document.getElementById('check-answer-modal-status');
+  if (!modal || !textarea) return;
+
+  if (stockEl) stockEl.textContent = `${stock ? getStockDisplayName(stock) : stockId} · ${CHECK_LABELS[cat] || cat}`;
+  if (titleEl) titleEl.textContent = item.text || '내 답변 / 이번 달 판단 기록';
+  if (tipEl) tipEl.textContent = item.tip || '이번 달 판단과 근거를 충분히 기록하세요.';
+  textarea.value = bucket.answers?.[key] || '';
+  if (statusEl) statusEl.textContent = '입력 즉시 자동 저장됩니다.';
+
+  textarea.oninput = () => {
+    if (!expandedAnswerContext) return;
+    updateChecklistAnswerForStock(stockId, cat, itemId, textarea.value);
+
+    const selector = `[data-check-answer="${CSS.escape(stockId + '|' + cat + '|' + itemId)}"]`;
+    const inline = document.querySelector(selector);
+    if (inline && inline.value !== textarea.value) inline.value = textarea.value;
+
+    const grid = document.getElementById('stock-checklist-grid');
+    const status = grid?.querySelector(`[data-answer-status="${CSS.escape(stockId + '|' + cat + '|' + itemId)}"]`);
+    const now = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+    if (status) status.textContent = '저장됨 ' + now;
+    if (statusEl) statusEl.textContent = '자동 저장됨 ' + now;
+  };
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => textarea.focus(), 0);
+}
+
+function closeChecklistAnswerModal() {
+  const modal = document.getElementById('check-answer-modal');
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+  expandedAnswerContext = null;
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.getElementById('check-answer-modal')?.classList.contains('open')) {
+    closeChecklistAnswerModal();
+  }
+});
+
+// ════════════════════════════════
 // NEXT CHECK DATE
 // ════════════════════════════════
 function computeNextCheck() {
@@ -4771,11 +4973,13 @@ if (!state.cashItems) state.cashItems = [];
 if (!state.scenarioByTicker) state.scenarioByTicker = {};
 if (!state.customChecklists) state.customChecklists = null;
 if (typeof state.checklistEditMode !== 'boolean') state.checklistEditMode = false;
+if (typeof state.investmentPrinciples !== 'string') state.investmentPrinciples = '';
 
 // ════════════════════════════════
 // INIT
 // ════════════════════════════════
 renderPositions();
+renderInvestmentPrinciples();
 renderScorecard();
 renderScorecardHistory();
 renderMonthlyReport();
