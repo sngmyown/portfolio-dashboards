@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Long-Term Portfolio Tracker v10</title>
+<title>Long-Term Portfolio Tracker v11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -929,13 +929,13 @@
   .modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
   .modal-field { margin-bottom: 14px; }
   .modal-field label { display: block; font-size: 11px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; margin-bottom: 6px; }
-  .modal-field input {
+  .modal-field input, .modal-field select {
     width: 100%; background: var(--surface2);
     border: 1px solid var(--border2); border-radius: 8px;
     color: var(--text); font-size: 14px; font-family: var(--mono);
     padding: 10px 12px; outline: none; transition: border-color 0.15s;
   }
-  .modal-field input:focus { border-color: rgba(125,249,170,0.4); }
+  .modal-field input:focus, .modal-field select:focus { border-color: rgba(125,249,170,0.4); }
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
   .modal-cancel {
     flex: 1; padding: 10px; border-radius: 8px;
@@ -1072,6 +1072,45 @@
     .scorecard-invest-row { grid-template-columns:1fr; }
     .scorecard-sector-mini-grid { grid-template-columns:1fr; }
   }
+
+  /* ── V11: MULTI-CURRENCY USD / KRW ── */
+  .fx-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, rgba(79,195,247,0.07), rgba(125,249,170,0.04));
+    border: 1px solid rgba(79,195,247,0.22);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+  .fx-panel-title { font-size: 12px; font-weight: 800; }
+  .fx-panel-note { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 3px; line-height: 1.5; }
+  .fx-rate-control { display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .fx-rate-input {
+    width: 110px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 9px;
+    outline: none;
+    text-align: right;
+  }
+  .fx-rate-input:focus { border-color: rgba(79,195,247,.5); }
+  .sum-dual-main { font-size: 20px; line-height: 1.15; }
+  .sum-dual-sub { font-size: 10px; color: var(--muted); margin-top: 5px; font-weight: 400; white-space: nowrap; }
+  .currency-chip {
+    display:inline-flex; align-items:center; padding:2px 6px; border-radius:999px;
+    font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:.05em;
+    background:rgba(79,195,247,.08); border:1px solid rgba(79,195,247,.2); color:var(--accent2);
+  }
+
 
   /* Responsive */
   @media (max-width: 900px) {
@@ -1470,6 +1509,17 @@
   <!-- ════ TAB: POSITIONS ════ -->
   <div id="tab-positions" class="tab-content active">
 
+    <!-- V11: USD/KRW 환산 기준 -->
+    <div class="fx-panel">
+      <div>
+        <div class="fx-panel-title">통화 환산 기준 · USD / KRW</div>
+        <div class="fx-panel-note">한국·미국 주식을 한 계좌에서 비교할 때 비중/총자산 계산에 사용합니다. 환율은 직접 입력하며 자동 저장됩니다.</div>
+      </div>
+      <label class="fx-rate-control">1 USD = ₩
+        <input id="fx-rate-krw" class="fx-rate-input" type="number" min="1" step="1" value="1300" oninput="updateFxRate(this.value)" onblur="renderPositions()">
+      </label>
+    </div>
+
     <!-- ① 총계좌 요약 헤더 -->
     <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px;" id="summary-bar-top">
       <div class="sum-card" style="border-left:3px solid var(--accent);">
@@ -1578,7 +1628,7 @@
 
   <!-- 현금 편집 모달 -->
   <div class="modal-overlay" id="cash-modal">
-    <div class="modal" style="width:460px;">
+    <div class="modal" style="width:620px;">
       <h3>현금 & 예수금 관리</h3>
       <div id="cash-modal-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px; max-height:300px; overflow-y:auto;"></div>
       <button onclick="addCashRow()" style="width:100%; padding:9px; border-radius:8px; background:var(--surface2); border:1px dashed var(--border2); color:var(--muted); font-size:13px; cursor:pointer; font-family:var(--sans);">+ 현금 항목 추가</button>
@@ -1914,10 +1964,18 @@
     </div>
     <div class="modal-field">
       <label>종목명 (선택)</label>
-      <input type="text" id="m-name" placeholder="예: NuScale Power">
+      <input type="text" id="m-name" placeholder="예: NuScale Power / KB금융">
     </div>
     <div class="modal-field">
-      <label>평균 매수가 (USD / KRW)</label>
+      <label>가격 통화</label>
+      <select id="m-currency" onchange="updatePositionCurrencyHint()">
+        <option value="USD">USD · 미국 달러 ($)</option>
+        <option value="KRW">KRW · 대한민국 원 (₩)</option>
+      </select>
+      <div class="target-weight-hint" id="m-currency-hint">평균 매수가와 현재가를 달러로 입력합니다.</div>
+    </div>
+    <div class="modal-field">
+      <label id="m-avg-label">평균 매수가 (USD)</label>
       <input type="number" id="m-avg" placeholder="예: 18.50" step="0.01">
     </div>
     <div class="modal-field">
@@ -1925,7 +1983,7 @@
       <input type="number" id="m-qty" placeholder="예: 100" step="1">
     </div>
     <div class="modal-field">
-      <label>현재가 (USD / KRW)</label>
+      <label id="m-price-label">현재가 (USD)</label>
       <input type="number" id="m-price" placeholder="예: 18.83" step="0.01">
     </div>
     <div class="modal-field">
@@ -1979,6 +2037,7 @@ function loadState() {
     activeChecklistStockId: '',
     monthlyChecklistMeta: {},
     cashItems: [],
+    fxRateKrwPerUsd: 1300,
     scenarios: { bull: '', base: '', bear: '', bull_t1: '', bull_t2: '', base_t1: '', base_t2: '', bear_t1: '', bear_t2: '', lastSave: '' },
     scenarioByTicker: {},
     customChecklists: null,
@@ -2014,18 +2073,90 @@ function escapeHtml(value) {
 }
 function escapeAttr(value) { return escapeHtml(value); }
 
+function normalizeCurrency(value) {
+  return String(value || '').toUpperCase() === 'KRW' ? 'KRW' : 'USD';
+}
+
+function getFxRate() {
+  const rate = Number(state?.fxRateKrwPerUsd || 1300);
+  return rate > 0 ? rate : 1300;
+}
+
+function toUsd(amount, currency='USD', fxRate=getFxRate()) {
+  const value = Number(amount || 0);
+  return normalizeCurrency(currency) === 'KRW' ? value / Math.max(Number(fxRate) || 1, 1) : value;
+}
+
+function usdToKrw(amountUsd, fxRate=getFxRate()) {
+  return Number(amountUsd || 0) * Math.max(Number(fxRate) || 1, 1);
+}
+
+function formatPositionMoney(amount, currency='USD') {
+  const cur = normalizeCurrency(currency);
+  const n = Number(amount || 0);
+  if (cur === 'KRW') { const core='₩'+Math.round(Math.abs(n)).toLocaleString('ko-KR'); return n<0?'-'+core:core; }
+  const core='$'+Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n<0?'-'+core:core;
+}
+
+function formatBaseUsd(amountUsd, signed=false) {
+  const n = Number(amountUsd || 0);
+  const sign = signed && n > 0 ? '+' : '';
+  const core = '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n < 0 ? '-'+core : sign+core;
+}
+
+function formatBaseKrwFromUsd(amountUsd, signed=false) {
+  const n = usdToKrw(amountUsd);
+  const sign = signed && n > 0 ? '+' : '';
+  const core = '₩' + Math.round(Math.abs(n)).toLocaleString('ko-KR');
+  return n < 0 ? '-'+core : sign+core;
+}
+
+function dualMoneyHtml(amountUsd, signed=false) {
+  return `<div class="sum-dual-main">${formatBaseUsd(amountUsd, signed)}</div><div class="sum-dual-sub">≈ ${formatBaseKrwFromUsd(amountUsd, signed)}</div>`;
+}
+
+function updateFxRate(value) {
+  const next = Number(value);
+  if (!(next > 0)) return;
+  state.fxRateKrwPerUsd = next;
+  saveState();
+  renderPositions();
+  if (document.getElementById('tab-report')?.classList.contains('active')) renderMonthlyReport();
+}
+
+function updatePositionCurrencyHint() {
+  const select = document.getElementById('m-currency');
+  if (!select) return;
+  const cur = normalizeCurrency(select.value);
+  const isKrw = cur === 'KRW';
+  const avgLabel = document.getElementById('m-avg-label');
+  const priceLabel = document.getElementById('m-price-label');
+  const hint = document.getElementById('m-currency-hint');
+  if (avgLabel) avgLabel.textContent = `평균 매수가 (${cur})`;
+  if (priceLabel) priceLabel.textContent = `현재가 (${cur})`;
+  if (hint) hint.textContent = isKrw ? '평균 매수가와 현재가를 원화(₩)로 입력합니다.' : '평균 매수가와 현재가를 달러($)로 입력합니다.';
+  const avg = document.getElementById('m-avg');
+  const price = document.getElementById('m-price');
+  if (avg) avg.step = isKrw ? '1' : '0.01';
+  if (price) price.step = isKrw ? '1' : '0.01';
+}
+
 function normalizeState(nextState) {
   return {
     positions: Array.isArray(nextState.positions) ? nextState.positions.map((pos, idx) => ({
       ...pos,
       id: pos.id || makeLegacyPositionId(pos, idx),
-      targetWeight: Number(pos.targetWeight || 0)
+      targetWeight: Number(pos.targetWeight || 0),
+      currency: normalizeCurrency(pos.currency)
     })) : [],
     checklistState: nextState.checklistState || {},
     monthlyChecklistState: nextState.monthlyChecklistState || {},
     checklistStockNames: nextState.checklistStockNames || {},
     activeChecklistStockId: nextState.activeChecklistStockId || '',
-    cashItems: Array.isArray(nextState.cashItems) ? nextState.cashItems : [],
+    cashItems: Array.isArray(nextState.cashItems) ? nextState.cashItems.map(c => ({ ...c, currency: normalizeCurrency(c.currency) })) : [],
+    fxRateKrwPerUsd: Number(nextState.fxRateKrwPerUsd) > 0 ? Number(nextState.fxRateKrwPerUsd) : 1300,
     scenarios: nextState.scenarios || {
       bull: '', base: '', bear: '',
       bull_t1: '', bull_t2: '',
@@ -2165,23 +2296,26 @@ function renderPositions() {
   const grid = document.getElementById('positions-grid');
   grid.innerHTML = '';
 
-  let totalInvested = 0, totalValue = 0;
+  const fxRate = getFxRate();
+  const fxInput = document.getElementById('fx-rate-krw');
+  if (fxInput && document.activeElement !== fxInput) fxInput.value = String(Math.round(fxRate));
+
+  let totalInvestedUsd = 0, totalValueUsd = 0;
 
   state.positions.forEach((pos, idx) => {
-    const invested = pos.avgPrice * pos.qty;
-    const value = pos.currentPrice * pos.qty;
+    const currency = normalizeCurrency(pos.currency);
+    const invested = Number(pos.avgPrice || 0) * Number(pos.qty || 0);
+    const value = Number(pos.currentPrice || 0) * Number(pos.qty || 0);
     const pnl = value - invested;
     const pct = invested > 0 ? ((pnl / invested) * 100) : 0;
-    const stopLoss = pos.avgPrice * 0.7;
-    const stopLossTotal = stopLoss * pos.qty;
+    const stopLoss = Number(pos.avgPrice || 0) * 0.7;
+    const stopLossTotal = stopLoss * Number(pos.qty || 0);
     const barPct = Math.max(0, Math.min(100, 50 + pct * 1.2));
 
-    totalInvested += invested;
-    totalValue += value;
+    totalInvestedUsd += toUsd(invested, currency, fxRate);
+    totalValueUsd += toUsd(value, currency, fxRate);
 
-    const isUSD = pos.currency !== 'KRW';
-    const sym = pos.currency === 'KRW' ? '₩' : '$';
-    const fmt = (n) => sym + (isUSD ? n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : Math.round(n).toLocaleString('ko-KR'));
+    const fmt = (n) => formatPositionMoney(n, currency);
     const pctClass = pct >= 0 ? 'pos' : 'neg';
     const pnlSign = pct >= 0 ? '+' : '';
     const tvSymbol = encodeURIComponent((pos.exchange || 'NASDAQ') + ':' + pos.ticker);
@@ -2192,18 +2326,18 @@ function renderPositions() {
     grid.innerHTML += `
       <div class="position-card active-pos" style="border-top:3px solid ${color};">
         <div class="pos-header">
-          <div class="pos-ticker">${pos.ticker}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="pos-ticker">${escapeHtml(pos.ticker)}</div><span class="currency-chip">${currency}</span></div>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
             ${scoreResult && ['A','B','C','D'].includes(scoreResult.finalGrade) ? `<span class="grade-badge ${scorecardGradeClass(scoreResult.finalGrade)}" title="종목 스코어카드 자동 연계">${scoreResult.finalGrade} · ${scoreResult.score.toFixed(0)}점</span>` : ''}
             <div class="pos-status status-active">활성</div>
           </div>
         </div>
         <div class="pos-body">
-          <div class="pos-name">${pos.name} <span style="font-size:10px; color:var(--muted);">${pos.exchange || ''}</span></div>
+          <div class="pos-name">${escapeHtml(pos.name)} <span style="font-size:10px; color:var(--muted);">${escapeHtml(pos.exchange || '')}</span></div>
           <div class="pos-metrics">
             <div class="metric-item"><label>평균 매수가</label><div class="val">${fmt(pos.avgPrice)}</div></div>
             <div class="metric-item"><label>현재가</label><div class="val ${pctClass}">${fmt(pos.currentPrice)}</div></div>
-            <div class="metric-item"><label>보유 수량</label><div class="val">${pos.qty.toLocaleString()}</div></div>
+            <div class="metric-item"><label>보유 수량</label><div class="val">${Number(pos.qty || 0).toLocaleString()}</div></div>
             <div class="metric-item"><label>목표 비중</label><div class="val">${Number(pos.targetWeight || 0) > 0 ? Number(pos.targetWeight).toFixed(1) + '%' : '미설정'}</div></div>
             <div class="metric-item"><label>평가손익</label><div class="val ${pctClass}">${pnlSign}${fmt(pnl)}</div></div>
             <div class="metric-item"><label>투자금</label><div class="val">${fmt(invested)}</div></div>
@@ -2223,7 +2357,6 @@ function renderPositions() {
       </div>`;
   });
 
-  // 빈 슬롯
   for (let i = state.positions.length; i < MAX_POSITIONS; i++) {
     grid.innerHTML += `
       <div class="position-card add-slot" onclick="openModal()">
@@ -2232,26 +2365,23 @@ function renderPositions() {
       </div>`;
   }
 
-  // 요약 계산
-  const totalPnl = totalValue - totalInvested;
-  const totalPct = totalInvested > 0 ? (totalPnl / totalInvested) * 100 : 0;
-  const totalCash = (state.cashItems || []).reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
-  const totalAccount = totalValue + totalCash;
+  const totalPnlUsd = totalValueUsd - totalInvestedUsd;
+  const totalPct = totalInvestedUsd > 0 ? (totalPnlUsd / totalInvestedUsd) * 100 : 0;
+  const totalCashUsd = (state.cashItems || []).reduce((s, c) => s + toUsd(Number(c.amount || 0), c.currency, fxRate), 0);
+  const totalAccountUsd = totalValueUsd + totalCashUsd;
 
-  const fmtD = (n) => (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-
-  document.getElementById('sum-total-account').textContent = fmtD(totalAccount);
-  document.getElementById('sum-invested').textContent = fmtD(totalInvested);
+  document.getElementById('sum-total-account').innerHTML = dualMoneyHtml(totalAccountUsd);
+  document.getElementById('sum-invested').innerHTML = dualMoneyHtml(totalInvestedUsd);
   const pnlEl = document.getElementById('sum-pnl');
-  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + fmtD(totalPnl);
-  pnlEl.className = 'sum-val ' + (totalPnl >= 0 ? 'accent' : 'danger');
+  pnlEl.innerHTML = dualMoneyHtml(totalPnlUsd, true);
+  pnlEl.className = 'sum-val ' + (totalPnlUsd >= 0 ? 'accent' : 'danger');
   const pctEl = document.getElementById('sum-pct');
   pctEl.textContent = (totalPct >= 0 ? '+' : '') + totalPct.toFixed(2) + '%';
   pctEl.className = 'sum-val ' + (totalPct >= 0 ? 'accent' : 'danger');
-  document.getElementById('sum-stop').textContent = fmtD(totalInvested * 0.3);
+  document.getElementById('sum-stop').innerHTML = dualMoneyHtml(totalInvestedUsd * 0.3);
 
   renderCashList();
-  renderDonut(totalInvested, totalCash);
+  renderDonut();
   renderPerfChart();
   renderStopLossBars();
   renderQuickLinks();
@@ -2263,84 +2393,72 @@ function renderCashList() {
   const el = document.getElementById('cash-list');
   if (!el) return;
   const items = state.cashItems || [];
-  const totalCash = items.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+  const fxRate = getFxRate();
+  const totalCashUsd = items.reduce((sum, c) => sum + toUsd(Number(c.amount || 0), c.currency, fxRate), 0);
 
   if (items.length === 0) {
     el.innerHTML = `<div style="font-size:12px; color:var(--muted); text-align:center; padding:8px;">현금 항목 없음 — 편집 버튼으로 추가하세요</div>`;
   } else {
-    el.innerHTML = items.map((c, i) => {
-      const pct = totalCash > 0 ? ((parseFloat(c.amount) / totalCash) * 100).toFixed(1) : '0.0';
+    el.innerHTML = items.map((c) => {
+      const cur = normalizeCurrency(c.currency);
+      const usdValue = toUsd(Number(c.amount || 0), cur, fxRate);
+      const pct = totalCashUsd > 0 ? (usdValue / totalCashUsd * 100).toFixed(1) : '0.0';
       return `
-        <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
-          <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
             <div style="width:6px; height:6px; border-radius:50%; background:var(--accent2);"></div>
-            <span style="color:var(--muted); font-family:var(--mono); font-size:11px;">${c.label}</span>
+            <span style="color:var(--muted); font-family:var(--mono); font-size:11px; overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(c.label)}</span>
+            <span class="currency-chip">${cur}</span>
           </div>
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:10px; color:var(--muted); font-family:var(--mono);">${pct}%</span>
-            <span style="font-weight:700; font-family:var(--mono);">$${parseFloat(c.amount).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+            <span style="font-weight:700; font-family:var(--mono);">${formatPositionMoney(c.amount, cur)}</span>
           </div>
         </div>`;
     }).join('');
   }
 
   const totalEl = document.getElementById('cash-total');
-  if (totalEl) totalEl.textContent = '$' + totalCash.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (totalEl) totalEl.innerHTML = `${formatBaseUsd(totalCashUsd)} <span style="font-size:10px;color:var(--muted);font-weight:400;">≈ ${formatBaseKrwFromUsd(totalCashUsd)}</span>`;
 }
 
 // ── 도넛 차트 ──
-function renderDonut(totalInvested, totalCash) {
+function renderDonut() {
   const canvas = document.getElementById('donut-chart');
   const legend = document.getElementById('donut-legend');
   if (!canvas || !legend) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
+  const fxRate = getFxRate();
 
   const slices = [];
   state.positions.forEach((pos, i) => {
-    const val = pos.currentPrice * pos.qty;
-    if (val > 0) slices.push({ label: pos.ticker, value: val, color: PALETTE[i % PALETTE.length] });
+    const nativeValue = Number(pos.currentPrice || 0) * Number(pos.qty || 0);
+    const valueUsd = toUsd(nativeValue, pos.currency, fxRate);
+    if (valueUsd > 0) slices.push({ label: pos.ticker, value: valueUsd, color: PALETTE[i % PALETTE.length] });
   });
-  if (totalCash > 0) slices.push({ label: '현금', value: totalCash, color: '#4FC3F7' });
+  const totalCashUsd = (state.cashItems || []).reduce((sum,c)=>sum+toUsd(Number(c.amount||0),c.currency,fxRate),0);
+  if (totalCashUsd > 0) slices.push({ label: '현금', value: totalCashUsd, color: '#4FC3F7' });
 
-  const total = slices.reduce((s, sl) => s + sl.value, 0);
-  if (total === 0) { ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.arc(W/2, H/2, 55, 0, Math.PI*2); ctx.fill(); return; }
+  const total = slices.reduce((sum, sl) => sum + sl.value, 0);
+  if (total === 0) { ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.arc(W/2, H/2, 55, 0, Math.PI*2); ctx.fill(); legend.innerHTML=''; return; }
 
   let startAngle = -Math.PI / 2;
   const cx = W / 2, cy = H / 2, outerR = 58, innerR = 34, gap = 0.025;
-
   slices.forEach(sl => {
     const angle = (sl.value / total) * Math.PI * 2;
     ctx.beginPath();
     ctx.arc(cx, cy, outerR, startAngle + gap, startAngle + angle - gap);
     ctx.arc(cx, cy, innerR, startAngle + angle - gap, startAngle + gap, true);
-    ctx.closePath();
-    ctx.fillStyle = sl.color;
-    ctx.fill();
-    startAngle += angle;
+    ctx.closePath(); ctx.fillStyle = sl.color; ctx.fill(); startAngle += angle;
   });
+  ctx.fillStyle = 'rgba(10,10,15,0.9)'; ctx.beginPath(); ctx.arc(cx, cy, innerR - 2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#F0F0F5'; ctx.font = '700 13px Space Mono, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(slices.length + '개', cx, cy);
 
-  // 중앙 텍스트
-  ctx.fillStyle = 'rgba(10,10,15,0.9)';
-  ctx.beginPath(); ctx.arc(cx, cy, innerR - 2, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#F0F0F5';
-  ctx.font = '700 13px Space Mono, monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(slices.length + '개', cx, cy);
-
-  // 범례
   legend.innerHTML = slices.map(sl => {
     const pct = ((sl.value / total) * 100).toFixed(1);
-    return `
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <div style="width:8px; height:8px; border-radius:2px; background:${sl.color}; flex-shrink:0;"></div>
-          <span style="font-size:11px; font-family:var(--mono); color:var(--muted);">${sl.label}</span>
-        </div>
-        <span style="font-size:12px; font-weight:700; font-family:var(--mono);">${pct}%</span>
-      </div>`;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:2px;background:${sl.color};flex-shrink:0;"></div><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">${escapeHtml(sl.label)}</span></div><span style="font-size:12px;font-weight:700;font-family:var(--mono);">${pct}%</span></div>`;
   }).join('');
 }
 
@@ -2348,64 +2466,31 @@ function renderDonut(totalInvested, totalCash) {
 function renderPerfChart() {
   const el = document.getElementById('perf-chart-area');
   if (!el) return;
-
-  const totalCash = (state.cashItems || []).reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
-  const totalPortfolio = state.positions.reduce((s, p) => s + p.currentPrice * p.qty, 0) + totalCash;
+  const fxRate = getFxRate();
+  const totalCashUsd = (state.cashItems || []).reduce((sum,c)=>sum+toUsd(Number(c.amount||0),c.currency,fxRate),0);
+  const totalPortfolioUsd = state.positions.reduce((sum,p)=>sum+toUsd(Number(p.currentPrice||0)*Number(p.qty||0),p.currency,fxRate),0)+totalCashUsd;
 
   const items = state.positions.map((pos, i) => {
-    const invested = pos.avgPrice * pos.qty;
-    const value = pos.currentPrice * pos.qty;
-    const pnl = value - invested;
-    const pct = invested > 0 ? (pnl / invested) * 100 : 0;
-    const weight = totalPortfolio > 0 ? (value / totalPortfolio) * 100 : 0;
-    return { ticker: pos.ticker, pct, pnl, weight, color: PALETTE[i % PALETTE.length] };
+    const investedNative = Number(pos.avgPrice||0)*Number(pos.qty||0);
+    const valueNative = Number(pos.currentPrice||0)*Number(pos.qty||0);
+    const pnlNative = valueNative-investedNative;
+    const pct = investedNative>0 ? pnlNative/investedNative*100 : 0;
+    const valueUsd = toUsd(valueNative,pos.currency,fxRate);
+    const pnlUsd = toUsd(pnlNative,pos.currency,fxRate);
+    const weight = totalPortfolioUsd>0 ? valueUsd/totalPortfolioUsd*100 : 0;
+    return { ticker:pos.ticker,pct,pnl:pnlUsd,weight,color:PALETTE[i%PALETTE.length] };
   });
+  if (!items.length) { el.innerHTML=`<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px;">포지션을 추가하면 성과 비교가 표시됩니다</div>`; return; }
 
-  if (items.length === 0) {
-    el.innerHTML = `<div style="font-size:12px; color:var(--muted); text-align:center; padding:20px;">포지션을 추가하면 성과 비교가 표시됩니다</div>`;
-    return;
-  }
+  let maxVal,getVal,fmtVal;
+  if (perfView==='pct') { maxVal=Math.max(...items.map(i=>Math.abs(i.pct)),1); getVal=i=>i.pct; fmtVal=v=>(v>=0?'+':'')+v.toFixed(2)+'%'; }
+  else if (perfView==='pnl') { maxVal=Math.max(...items.map(i=>Math.abs(i.pnl)),1); getVal=i=>i.pnl; fmtVal=v=>formatBaseUsd(v,true); }
+  else { maxVal=100; getVal=i=>i.weight; fmtVal=v=>v.toFixed(1)+'%'; }
 
-  let maxVal, getVal, fmtVal;
-  if (perfView === 'pct') {
-    maxVal = Math.max(...items.map(i => Math.abs(i.pct)), 1);
-    getVal = i => i.pct;
-    fmtVal = v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
-  } else if (perfView === 'pnl') {
-    maxVal = Math.max(...items.map(i => Math.abs(i.pnl)), 1);
-    getVal = i => i.pnl;
-    fmtVal = v => (v >= 0 ? '+$' : '-$') + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-  } else {
-    maxVal = 100;
-    getVal = i => i.weight;
-    fmtVal = v => v.toFixed(1) + '%';
-  }
-
-  el.innerHTML = items.map(item => {
-    const val = getVal(item);
-    const isPos = val >= 0;
-    const barW = Math.min(100, (Math.abs(val) / maxVal) * 100);
-    const barColor = perfView === 'weight' ? item.color : (isPos ? 'var(--accent)' : 'var(--danger)');
-    const dir = perfView !== 'weight' && !isPos ? 'right' : 'left';
-
-    return `
-      <div style="margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <div style="width:8px; height:8px; border-radius:2px; background:${item.color};"></div>
-            <span style="font-size:13px; font-weight:700;">${item.ticker}</span>
-          </div>
-          <span style="font-size:13px; font-weight:700; font-family:var(--mono); color:${perfView !== 'weight' ? (isPos ? 'var(--accent)' : 'var(--danger)') : 'var(--text)'};">${fmtVal(val)}</span>
-        </div>
-        <div style="height:8px; background:var(--surface2); border-radius:4px; overflow:hidden; position:relative;">
-          ${perfView !== 'weight' ? `
-            <div style="position:absolute; left:50%; top:0; width:1px; height:100%; background:var(--border2);"></div>
-            <div style="position:absolute; ${isPos ? 'left:50%' : 'right:50%'}; top:0; width:${barW/2}%; height:100%; background:${barColor}; border-radius:4px;"></div>
-          ` : `
-            <div style="width:${barW}%; height:100%; background:${barColor}; border-radius:4px;"></div>
-          `}
-        </div>
-      </div>`;
+  el.innerHTML=items.map(item=>{
+    const val=getVal(item), isPos=val>=0, barW=Math.min(100,Math.abs(val)/maxVal*100);
+    const barColor=perfView==='weight'?item.color:(isPos?'var(--accent)':'var(--danger)');
+    return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:2px;background:${item.color};"></div><span style="font-size:13px;font-weight:700;">${escapeHtml(item.ticker)}</span></div><span style="font-size:13px;font-weight:700;font-family:var(--mono);color:${perfView!=='weight'?(isPos?'var(--accent)':'var(--danger)'):'var(--text)'};">${fmtVal(val)}</span></div><div style="height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;position:relative;">${perfView!=='weight'?`<div style="position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--border2);"></div><div style="position:absolute;${isPos?'left:50%':'right:50%'};top:0;width:${barW/2}%;height:100%;background:${barColor};border-radius:4px;"></div>`:`<div style="width:${barW}%;height:100%;background:${barColor};border-radius:4px;"></div>`}</div></div>`;
   }).join('');
 }
 
@@ -2432,7 +2517,7 @@ function renderStopLossBars() {
             <span style="font-size:11px; font-family:var(--mono); color:var(--muted);">${pos.ticker}</span>
           </div>
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:10px; color:var(--muted); font-family:var(--mono);">손절 $${stopPrice.toFixed(2)}</span>
+            <span style="font-size:10px; color:var(--muted); font-family:var(--mono);">손절 ${formatPositionMoney(stopPrice, pos.currency)}</span>
             <span style="font-size:11px; font-weight:700; font-family:var(--mono); color:${isDanger ? 'var(--danger)' : isSafe ? 'var(--accent)' : 'var(--warn)'};">${currentPct >= 0 ? '+' : ''}${currentPct.toFixed(1)}%</span>
           </div>
         </div>
@@ -2458,30 +2543,37 @@ function renderCashModalList() {
   const el = document.getElementById('cash-modal-list');
   const items = state.cashItems || [];
   el.innerHTML = items.map((c, i) => `
-    <div style="display:flex; gap:8px; align-items:center;">
-      <input type="text" value="${c.label}" placeholder="항목명 (예: USD 예수금)" onchange="updateCashItem(${i},'label',this.value)"
-        style="flex:1; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; color:var(--text); font-size:13px; font-family:var(--mono); padding:8px 10px; outline:none;">
-      <input type="number" value="${c.amount}" placeholder="0.00" step="0.01" onchange="updateCashItem(${i},'amount',this.value)"
-        style="width:120px; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; color:var(--text); font-size:13px; font-family:var(--mono); padding:8px 10px; outline:none;">
-      <button onclick="removeCashItem(${i})" style="background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.2); border-radius:7px; color:var(--danger); font-size:14px; width:34px; height:34px; cursor:pointer;">×</button>
+    <div style="display:grid;grid-template-columns:minmax(120px,1fr) 92px 130px 34px;gap:8px;align-items:center;">
+      <input type="text" value="${escapeAttr(c.label)}" placeholder="항목명" onchange="updateCashItem(${i},'label',this.value)"
+        style="min-width:0;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--mono);padding:8px 10px;outline:none;">
+      <select onchange="updateCashItem(${i},'currency',this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:12px;font-family:var(--mono);padding:8px 6px;outline:none;">
+        <option value="USD" ${normalizeCurrency(c.currency)==='USD'?'selected':''}>USD</option>
+        <option value="KRW" ${normalizeCurrency(c.currency)==='KRW'?'selected':''}>KRW</option>
+      </select>
+      <input type="number" value="${Number(c.amount||0)}" placeholder="0" step="${normalizeCurrency(c.currency)==='KRW'?'1':'0.01'}" onchange="updateCashItem(${i},'amount',this.value)"
+        style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--mono);padding:8px 10px;outline:none;">
+      <button onclick="removeCashItem(${i})" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);border-radius:7px;color:var(--danger);font-size:14px;width:34px;height:34px;cursor:pointer;">×</button>
     </div>`).join('');
 }
 
 function addCashRow() {
   if (!state.cashItems) state.cashItems = [];
+if (!(Number(state.fxRateKrwPerUsd) > 0)) state.fxRateKrwPerUsd = 1300;
+state.cashItems = state.cashItems.map(c => ({ ...c, currency: normalizeCurrency(c.currency) }));
+state.positions = (state.positions || []).map(p => ({ ...p, currency: normalizeCurrency(p.currency) }));
 if (!state.scenarioByTicker) state.scenarioByTicker = {};
 if (!state.customChecklists) state.customChecklists = null;
 if (typeof state.checklistEditMode !== 'boolean') state.checklistEditMode = false;
 if (!state.scorecard) state.scorecard = makeDefaultScorecardState();
 state.scorecard = normalizeScorecardState(state.scorecard);
 if (!state.monthlyReports) state.monthlyReports = {};
-  state.cashItems.push({ label: '예수금', amount: 0 });
+  state.cashItems.push({ label: '예수금', amount: 0, currency: 'USD' });
   renderCashModalList();
 }
 
 function updateCashItem(i, field, val) {
   if (!state.cashItems) return;
-  state.cashItems[i][field] = field === 'amount' ? parseFloat(val) || 0 : val;
+  state.cashItems[i][field] = field === 'amount' ? parseFloat(val) || 0 : field === 'currency' ? normalizeCurrency(val) : val;
 }
 
 function removeCashItem(i) {
@@ -2567,7 +2659,14 @@ function renderMultiCharts(forceRefresh=false) {
 // MODAL
 // ════════════════════════════════
 let editIdx = -1;
-function openModal() { editIdx = -1; document.getElementById('add-modal').classList.add('open'); document.getElementById('m-ticker').focus(); }
+function openModal() {
+  editIdx = -1;
+  ['m-ticker','m-name','m-avg','m-qty','m-price','m-target-weight','m-exchange'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('m-currency').value = 'USD';
+  updatePositionCurrencyHint();
+  document.getElementById('add-modal').classList.add('open');
+  document.getElementById('m-ticker').focus();
+}
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
 
 function editPosition(idx) {
@@ -2575,6 +2674,8 @@ function editPosition(idx) {
   const p = state.positions[idx];
   document.getElementById('m-ticker').value = p.ticker;
   document.getElementById('m-name').value = p.name;
+  document.getElementById('m-currency').value = normalizeCurrency(p.currency);
+  updatePositionCurrencyHint();
   document.getElementById('m-avg').value = p.avgPrice;
   document.getElementById('m-qty').value = p.qty;
   document.getElementById('m-price').value = p.currentPrice;
@@ -2590,10 +2691,11 @@ function confirmAddPosition() {
   const qty = parseInt(document.getElementById('m-qty').value) || 0;
   const price = parseFloat(document.getElementById('m-price').value) || avg;
   const targetWeight = Math.max(0, Math.min(100, parseFloat(document.getElementById('m-target-weight').value) || 0));
-  const exchange = document.getElementById('m-exchange').value.trim().toUpperCase() || 'NASDAQ';
+  const currency = normalizeCurrency(document.getElementById('m-currency').value);
+  const exchange = document.getElementById('m-exchange').value.trim().toUpperCase() || (currency === 'KRW' ? 'KRX' : 'NASDAQ');
   if (!ticker) return;
   const existingId = editIdx >= 0 ? state.positions[editIdx]?.id : '';
-  const pos = { id: existingId || createPositionId(ticker), ticker, name, exchange, avgPrice: avg, qty, currentPrice: price, targetWeight, currency: 'USD', status: 'active' };
+  const pos = { id: existingId || createPositionId(ticker), ticker, name, exchange, avgPrice: avg, qty, currentPrice: price, targetWeight, currency, status: 'active' };
   if (editIdx >= 0) state.positions[editIdx] = pos;
   else if (state.positions.length < MAX_POSITIONS) state.positions.push(pos);
   else { toast('⚠ 최대 10개 종목까지만 등록할 수 있습니다'); return; }
@@ -4644,18 +4746,22 @@ function reportThesisState(checklist, coreTheses) {
 function getLongtermPortfolioSnapshot(monthKey) {
   ensurePositionIds();
   const positions = (state.positions || []).slice(0, MAX_POSITIONS);
-  const cash = (state.cashItems || []).reduce((s,c) => s + (Number(c.amount) || 0), 0);
-  const investedValue = positions.reduce((s,p) => s + Number(p.currentPrice || 0) * Number(p.qty || 0), 0);
-  const totalAccount = investedValue + cash;
+  const fxRate = getFxRate();
+  const cashUsd = (state.cashItems || []).reduce((sum,c)=>sum+toUsd(Number(c.amount||0),c.currency,fxRate),0);
+  const investedValueUsd = positions.reduce((sum,p)=>sum+toUsd(Number(p.currentPrice||0)*Number(p.qty||0),p.currency,fxRate),0);
+  const totalAccountUsd = investedValueUsd + cashUsd;
 
   const assets = positions.map((pos, idx) => {
-    const value = Number(pos.currentPrice || 0) * Number(pos.qty || 0);
-    const currentWeight = totalAccount > 0 ? value / totalAccount * 100 : 0;
+    const currency = normalizeCurrency(pos.currency);
+    const nativeValue = Number(pos.currentPrice || 0) * Number(pos.qty || 0);
+    const valueUsd = toUsd(nativeValue, currency, fxRate);
+    const currentWeight = totalAccountUsd > 0 ? valueUsd / totalAccountUsd * 100 : 0;
     const targetWeight = Number(pos.targetWeight || 0);
     const gap = targetWeight > 0 ? targetWeight - currentWeight : null;
     const prev = getPreviousReportAsset(monthKey, pos.ticker);
     const previousPrice = prev ? Number(prev.asset.currentPrice || 0) : null;
-    const priceChange = previousPrice && previousPrice > 0 ? (Number(pos.currentPrice || 0) - previousPrice) / previousPrice * 100 : null;
+    const previousCurrency = prev ? normalizeCurrency(prev.asset.currency || 'USD') : null;
+    const priceChange = previousPrice && previousPrice > 0 && previousCurrency === currency ? (Number(pos.currentPrice || 0) - previousPrice) / previousPrice * 100 : null;
     const checklist = getReportChecklistSignals(pos, monthKey);
     const coreTheses = getReportCoreTheses(pos, monthKey);
     const thesisState = reportThesisState(checklist, coreTheses);
@@ -4666,95 +4772,65 @@ function getLongtermPortfolioSnapshot(monthKey) {
     let action = '비중 유지';
     let actionClass = 'hold';
     const reasons = [];
-
-    // MAIN AXIS 1 — Thesis
     if (checklist.thesisBroken) reasons.push('MAIN · 핵심 Thesis에서 붕괴/무효/손절 신호가 감지되었습니다.');
     else if (thesisState.score < 0) reasons.push('MAIN · 핵심 Thesis 답변이 약화/부정 방향입니다.');
     else if (thesisState.score > 0) reasons.push('MAIN · 핵심 Thesis가 유효/긍정 방향으로 유지되고 있습니다.');
     else reasons.push('MAIN · 핵심 Thesis가 중립이거나 아직 충분히 작성되지 않았습니다.');
 
-    // MAIN AXIS 2 — Scorecard
     if (scorecard.completed) {
       reasons.push(`MAIN · 종목 스코어카드 ${scorecard.score.toFixed(0)}점 · ${scorecard.grade}등급 · ${scorecard.policy}`);
       reasons.push(`MAIN · 사업의 질 ${Number(scorecard.businessQualityScore||0).toFixed(0)}/30 · ${scorecard.structuralCondition?scorecardStructuralConditionLabel(scorecard.structuralCondition):'구조적 조건 기록 없음'}`);
-      if (scorecard.delta !== null) {
-        const sign = scorecard.delta > 0 ? '+' : '';
-        reasons.push(`MAIN · 직전 스코어카드 대비 ${sign}${scorecard.delta.toFixed(1)}점${scorecard.gradeChange < 0 ? ' · 등급 하향' : scorecard.gradeChange > 0 ? ' · 등급 상향' : ''}`);
-      } else reasons.push('MAIN · 비교 가능한 이전 스코어카드 점검 기록이 아직 없습니다.');
-      scorecard.sectorChanges.filter(x=>x.delta!==null && Math.abs(x.delta)>=3).forEach(x=>reasons.push(`스코어카드 변화 · ${x.name} ${x.delta>0?'+':''}${x.delta.toFixed(0)}점`));
+      if (scorecard.delta !== null) reasons.push(`MAIN · 직전 스코어카드 대비 ${scorecard.delta>0?'+':''}${scorecard.delta.toFixed(1)}점${scorecard.gradeChange<0?' · 등급 하향':scorecard.gradeChange>0?' · 등급 상향':''}`);
+      else reasons.push('MAIN · 비교 가능한 이전 스코어카드 점검 기록이 아직 없습니다.');
+      scorecard.sectorChanges.filter(x=>x.delta!==null&&Math.abs(x.delta)>=3).forEach(x=>reasons.push(`스코어카드 변화 · ${x.name} ${x.delta>0?'+':''}${x.delta.toFixed(0)}점`));
       const businessChange=scorecard.sectorChanges.find(x=>x.id==='business');
-      if (businessChange?.delta !== null && businessChange?.delta <= -3) reasons.push(`MAIN · 사업의 질 악화 경보 · 직전 대비 ${businessChange.delta.toFixed(0)}점`);
-      if (Number(scorecard.businessQualityScore||0) < 16) reasons.push('MAIN · 사업의 질 16/30 미만 · 장기 핵심투자 제외 게이트 발동');
-    } else {
-      reasons.push(`MAIN · 종목 스코어카드 ${scorecard.available ? '평가 미완료' : '미등록'} — 신규/추가매수 판단 신뢰도가 낮습니다.`);
-    }
+      if (businessChange?.delta!==null&&businessChange?.delta<=-3) reasons.push(`MAIN · 사업의 질 악화 경보 · 직전 대비 ${businessChange.delta.toFixed(0)}점`);
+      if (Number(scorecard.businessQualityScore||0)<16) reasons.push('MAIN · 사업의 질 16/30 미만 · 장기 핵심투자 제외 게이트 발동');
+    } else reasons.push(`MAIN · 종목 스코어카드 ${scorecard.available?'평가 미완료':'미등록'} — 신규/추가매수 판단 신뢰도가 낮습니다.`);
 
-    // Main decision engine: Thesis + Scorecard first
-    if (checklist.thesisBroken) {
-      action = '투자 이유 붕괴 · 전량 매도 검토'; actionClass = 'exit';
-    } else if (scorecard.completed && scorecard.grade === 'D') {
-      action = '장기 핵심투자 제외 · 매도/축소 검토'; actionClass = 'exit';
-      reasons.push('스코어카드 D등급은 장기 핵심투자 제외 구간입니다.');
-    } else if (thesisState.score < 0 && scorecard.completed && (scorecard.grade === 'C' || scorecard.sharpDeterioration)) {
-      action = '리밸런싱 매도 검토'; actionClass = 'rebalance';
-      reasons.push('Thesis 약화와 스코어카드 저평가/급락이 동시에 나타나 비중 축소 검토를 우선합니다.');
-    } else if (scorecard.completed && scorecard.grade === 'C') {
-      action = '관찰 · 조건부 투자 / 신규매수 보류'; actionClass = 'hold';
-      reasons.push('스코어카드 C등급은 가격 또는 사업 개선 확인이 필요한 관찰 구간입니다.');
-    } else if (thesisState.score < 0) {
-      action = '비중 유지 · 추가매수 보류'; actionClass = 'hold';
-      reasons.push('스코어카드가 A/B여도 Thesis가 약화되어 추가매수보다 Thesis 재점검을 우선합니다.');
-    } else if (targetWeight > 0 && currentWeight - targetWeight >= 3) {
-      action = '리밸런싱 매도 검토'; actionClass = 'rebalance';
-      reasons.push('보조 포트폴리오 규칙 · 현재 비중이 목표 비중을 3%p 이상 초과합니다.');
-    } else if (scorecard.completed && scorecard.grade === 'A') {
-      if (targetWeight <= 0 || gap >= 2) {
-        action = '추가 매수 검토'; actionClass = 'add';
-        reasons.push('스코어카드 A등급 · 최우량 장기투자 후보 + Thesis 비붕괴 상태입니다. 가격/추세는 진입 타이밍을 보조합니다.');
-      } else {
-        action = '비중 유지'; actionClass = 'hold';
-        reasons.push('기업 질은 A등급이지만 현재 비중이 목표 수준에 가까워 추가매수보다 비중 유지를 우선합니다.');
-      }
-    } else if (scorecard.completed && scorecard.grade === 'B') {
-      if (targetWeight <= 0 || gap >= 2) {
-        action = '매수 고려'; actionClass = 'add';
-        reasons.push('스코어카드 B등급 · 우량 장기투자 후보 + Thesis 비붕괴 상태로 매수를 고려합니다. 가격/추세·리스크로 실행 시점을 조절합니다.');
-      } else {
-        action = '비중 유지 · 매수 관찰'; actionClass = 'hold';
-        reasons.push('스코어카드 B등급이지만 현재 비중이 목표 수준에 가까워 관찰을 우선합니다.');
-      }
+    if (checklist.thesisBroken) { action='투자 이유 붕괴 · 전량 매도 검토'; actionClass='exit'; }
+    else if (scorecard.completed&&scorecard.grade==='D') { action='장기 핵심투자 제외 · 매도/축소 검토'; actionClass='exit'; reasons.push('스코어카드 D등급은 장기 핵심투자 제외 구간입니다.'); }
+    else if (thesisState.score<0&&scorecard.completed&&(scorecard.grade==='C'||scorecard.sharpDeterioration)) { action='리밸런싱 매도 검토'; actionClass='rebalance'; reasons.push('Thesis 약화와 스코어카드 저평가/급락이 동시에 나타나 비중 축소 검토를 우선합니다.'); }
+    else if (scorecard.completed&&scorecard.grade==='C') { action='관찰 · 조건부 투자 / 신규매수 보류'; actionClass='hold'; reasons.push('스코어카드 C등급은 가격 또는 사업 개선 확인이 필요한 관찰 구간입니다.'); }
+    else if (thesisState.score<0) { action='비중 유지 · 추가매수 보류'; actionClass='hold'; reasons.push('스코어카드가 A/B여도 Thesis가 약화되어 추가매수보다 Thesis 재점검을 우선합니다.'); }
+    else if (targetWeight>0&&currentWeight-targetWeight>=3) { action='리밸런싱 매도 검토'; actionClass='rebalance'; reasons.push('보조 포트폴리오 규칙 · 현재 비중이 목표 비중을 3%p 이상 초과합니다.'); }
+    else if (scorecard.completed&&scorecard.grade==='A') {
+      if (targetWeight<=0||gap>=2) { action='추가 매수 검토'; actionClass='add'; reasons.push('스코어카드 A등급 · 최우량 장기투자 후보 + Thesis 비붕괴 상태입니다. 가격/추세는 진입 타이밍을 보조합니다.'); }
+      else { action='비중 유지'; actionClass='hold'; reasons.push('기업 질은 A등급이지만 현재 비중이 목표 수준에 가까워 추가매수보다 비중 유지를 우선합니다.'); }
+    } else if (scorecard.completed&&scorecard.grade==='B') {
+      if (targetWeight<=0||gap>=2) { action='매수 고려'; actionClass='add'; reasons.push('스코어카드 B등급 · 우량 장기투자 후보 + Thesis 비붕괴 상태로 매수를 고려합니다. 가격/추세·리스크로 실행 시점을 조절합니다.'); }
+      else { action='비중 유지 · 매수 관찰'; actionClass='hold'; reasons.push('스코어카드 B등급이지만 현재 비중이 목표 수준에 가까워 관찰을 우선합니다.'); }
     } else if (!scorecard.completed) {
-      // Scorecard unavailable: conservative fallback only
-      if (secondaryScore <= -3 || scenario.score <= -2) {
-        action = '비중 유지 · 추가매수 보류'; actionClass = 'hold';
-        reasons.push('스코어카드가 완료되지 않아 보수적으로 운용하며, 보조 신호도 부정적입니다.');
-      } else {
-        action = '비중 유지 · 스코어카드 점검 필요'; actionClass = 'hold';
-        reasons.push('MAIN 판단축인 스코어카드를 완료하기 전에는 신규/추가매수를 확정하지 않습니다.');
-      }
+      if (secondaryScore<=-3||scenario.score<=-2) { action='비중 유지 · 추가매수 보류'; actionClass='hold'; reasons.push('스코어카드가 완료되지 않아 보수적으로 운용하며, 보조 신호도 부정적입니다.'); }
+      else { action='비중 유지 · 스코어카드 점검 필요'; actionClass='hold'; reasons.push('MAIN 판단축인 스코어카드를 완료하기 전에는 신규/추가매수를 확정하지 않습니다.'); }
     }
 
-    if (priceChange !== null) reasons.push(`보조 · 마지막 저장 Snapshot(${prev.month}) 대비 가격 ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%`);
-    else reasons.push('보조 · 이전 Snapshot 가격이 없어 가격 변화율은 이번 저장부터 누적됩니다.');
-    if (targetWeight > 0) reasons.push(`보조 · 현재 비중 ${currentWeight.toFixed(1)}% / 목표 ${targetWeight.toFixed(1)}% (${gap >= 0 ? '부족 ' + gap.toFixed(1) : '초과 ' + Math.abs(gap).toFixed(1)}%p)`);
+    if (priceChange!==null) reasons.push(`보조 · 마지막 저장 Snapshot(${prev.month}) 대비 가격 ${priceChange>=0?'+':''}${priceChange.toFixed(1)}%`);
+    else reasons.push(prev && previousCurrency!==currency ? '보조 · 이전 Snapshot과 통화가 달라 가격 변화율 비교를 생략합니다.' : '보조 · 이전 Snapshot 가격이 없어 가격 변화율은 이번 저장부터 누적됩니다.');
+    if (targetWeight>0) reasons.push(`보조 · 현재 비중 ${currentWeight.toFixed(1)}% / 목표 ${targetWeight.toFixed(1)}% (${gap>=0?'부족 '+gap.toFixed(1):'초과 '+Math.abs(gap).toFixed(1)}%p)`);
     else reasons.push('보조 · 목표 비중 미설정');
 
     return {
-      id: pos.id, ticker: pos.ticker, name: pos.name || pos.ticker, exchange: pos.exchange || '',
-      currentPrice: Number(pos.currentPrice || 0), previousPrice, previousMonth: prev?.month || '', priceChange,
-      qty:Number(pos.qty || 0), value, currentWeight, targetWeight, weightGap:gap,
-      checklist, coreTheses, thesisState,
-      scorecard,
-      scenario:{ label:scenario.label, cls:scenario.cls, score:scenario.score }, secondaryScore,
-      action, actionClass, reasons, color:PALETTE[idx % PALETTE.length]
+      id:pos.id,ticker:pos.ticker,name:pos.name||pos.ticker,exchange:pos.exchange||'',currency,
+      currentPrice:Number(pos.currentPrice||0),previousPrice,previousMonth:prev?.month||'',priceChange,
+      qty:Number(pos.qty||0),value:nativeValue,valueUsd,currentWeight,targetWeight,weightGap:gap,
+      checklist,coreTheses,thesisState,scorecard,
+      scenario:{label:scenario.label,cls:scenario.cls,score:scenario.score},secondaryScore,
+      action,actionClass,reasons,color:PALETTE[idx%PALETTE.length]
     };
   });
 
-  return { month:monthKey, createdAt:new Date().toISOString(), decisionModel:'THESIS_SCORECARD_FIRST_V1', totalAccount, investedValue, cash, assets };
+  return { month:monthKey,createdAt:new Date().toISOString(),decisionModel:'THESIS_SCORECARD_FIRST_V1_MULTI_CURRENCY',fxRateKrwPerUsd:fxRate,totalAccount:totalAccountUsd,totalAccountUsd,cash:cashUsd,cashUsd,investedValue:investedValueUsd,investedValueUsd,assets };
 }
 
-function longtermReportMoney(n) {
-  return '$' + Number(n || 0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function longtermReportMoney(n, currency='USD') {
+  return formatPositionMoney(n, currency);
+}
+function longtermReportDualMoney(usd, fxRate=getFxRate()) {
+  const rate = Number(fxRate)>0?Number(fxRate):getFxRate();
+  const usdText = '$'+Number(usd||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const krwText = '₩'+Math.round(Number(usd||0)*rate).toLocaleString('ko-KR');
+  return `${usdText} / ${krwText}`;
 }
 function longtermReportPct(n, digits=1) {
   if (n === null || n === undefined || !Number.isFinite(Number(n))) return '—';
@@ -4810,11 +4886,11 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
     <div style="margin-bottom:14px;">
       <div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;">${isSaved?'SAVED SNAPSHOT':'LIVE MONTHLY REPORT'}</div>
       <div style="font-size:26px;font-weight:800;margin-top:3px;">${escapeHtml(getChecklistMonthLabel(snapshot.month))} 투자 리포트</div>
-      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;">${isSaved ? '저장 시점 ' + new Date(snapshot.createdAt).toLocaleString('ko-KR') : '현재 대시보드 상태를 실시간 분석'} · MAIN = THESIS + SCORECARD</div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;">${isSaved ? '저장 시점 ' + new Date(snapshot.createdAt).toLocaleString('ko-KR') : '현재 대시보드 상태를 실시간 분석'} · MAIN = THESIS + SCORECARD · 환산 1 USD = ₩${Math.round(Number(snapshot.fxRateKrwPerUsd||getFxRate())).toLocaleString('ko-KR')}</div>
     </div>
     <div class="report-summary-grid">
-      <div class="report-summary-card"><div class="report-summary-label">계좌 총자산</div><div class="report-summary-value">${longtermReportMoney(snapshot.totalAccount)}</div></div>
-      <div class="report-summary-card"><div class="report-summary-label">현금</div><div class="report-summary-value" style="color:var(--accent2)">${longtermReportMoney(snapshot.cash)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">계좌 총자산</div><div class="report-summary-value">${longtermReportDualMoney(snapshot.totalAccount, snapshot.fxRateKrwPerUsd)}</div></div>
+      <div class="report-summary-card"><div class="report-summary-label">현금</div><div class="report-summary-value" style="color:var(--accent2)">${longtermReportDualMoney(snapshot.cash, snapshot.fxRateKrwPerUsd)}</div></div>
       <div class="report-summary-card"><div class="report-summary-label">Scorecard A/B</div><div class="report-summary-value" style="color:var(--accent)">${scoreAB}</div></div>
       <div class="report-summary-card"><div class="report-summary-label">Scorecard C/D</div><div class="report-summary-value" style="color:${scoreCD?'var(--warn)':'var(--text)'}">${scoreCD}</div></div>
       <div class="report-summary-card"><div class="report-summary-label">Score 하락 경보</div><div class="report-summary-value" style="color:${scoreDrop?'var(--danger)':'var(--text)'}">${scoreDrop}</div></div>
@@ -4824,7 +4900,7 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
     <div class="report-grid">
       <div class="report-card">
         <div class="report-card-title">현재 자산 비중</div>
-        <div class="report-card-sub">현재가 × 보유수량 + 현금 기준. 목표비중은 포지션 편집에서 설정합니다.</div>
+        <div class="report-card-sub">USD/KRW 환산 후 현재가 × 보유수량 + 현금 기준. 목표비중은 포지션 편집에서 설정합니다.</div>
         <div class="report-allocation-wrap">
           <canvas id="lt-report-pie" width="200" height="200"></canvas>
           <div class="report-allocation-legend">
@@ -4883,7 +4959,7 @@ function renderLongtermReportSnapshot(snapshot, isSaved=false) {
               </div>
             </div>
             <div class="report-metrics">
-              <div class="report-metric"><div class="report-metric-label">현재가</div><div class="report-metric-value">${longtermReportMoney(a.currentPrice)}</div></div>
+              <div class="report-metric"><div class="report-metric-label">현재가 · ${escapeHtml(a.currency||'USD')}</div><div class="report-metric-value">${longtermReportMoney(a.currentPrice,a.currency||'USD')}</div></div>
               <div class="report-metric"><div class="report-metric-label">마지막 Snapshot 대비</div><div class="report-metric-value" style="color:${a.priceChange===null?'var(--muted)':a.priceChange<0?'var(--danger)':'var(--accent)'}">${longtermReportPct(a.priceChange)}</div></div>
               <div class="report-metric"><div class="report-metric-label">현재 비중</div><div class="report-metric-value">${a.currentWeight.toFixed(1)}%</div></div>
               <div class="report-metric"><div class="report-metric-label">목표 비중</div><div class="report-metric-value">${a.targetWeight>0?a.targetWeight.toFixed(1)+'%':'미설정'}</div></div>
