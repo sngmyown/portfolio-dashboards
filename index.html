@@ -14,6 +14,7 @@
     --muted: #8892a4;
     --green: #7DF9AA;
     --gold: #f0b429;
+    --blue: #4FC3F7;
     --red: #ff6b6b;
   }
   * { box-sizing: border-box; }
@@ -91,6 +92,8 @@
   }
   .long .tag { color: var(--green); border-color: rgba(125,249,170,.3); }
   .covered .tag { color: var(--gold); border-color: rgba(240,180,41,.3); }
+  .research .tag { color: var(--blue); border-color: rgba(79,195,247,.3); }
+  .research { grid-column: 1 / -1; min-height: 180px; }
   .note {
     margin-top: 28px;
     padding: 18px;
@@ -118,6 +121,7 @@
   strong { color: var(--text); }
   @media (max-width: 760px) {
     .grid { grid-template-columns: 1fr; }
+    .research { grid-column: auto; }
     main { padding-top: 40px; }
   }
 </style>
@@ -134,7 +138,7 @@
   <div class="warning">
     <strong>중요:</strong> ZIP 안에서 바로 <code>index.html</code>을 열면 아래 링크가 작동하지 않을 수 있습니다.
     반드시 ZIP을 <strong>압축 해제</strong>한 뒤, 같은 폴더 안에
-    <code>index.html</code>, <code>longterm-dashboard.html</code>, <code>covered-call-dashboard.html</code> 3개가 함께 있는 상태에서 실행하세요.
+    <code>index.html</code>, <code>longterm-dashboard.html</code>, <code>covered-call-dashboard.html</code>, <code>research-master.html</code>이 함께 있는 상태에서 실행하세요.
   </div>
 
   <div class="grid">
@@ -148,6 +152,12 @@
       <span class="tag">COVERED CALL</span>
       <h2>커버드콜 배당 대시보드</h2>
       <p>월별 배당 수령액, 월말 주가, FCF 적립액, 퀀트 점프 기록을 관리하고 6개월 배당·주가 및 재투자 월간 리포트를 생성합니다. 자동저장 및 JSON 백업/복원 기능이 포함되어 있습니다.</p>
+    </a>
+
+    <a class="card research" href="research-master.html">
+      <span class="tag">RESEARCH MASTER</span>
+      <h2>장기투자 기업 분석 연결</h2>
+      <p>현재 브라우저의 Long-Term 보유 종목을 읽어 Stock Screener의 Supabase <code>company_reviews</code> Master Analysis로 연결합니다. 기업 분석은 한 곳에서만 관리하고 계좌 운영 데이터는 기존 Long-Term Dashboard에 유지합니다.</p>
     </a>
   </div>
 
