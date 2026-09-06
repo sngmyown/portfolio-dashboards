@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Master Bridge</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#0a0c0f; --panel:#111827; --panel2:#18202d; --border:rgba(255,255,255,.1);
+    --text:#f0f2f5; --muted:#8892a4; --green:#7DF9AA; --blue:#4FC3F7; --warn:#f0b429;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif}
+  main{width:min(1040px,calc(100% - 32px));margin:0 auto;padding:56px 0 72px}
+  a{color:inherit}
+  .top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:30px}
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+  h1{margin:0 0 10px;font-size:clamp(30px,5vw,48px)}
+  .desc{margin:0;color:var(--muted);line-height:1.7;max-width:760px}
+  .back{padding:10px 14px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--muted);white-space:nowrap}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:22px}
+  .manual{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input{flex:1;min-width:220px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 14px;font-size:15px;text-transform:uppercase}
+  button,.open-btn{border:none;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+  button{background:var(--green);color:#07110b}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .ticker{font-size:22px;font-weight:800;margin-bottom:4px}
+  .name{color:var(--muted);font-size:13px;margin-bottom:16px}
+  .meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}
+  .meta div{background:var(--panel2);border-radius:10px;padding:10px}
+  .meta span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;margin-bottom:3px}
+  .open-btn{width:100%;background:rgba(125,249,170,.1);border:1px solid rgba(125,249,170,.28);color:var(--green)}
+  .empty{color:var(--muted);line-height:1.7}
+  .note{margin-top:22px;color:var(--muted);line-height:1.7;font-size:13px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}.top{flex-direction:column}.back{align-self:flex-start}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <div class="eyebrow">Long-Term × Stock Screener</div>
+      <h1>Research Master</h1>
+      <p class="desc">장기투자 대시보드의 보유 종목을 읽어 Stock Screener의 Supabase Master Analysis로 바로 연결합니다. 이 페이지는 Supabase Secret을 보관하거나 노출하지 않습니다.</p>
+    </div>
+    <a class="back" href="index.html">← Portfolio Home</a>
+  </div>
+
+  <section class="panel">
+    <div class="manual">
+      <input id="tickerInput" placeholder="티커 직접 입력 (예: SHEL, BMW, AVGO)" autocomplete="off">
+      <button id="openTickerBtn">Master Analysis 열기</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Long-Term 보유 종목</h2>
+    <div id="positions" class="grid"></div>
+    <p id="empty" class="empty" hidden>현재 브라우저의 Long-Term Dashboard에 저장된 보유 종목이 없습니다. 먼저 장기투자 대시보드에서 포지션을 등록하거나 위 입력창에서 티커를 직접 입력하세요.</p>
+  </section>
+
+  <div class="note">
+    <strong>역할 분리:</strong> Research Master는 기업 분석을 Stock Screener의 <code>company_reviews</code> 단일 원본에서 확인하기 위한 연결 페이지입니다. 보유 수량·평단·현금·월간 체크리스트는 기존 Long-Term Dashboard의 로컬 상태를 그대로 사용합니다.
+  </div>
+</main>
+
+<script>
+const LONGTERM_STORAGE_KEY = 'lt_portfolio_v2';
+const SCREENER_BASE = 'https://stock-screener-gddrmzkwqkgj3uc75s45o5.streamlit.app/Company_Analysis';
+
+function normalizeTicker(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function analysisUrl(ticker) {
+  return `${SCREENER_BASE}?ticker=${encodeURIComponent(normalizeTicker(ticker))}`;
+}
+
+function openTicker(ticker) {
+  const clean = normalizeTicker(ticker);
+  if (!clean) return;
+  window.open(analysisUrl(clean), '_blank', 'noopener,noreferrer');
+}
+
+function loadLongTermState() {
+  try {
+    const raw = localStorage.getItem(LONGTERM_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    console.warn('Unable to read Long-Term localStorage state', error);
+    return null;
+  }
+}
+
+function renderPositions() {
+  const state = loadLongTermState();
+  const positions = Array.isArray(state?.positions) ? state.positions : [];
+  const valid = positions.filter(pos => normalizeTicker(pos?.ticker));
+  const container = document.getElementById('positions');
+  const empty = document.getElementById('empty');
+  container.innerHTML = '';
+
+  if (!valid.length) {
+    empty.hidden = false;
+    return;
+  }
+
+  empty.hidden = true;
+  valid.forEach(pos => {
+    const ticker = normalizeTicker(pos.ticker);
+    const card = document.createElement('article');
+    card.className = 'card';
+    const qty = Number(pos.qty ?? pos.quantity ?? 0);
+    const avg = Number(pos.avgPrice ?? pos.averagePrice ?? 0);
+    const current = Number(pos.currentPrice ?? 0);
+    card.innerHTML = `
+      <div class="ticker">${ticker}</div>
+      <div class="name">${String(pos.name || ticker)}</div>
+      <div class="meta">
+        <div><span>Quantity</span>${Number.isFinite(qty) ? qty.toLocaleString() : '—'}</div>
+        <div><span>Avg Price</span>${Number.isFinite(avg) && avg ? avg.toLocaleString(undefined,{maximumFractionDigits:2}) : '—'}</div>
+        <div><span>Current</span>${Number.isFinite(current) && current ? current.toLocaleString(undefined,{maximumFractionDigits:2}) : '—'}</div>
+        <div><span>Currency</span>${pos.currency === 'KRW' ? 'KRW' : 'USD'}</div>
+      </div>
+      <a class="open-btn" href="${analysisUrl(ticker)}" target="_blank" rel="noopener noreferrer">130점 Master Analysis 열기 ↗</a>
+    `;
+    container.appendChild(card);
+  });
+}
+
+document.getElementById('openTickerBtn').addEventListener('click', () => openTicker(document.getElementById('tickerInput').value));
+document.getElementById('tickerInput').addEventListener('keydown', event => {
+  if (event.key === 'Enter') openTicker(event.currentTarget.value);
+});
+
+renderPositions();
+window.addEventListener('storage', renderPositions);
+</script>
+</body>
+</html>
